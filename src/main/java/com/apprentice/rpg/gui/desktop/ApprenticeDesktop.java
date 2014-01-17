@@ -12,18 +12,30 @@ import javax.swing.Painter;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
+import org.apache.log4j.Logger;
+
+import com.apprentice.rpg.gui.ControllableView;
+
 /**
  * The main window that every gui element resides into
  * 
  * @author theoklitos
- *
+ * 
  */
-public final class ApprenticeDesktop extends JDesktopPane {
+public final class ApprenticeDesktop extends JDesktopPane implements ControllableView {
 
-	private static final long serialVersionUID = -1030101085173674843L;
+	@SuppressWarnings("unused")
+	private static Logger LOG = Logger.getLogger(ApprenticeDesktop.class);
+
+	private static final long serialVersionUID = -1;
 
 	private Color color;
 	private Image image;
+	private final IApprenticeDesktopControl control;
+
+	public ApprenticeDesktop(final IApprenticeDesktopControl control) {
+		this.control = control;
+	}
 
 	public void add(final JInternalFrame internalFrame) {
 		super.add(internalFrame);
@@ -32,6 +44,10 @@ public final class ApprenticeDesktop extends JDesktopPane {
 		} catch (final PropertyVetoException e) {
 			// do nothing
 		}
+	}
+
+	public IApprenticeDesktopControl getControl() {
+		return control;
 	}
 
 	@Override

@@ -1,8 +1,10 @@
-package com.apprentice.rpg.util;
+package com.apprentice.rpg.gui.util;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +28,8 @@ public final class WindowUtils {
 	public final static String IMAGES_FOLDER = "/images";
 
 	public static void centerComponent(final Component component, final int verticalOffset) {
-		final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		final Rectangle screenSize = ge.getScreenDevices()[0].getDefaultConfiguration().getBounds();
 		final int w = component.getSize().width;
 		final int h = component.getSize().height;
 		final int x = (screenSize.width - w) / 2;
@@ -45,7 +48,7 @@ public final class WindowUtils {
 	}
 
 	/**
-	 * @throws {@link ApprenticeUncheckedException}
+	 * @throws {@link ApprenticeEx}
 	 * 
 	 */
 	public static Image getDefaultDesktopBackgroundImage() {
@@ -65,6 +68,10 @@ public final class WindowUtils {
 		return image;
 	}
 
+	/**
+	 * @throws {@link ApprenticeEx}
+	 * 
+	 */
 	public static Image getImageFromPath(final String path) {
 		Image image;
 		try {

@@ -13,16 +13,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.google.inject.Inject;
-
 public final class BackgroundChangePopupMenu extends MouseAdapter {
 
 	private final JPopupMenu popupMenu;
 	private final IApprenticeDesktopControl desktopControl;
+	private final ApprenticeDesktop desktop;
 
-	@Inject
-	public BackgroundChangePopupMenu(final IApprenticeDesktopControl control) {
-		this.desktopControl = control;
+	public BackgroundChangePopupMenu(final ApprenticeDesktop desktop, final ApprenticeDesktopControl desktopControl) {
+		this.desktopControl = desktopControl;
+		this.desktop = desktop;
 
 		popupMenu = new JPopupMenu();
 		final JMenu colorMenu = new JMenu("Change Background Color");
@@ -109,7 +108,7 @@ public final class BackgroundChangePopupMenu extends MouseAdapter {
 		fromFile.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(final ActionEvent arg0) {
+			public void actionPerformed(final ActionEvent action) {
 				final JFileChooser fileChooser = new JFileChooser();
 				final int result = fileChooser.showDialog(null, "Use Image for Background");
 				if (result == JFileChooser.APPROVE_OPTION) {

@@ -1,4 +1,4 @@
-package com.apprentice.rpg.dao.repository;
+package com.apprentice.rpg.dao.vault;
 
 import com.apprentice.rpg.dao.DatabaseConnection;
 import com.apprentice.rpg.model.body.Type;
@@ -10,16 +10,16 @@ import com.apprentice.rpg.model.body.Type;
  * @author theoklitos
  * 
  */
-public final class TypeRepository {
+public final class TypeVault {
 
 	private final DatabaseConnection connection;
 
-	public TypeRepository(final DatabaseConnection connection) {
+	public TypeVault(final DatabaseConnection connection) {
 		this.connection = connection;
 	}
 	
 	/**
-	 * 
+	 * doh! TODO
 	 */
 	public final Type getTypeForName(final String name) {
 		return null;

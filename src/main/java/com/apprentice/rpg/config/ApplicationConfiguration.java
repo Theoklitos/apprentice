@@ -11,7 +11,7 @@ import com.apprentice.rpg.util.Checker;
  * App-wide configuration settings
  * 
  */
-public class ApplicationConfiguration {
+public class ApplicationConfiguration implements IApplicationConfiguration {
 
 	public enum DesktopBackgroundType {
 		IMAGE,
@@ -19,16 +19,17 @@ public class ApplicationConfiguration {
 		DEFAULT
 	}
 
+	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(ApplicationConfiguration.class);
 
-	public final static String DATABASE_FILENAME = "spellbook";
+	public final static String DATABASE_FILENAME = "vault";
 	public static final String OWNER_EMAIL = "thechristodoulou@gmail.com";
 
-	protected static String getApplicationFolder() {
+	private static String getApplicationFolder() {
 		return System.getProperty("user.dir");
 	}
 
-	public static File getDatabaseFile() {
+	public static File getDefaultDatabaseFile() {
 		return new File(getApplicationFolder(), DATABASE_FILENAME);
 	}
 
@@ -45,7 +46,7 @@ public class ApplicationConfiguration {
 		return backgroundImagePath;
 	}
 
-	public DesktopBackgroundType getChoseBackgroundType() {
+	public DesktopBackgroundType getChosenBackgroundType() {
 		if (desktopBackgroundType == null) {
 			return DesktopBackgroundType.DEFAULT;
 		} else {
@@ -57,23 +58,20 @@ public class ApplicationConfiguration {
 		Checker.checkNonNull("No color is given for background color", true, color);
 		desktopBackgroundType = DesktopBackgroundType.COLOR;
 		backgroundColor = color;
-		LOG.info("Background set to color [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 	}
 
 	public void setBackgroundDefaultImage() {
 		desktopBackgroundType = DesktopBackgroundType.DEFAULT;
-		LOG.info("Background image set to default");
 	}
 
 	public void setBackgroundImagePath(final String path) {
 		Checker.checkNonNull("Background image path is not set", true, path);
 		desktopBackgroundType = DesktopBackgroundType.IMAGE;
 		backgroundImagePath = path;
-		LOG.info("Background image set to file \"" + path + "\"");
 	}
 
 	@Override
 	public String toString() {
-		return "Database at: " + getDatabaseFile() + ". Creator is " + OWNER_EMAIL;
+		return "Database at: " + getDefaultDatabaseFile() + ". Creator is " + OWNER_EMAIL;
 	}
 }

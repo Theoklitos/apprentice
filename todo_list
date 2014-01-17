@@ -1,0 +1,13 @@
+version 0.2!
+
+* db location, warnings and all that
+* when maximized, concurrent excetpion in GlobalWindowState
+* make new player frame! very simple, only non-deep 1st level stuff
+* junit test everything - model - controls
+* code coverage, remove frames from %
+* make integration test project:
+	* test parsing
+	* test db save/load
+* go through all the code, beautify it
+
+* splash screen

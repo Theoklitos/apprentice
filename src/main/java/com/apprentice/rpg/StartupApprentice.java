@@ -7,7 +7,7 @@ import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.config.ApplicationConfiguration;
-import com.apprentice.rpg.gui.IMainControl;
+import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.guice.GuiceBackendConfig;
 import com.apprentice.rpg.guice.GuiceGuiConfig;
 import com.apprentice.rpg.model.PlayerCharacter;
@@ -35,21 +35,17 @@ public final class StartupApprentice {
 
 	private static void startGui() {
 		EventQueue.invokeLater(new Runnable() {
+
 			@Override
 			public void run() {
 				final Injector injector = Guice.createInjector(new GuiceBackendConfig(), new GuiceGuiConfig());
 				final ApplicationConfiguration config = injector.getInstance(ApplicationConfiguration.class);
-				IMainControl mainControl = null;
 				try {
 					UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-					mainControl = injector.getInstance(IMainControl.class); // this starts it all
+					injector.getInstance(IMainControl.class); // this starts it all
 				} catch (final Throwable e) {
 					LOG.error(e.getMessage());
 					e.printStackTrace();
-					if (mainControl == null || !mainControl.isMainFrameVisible()) {
-						// this means that the error was at startup. We should close
-						injector.getInstance(ShutdownHook.class).shutdownGracefully();
-					}
 				}
 			}
 		});

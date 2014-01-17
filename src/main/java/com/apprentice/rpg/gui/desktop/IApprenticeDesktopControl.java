@@ -3,14 +3,9 @@ package com.apprentice.rpg.gui.desktop;
 import java.awt.Color;
 import java.awt.Rectangle;
 
-import com.apprentice.rpg.gui.MainFrame;
+import com.apprentice.rpg.gui.ControlForView;
 
-public interface IApprenticeDesktopControl {
-
-	/**
-	 * Used to set the {@link ApprenticeDesktop} as the main content pane
-	 */
-	void attachDesktopToMainFrame(MainFrame mainFrame);
+public interface IApprenticeDesktopControl extends ControlForView {
 
 	/**
 	 * Gets the {@link Rectangle} bounds of the {@link ApprenticeDesktop}
@@ -35,6 +30,6 @@ public interface IApprenticeDesktopControl {
 	/**
 	 * Sets the background to the stored color/image
 	 */
-	void setStoredBackground();
+	void setBackgroundFromConfig();
 
 }
