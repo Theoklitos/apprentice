@@ -1,6 +1,6 @@
 package com.apprentice.rpg.util;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
  * A box for handling return data that might not always be returned

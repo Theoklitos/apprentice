@@ -1,6 +1,6 @@
 package com.apprentice.rpg.gui.character.player.creation;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
  * When a new character could not be created

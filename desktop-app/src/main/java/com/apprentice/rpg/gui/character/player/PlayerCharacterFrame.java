@@ -16,7 +16,7 @@ public final class PlayerCharacterFrame extends ApprenticeInternalFrame {
 	private static final long serialVersionUID = 1L;
 
 	public PlayerCharacterFrame(final IGlobalWindowState globalWindowState) {
-		super(globalWindowState);
+		super(globalWindowState,"");
 	}
 
 	@Override

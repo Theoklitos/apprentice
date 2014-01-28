@@ -1,0 +1,2 @@
+gradle clean test jacocoTestReport
+firefox build/reports/jacoco/test/html/index.html

@@ -1,6 +1,6 @@
 package com.apprentice.rpg.parsing;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
  * When the {@link JsonParser} has a problem
@@ -14,6 +14,10 @@ public class ParsingEx extends ApprenticeEx {
 
 	public ParsingEx(final String reason) {
 		super(reason);
+	}
+	
+	public ParsingEx(final Throwable e) {
+		super(e);
 	}
 
 }

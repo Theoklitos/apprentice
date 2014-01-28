@@ -71,10 +71,9 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame {
 
 	public NewPlayerCharacterFrame(final IGlobalWindowState globalWindowState,
 			final INewPlayerCharacterFrameControl control, final ApprenticeParser parser) {
-		super(globalWindowState);
+		super(globalWindowState, "New Player Character Creation");
 		this.parser = parser;
 		this.control = control;
-		setTitle("New Player Character Creation");
 
 		getContentPane().setLayout(
 				new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("min:grow"),
@@ -121,7 +120,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame {
 					verifyAllAttributes();
 					final PlayerCharacter newPlayer = assemblePlayerCharater();
 					// one last confirmation
-					if (WindowUtils.getConfigrmationDialog("Your player will be named \"" + newPlayer.getName()
+					if (WindowUtils.showConfigrmationDialog("Your player will be named \"" + newPlayer.getName()
 						+ "\" forever,  for names cannot change. Are you sure you want to proceed?",
 							"Confirm New Player Creation")) {
 						try {

@@ -2,7 +2,7 @@ package com.apprentice.rpg.util;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 public final class Checker {
 

@@ -2,14 +2,15 @@ package com.apprentice.rpg.model;
 
 import com.apprentice.rpg.dice.Roll;
 import com.apprentice.rpg.model.StatBundle.StatType;
+import com.google.common.base.Objects;
 
 /**
- * Each character has 6 "statistics" that represents his qualities, such as Strength, Intelligence, etc
+ * Each character has 6 "statistics" that represents his qualities, such as Strength, Intelligence, etc. A
+ * stat is a positive integer that has a +/- bonus associated with it.
  * 
  */
 public final class Stat {
 
-	@SuppressWarnings("unused")
 	private final StatType statType;
 	private final int originalValue;
 	private int currentValue;
@@ -23,6 +24,17 @@ public final class Stat {
 		this.originalValue = value;
 		this.currentValue = this.originalValue;
 		this.bonus = getDetermineBonus(value);
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof Stat) {
+			final Stat stat = (Stat) other;
+			return Objects.equal(statType, stat.statType) && Objects.equal(getOriginalValue(), stat.getOriginalValue())
+				&& Objects.equal(getValue(), stat.getValue()) && Objects.equal(getBonus(), stat.getBonus());
+		} else {
+			return false;
+		}
 	}
 
 	public int getBonus() {
@@ -51,8 +63,24 @@ public final class Stat {
 
 	}
 
+	/**
+	 * The original (unmodified) value for this stat. Depending on buffs and/or damage, this might differ from
+	 * the getCurrentValue() one
+	 */
+	public int getOriginalValue() {
+		return originalValue;
+	}
+
+	/**
+	 * The current numerical value for this stat
+	 */
 	public int getValue() {
 		return currentValue;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(statType, getOriginalValue(), getValue(), getBonus());
 	}
 
 	public void setValue(final int value) {

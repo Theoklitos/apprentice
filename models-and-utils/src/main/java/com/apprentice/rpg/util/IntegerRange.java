@@ -75,7 +75,13 @@ public final class IntegerRange implements Comparable<IntegerRange> {
 		if (this.min < o.min) {
 			return -1;
 		} else if (this.min == o.min) {
-			return 0;
+			if (this.max < o.max) {
+				return -1;
+			} else if (this.max == o.max) {
+				return 0;
+			} else {
+				return 1;
+			}
 		} else {
 			return 1;
 		}
@@ -109,6 +115,6 @@ public final class IntegerRange implements Comparable<IntegerRange> {
 
 	@Override
 	public String toString() {
-		return "From " + getMin() + " to " + getMax() + ". " + size() + " numbers";
+		return getMin() + "-" + getMax();
 	}
 }

@@ -11,7 +11,7 @@ import com.apprentice.rpg.util.Checker;
  * App-wide configuration settings
  * 
  */
-public class ApplicationConfiguration implements IApplicationConfiguration {
+public class ApprenticeConfiguration implements IApprenticeConfiguration {
 
 	public enum DesktopBackgroundType {
 		IMAGE,
@@ -20,7 +20,7 @@ public class ApplicationConfiguration implements IApplicationConfiguration {
 	}
 
 	@SuppressWarnings("unused")
-	private static Logger LOG = Logger.getLogger(ApplicationConfiguration.class);
+	private static Logger LOG = Logger.getLogger(ApprenticeConfiguration.class);
 
 	/**
 	 * this is not the db4o but a text config file that is safely tucked away and stores the path to the db4o

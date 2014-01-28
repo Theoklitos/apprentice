@@ -1,5 +1,7 @@
 package com.apprentice.rpg.gui.main;
 
+import java.util.logging.Level;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -11,7 +13,7 @@ public class EventBarControl extends AppenderSkeleton implements IEventBarContro
 
 	@Override
 	protected void append(final LoggingEvent event) {
-		if (view != null) {
+		if (view != null && event.getLevel().equals(Level.INFO)) {
 			view.showMessage(event.getMessage().toString());
 		}
 	}

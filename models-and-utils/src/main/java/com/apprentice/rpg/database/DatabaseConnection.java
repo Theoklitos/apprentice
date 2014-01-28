@@ -1,7 +1,6 @@
-package com.apprentice.rpg.dao;
+package com.apprentice.rpg.database;
 
-import com.apprentice.rpg.config.ApplicationConfiguration;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import java.util.List;
 
 /**
  * Connection to some persistent storage
@@ -22,14 +21,9 @@ public interface DatabaseConnection {
 	void commit();
 
 	/**
-	 * Returns the single stored {@link ApplicationConfiguration} or creates a fresh one, if none yet exists
+	 * deletes the given object from the database. 
 	 */
-	ApplicationConfiguration getConfiguration();
-
-	/**
-	 * Returns the single stored {@link IGlobalWindowState} or creates a fresh one, if none yet exists
-	 */
-	IGlobalWindowState getGlobalWindowState();
+	void delete(Object item);
 
 	/**
 	 * Returns a string that describes where this database is located, i.e. if its a file, returns its path
@@ -38,8 +32,20 @@ public interface DatabaseConnection {
 	String getLocation();
 
 	/**
-	 * Overwrites (or creates, if it does not exist) the given object
+	 * returns a list of all the queried objects that exist in the database
 	 */
-	void save(final Object object);
+	<T> List<T> load(Class<T> classToLoad);
+
+	/**
+	 * Opens the database
+	 */
+	void openDB() throws ApprenticeDatabaseEx;
+
+	/**
+	 * Overwrites (or creates, if it does not exist) the given object
+	 * 
+	 * @throws ApprenticeDatabaseEx
+	 */
+	void save(final Object item) throws ApprenticeDatabaseEx;
 
 }

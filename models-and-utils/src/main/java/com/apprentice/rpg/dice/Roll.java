@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.util.Checker;
 import com.apprentice.rpg.util.OccurrenceList;
 import com.google.common.collect.Lists;

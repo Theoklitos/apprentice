@@ -1,19 +1,12 @@
 version 0.2!
-* make integration test project:
-	* test parsing
-	* test db save/load
-	* put model code into new project ^
-* junit test everything - model - controls
-* code coverage, remove frames from %
-* go through all the code, beautify it
-
+* finish vault frame
+* junit test everything - controls
+* investigate android side
 
 Version 3!
-* container frames (only types for now)
 * work on new player
 * player frame!!
+* scrollable!
 * splash screen
-* scroll desktop/coolize desktop
 * restore closed frames
-* do not open opened frames
 * database open/close

@@ -1,15 +1,13 @@
-package com.apprentice.rpg.dao;
+package com.apprentice.rpg.database;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.ApprenticeEx;
-import com.apprentice.rpg.config.ApplicationConfiguration;
-import com.apprentice.rpg.gui.GlobalWindowState;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import com.db4o.Db4oEmbedded;
 import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ObjectSet;
+import com.db4o.ext.Db4oIOException;
 
 /**
  * Implementation for db4o persistence
@@ -21,12 +19,13 @@ public class Db4oConnection implements DatabaseConnection {
 
 	private static Logger LOG = Logger.getLogger(Db4oConnection.class);
 
-	// TODO
-	public final EmbeddedObjectContainer database;
+	public EmbeddedObjectContainer database;
 	private final String databaseLocation;
 
 	public Db4oConnection(final EmbeddedObjectContainer database, final String databaseLocation) {
 		this.database = database;
+		database.ext().configure().updateDepth(Integer.MAX_VALUE);
+		database.ext().configure().exceptionsOnNotStorable(false);
 		this.databaseLocation = databaseLocation;
 	}
 
@@ -50,13 +49,8 @@ public class Db4oConnection implements DatabaseConnection {
 	}
 
 	@Override
-	public ApplicationConfiguration getConfiguration() {
-		return (ApplicationConfiguration) getUniqueObjectFromDB(ApplicationConfiguration.class);
-	}
-
-	@Override
-	public IGlobalWindowState getGlobalWindowState() {
-		return (IGlobalWindowState) getUniqueObjectFromDB(GlobalWindowState.class);
+	public void delete(final Object item) {		
+		database.delete(item);		
 	}
 
 	@Override
@@ -64,46 +58,29 @@ public class Db4oConnection implements DatabaseConnection {
 		return databaseLocation;
 	}
 
-	/**
-	 * used for when needing to get unique objects from DB
-	 */
-	private Object getUniqueObjectFromDB(final Class<?> type) {
-		final ObjectSet<?> resultSet = database.query(type);
-		Object result = null;
-		if (resultSet.size() != 1) {
-			if (resultSet.size() > 1) {
-				LOG.error("There were multiple " + type.getSimpleName()
-					+ " objects stored. Check your database code! For now, will create a new one.");
-				for (final Object reduntant : resultSet) {
-					database.delete(reduntant);
-				}
-			}
+	@Override
+	public <T> List<T> load(final Class<T> classToLoad) {
+		final ObjectSet<T> resultObjectSet = database.query(classToLoad);		
+		return resultObjectSet.subList(0, resultObjectSet.size());
+	}
+
+	@Override
+	public final void openDB() {
+		if (database.ext().isClosed()) {
 			try {
-				result = type.getConstructors()[0].newInstance();
-			} catch (final InstantiationException e) {
-				throw new ApprenticeEx(e);
-			} catch (final IllegalAccessException e) {
-				throw new ApprenticeEx(e);
-			} catch (final IllegalArgumentException e) {
-				throw new ApprenticeEx(e);
-			} catch (final InvocationTargetException e) {
-				throw new ApprenticeEx(e);
-			} catch (final SecurityException e) {
-				throw new ApprenticeEx(e);
+				database = Db4oEmbedded.openFile(databaseLocation);
+			} catch (final Db4oIOException e) {
+				throw new ApprenticeDatabaseEx(e);
 			}
-			save(result);
 		} else {
-			result = resultSet.get(0);
-			activate(result);
+			LOG.warn("Call to open database, but database was already open.");
 		}
-		return result;
 	}
 
 	@Override
 	public void save(final Object object) {
 		activate(object);
 		database.store(object);
-		LOG.debug("Stored " + object.getClass().getSimpleName() + " in the vault.");
 	}
 
 	@Override

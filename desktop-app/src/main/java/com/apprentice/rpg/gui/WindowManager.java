@@ -2,8 +2,9 @@ package com.apprentice.rpg.gui;
 
 import java.awt.EventQueue;
 
-import com.apprentice.rpg.config.IApplicationConfiguration;
-import com.apprentice.rpg.dao.DatabaseConnection;
+import com.apprentice.rpg.config.IApprenticeConfiguration;
+import com.apprentice.rpg.database.DatabaseConnection;
+import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.gui.character.player.creation.INewPlayerCharacterFrameControl;
 import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrame;
 import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
@@ -15,6 +16,8 @@ import com.apprentice.rpg.gui.log.LogFrame;
 import com.apprentice.rpg.gui.main.IEventBarControl;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainFrame;
+import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
+import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -34,27 +37,33 @@ public final class WindowManager implements IWindowManager {
 	private final ILogFrameControl logFrameControl;
 	private final IDatabaseSettingsFrameControl databaseSettingsFrameControl;
 	private final INewPlayerCharacterFrameControl newPlayerCharacterFrameControl;
+	private final ITypeAndBodyPartFrameControl typeAndBodyPartFrameControl;
 
-	private final IApplicationConfiguration configuration;
+	private final IApprenticeConfiguration configuration;
 	private final IGlobalWindowState globalWindowState;
 	private final ApprenticeParser parser;
 	private final DatabaseConnection database;
 	private final Injector injector;
+	private final ApprenticeEventBus eventBus;
 
 	@Inject
 	public WindowManager(final Injector injector) {
 		this.injector = injector;
 		database = injector.getInstance(DatabaseConnection.class);
-		configuration = injector.getInstance(IApplicationConfiguration.class);		
-		globalWindowState = injector.getInstance(IGlobalWindowState.class);		
+		configuration = injector.getInstance(IApprenticeConfiguration.class);
+		globalWindowState = injector.getInstance(IGlobalWindowState.class);
 		parser = injector.getInstance(ApprenticeParser.class);
+		eventBus = injector.getInstance(ApprenticeEventBus.class);
 
 		mainControl = injector.getInstance(IMainControl.class);
 		desktopControl = injector.getInstance(IApprenticeDesktopControl.class);
 		eventBarControl = injector.getInstance(IEventBarControl.class);
 		logFrameControl = injector.getInstance(ILogFrameControl.class);
 		databaseSettingsFrameControl = injector.getInstance(IDatabaseSettingsFrameControl.class);
+		eventBus.register(databaseSettingsFrameControl);
 		newPlayerCharacterFrameControl = injector.getInstance(INewPlayerCharacterFrameControl.class);
+		eventBus.register(newPlayerCharacterFrameControl);
+		typeAndBodyPartFrameControl = injector.getInstance(ITypeAndBodyPartFrameControl.class);
 	}
 
 	/**
@@ -81,7 +90,7 @@ public final class WindowManager implements IWindowManager {
 	}
 
 	@Override
-	public void openLogFrame() {
+	public void showLogFrame() {
 		EventQueue.invokeLater(new Runnable() {
 
 			@Override
@@ -100,7 +109,7 @@ public final class WindowManager implements IWindowManager {
 			@Override
 			public void run() {
 				final DatabaseSettingsFrame databaseFrame =
-					new DatabaseSettingsFrame(globalWindowState, databaseSettingsFrameControl);
+					new DatabaseSettingsFrame(globalWindowState, databaseSettingsFrameControl);				
 				databaseSettingsFrameControl.setView(databaseFrame);
 				desktop.add(databaseFrame);
 			}
@@ -119,5 +128,20 @@ public final class WindowManager implements IWindowManager {
 				desktop.add(newPCFrame);
 			}
 		});
+	}
+
+	@Override
+	public void showTypeAndBodyPartFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final TypeAndBodyPartFrame tbpFrame =
+					new TypeAndBodyPartFrame(globalWindowState, typeAndBodyPartFrameControl);
+				typeAndBodyPartFrameControl.setView(tbpFrame);
+				desktop.add(tbpFrame);
+			}
+		});
+
 	}
 }

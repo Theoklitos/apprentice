@@ -13,15 +13,14 @@ import javax.swing.UIManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.config.ApplicationConfiguration;
+import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.util.WindowUtils;
-import com.apprentice.rpg.guice.GuiceConfigBackend;
 import com.apprentice.rpg.guice.GuiceConfigGui;
+import com.apprentice.rpg.model.guice.GuiceConfigBackend;
 import com.apprentice.rpg.util.Box;
 import com.db4o.Db4oEmbedded;
 import com.db4o.EmbeddedObjectContainer;
-import com.db4o.config.EmbeddedConfiguration;
 import com.db4o.ext.Db4oException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -81,7 +80,7 @@ public final class StartupApprentice {
 			}
 		}
 		if (StringUtils.isEmpty(databasePath)) {
-			databasePath = ApplicationConfiguration.getDefaultDatabasePath();
+			databasePath = ApprenticeConfiguration.getDefaultDatabasePath();
 			if (!new File(databasePath).exists()) {
 				databasePath = getDatabaseLocationWhenExpectedFileWasNotFound(databasePath);
 			}
@@ -113,9 +112,9 @@ public final class StartupApprentice {
 	private static Injector initializeDependencies(final String databasePath) {
 		EmbeddedObjectContainer container = null;
 		try {
-			final EmbeddedConfiguration configuration = Db4oEmbedded.newConfiguration();
-			configuration.common().updateDepth(Integer.MAX_VALUE);
-			container = Db4oEmbedded.openFile(configuration, databasePath);
+			//final EmbeddedConfiguration configuration = Db4oEmbedded.newConfiguration();
+			//configuration.common().updateDepth(Integer.MAX_VALUE);
+			container = Db4oEmbedded.openFile(databasePath);
 		} catch (final Db4oException e) {
 			WindowUtils
 					.showErrorMessage(

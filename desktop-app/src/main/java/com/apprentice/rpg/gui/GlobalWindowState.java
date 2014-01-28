@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.util.Box;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 
 /**
@@ -22,6 +23,14 @@ public final class GlobalWindowState implements IGlobalWindowState {
 
 	public GlobalWindowState() {
 		globalState = Maps.newHashMap();
+	}
+
+	/**
+	 * for debugging, prints out info about all the containd {@link WindowState}
+	 * @return
+	 */
+	public String getDetailedInformation() {
+		return Joiner.on("\n").withKeyValueSeparator(":").join(globalState);
 	}
 
 	@Override
@@ -44,7 +53,7 @@ public final class GlobalWindowState implements IGlobalWindowState {
 			globalState.put(name, new WindowState(state.getBounds(), true));
 		}
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Holding states for " + globalState.keySet().size() + " frame classes (" + globalState.size()
@@ -52,7 +61,7 @@ public final class GlobalWindowState implements IGlobalWindowState {
 	}
 
 	@Override
-	public void updateWindow(final String name, final Rectangle bounds, final boolean isOpen) {
-		globalState.put(name, new WindowState(bounds, true));
+	public void updateWindow(final String name, final Rectangle bounds, final boolean isOpen) {		
+		globalState.put(name, new WindowState(bounds, isOpen));
 	}
 }

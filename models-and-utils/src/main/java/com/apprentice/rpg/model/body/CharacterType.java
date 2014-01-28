@@ -2,33 +2,86 @@ package com.apprentice.rpg.model.body;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.apprentice.rpg.util.Checker;
+import com.google.common.base.Objects;
+
 /**
  * A character type is an existing {@link Type} plus his size and his race
  * 
  * @author theoklitos
  * 
  */
+//@JsonDeserialize(using = CharacterTypeDeserializer.class)
 public final class CharacterType {
 
 	private final static String NOT_SPECIFIED_RACE = "Not specified";
 
-	private final Type type;
+	private final IType type;
 	private final Size size;
 	private String race;
+
+	// used by jackson
+	@SuppressWarnings("unused")
+	private CharacterType() {
+		type = null;
+		size = Size.DIMUNITIVE;
+		race = null;
+	}
 
 	/**
 	 * Use this contructor if you don't care about the race
 	 */
-	public CharacterType(final Type type, final Size size) {
+	public CharacterType(final IType type, final Size size) {
 		this(type, size, null);
 	}
 
-	public CharacterType(final Type type, final Size size, final String race) {
+	public CharacterType(final IType type, final Size size, final String race) {
 		if (StringUtils.isBlank(race)) {
-			this.race = NOT_SPECIFIED_RACE;
+			this.setRace(NOT_SPECIFIED_RACE);
+		} else {
+			this.setRace(race);
 		}
+		Checker.checkNonNull("Empty character type and/or size", true, type, size);
 		this.type = type;
 		this.size = size;
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof CharacterType) {
+			final CharacterType otherCT = (CharacterType) other;
+			return Objects.equal(getType(), otherCT.getType()) && Objects.equal(getSize(), otherCT.getSize())
+				&& Objects.equal(getRace(), otherCT.getRace());
+		} else {
+			return false;
+		}
+	}
+
+	public String getRace() {
+		return race;
+	}
+
+	public Size getSize() {
+		return size;
+	}
+	
+	/**
+	 * What is the type of this character? Humanoid? Quadropod?
+	 */
+	public IType getType() {
+		return type;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getType(), getSize(), getRace());
+	}
+
+	/**
+	 * what race does this character belong to? this is not specific - can be any stirng
+	 */
+	public void setRace(final String race) {
+		this.race = race;
 	}
 
 }

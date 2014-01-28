@@ -8,7 +8,14 @@ package com.apprentice.rpg.util;
  */
 public final class OSValidator {
 
-	public static final String OS_STRING = System.getProperty("os.name").toLowerCase();
+	protected static String OS_STRING = System.getProperty("os.name").toLowerCase();
+
+	/**
+	 * returns a string that describes the OS
+	 */
+	public static String getOperatingSystem() {
+		return OS_STRING;
+	}
 
 	public static boolean isMac() {
 		return OS_STRING.contains("mac");

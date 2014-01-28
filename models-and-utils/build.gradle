@@ -1,0 +1,8 @@
+
+dependencies {
+	compile group: 'org.codehaus.jackson', name: 'jackson-mapper-lgpl', version: '1.9.13'
+	compile group: 'com.sigpwned', name: 'jsonification', version: '2.0.0'
+	compile group: 'com.db4o', name: 'db4o-full-java5', version: '8.1-SNAPSHOT'
+	compile group: 'com.google.inject', name: 'guice', version: '3.0'	
+}
+            

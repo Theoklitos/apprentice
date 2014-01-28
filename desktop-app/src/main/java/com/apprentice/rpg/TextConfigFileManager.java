@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.config.ApplicationConfiguration;
+import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.OSValidator;
 
@@ -33,9 +33,9 @@ public final class TextConfigFileManager {
 		File expectedDbFile = null;
 		if (OSValidator.isWindows()) {
 			expectedDbFile =
-				new File(System.getenv("APPDATA") + "\\apprentice\\" + ApplicationConfiguration.TEXT_CONFIG_FILENAME);
+				new File(System.getenv("APPDATA") + "\\apprentice\\" + ApprenticeConfiguration.TEXT_CONFIG_FILENAME);
 		} else if (OSValidator.isUnix()) {
-			expectedDbFile = new File(System.getProperty("user.home") + "/." + ApplicationConfiguration.TEXT_CONFIG_FILENAME);
+			expectedDbFile = new File(System.getProperty("user.home") + "/." + ApprenticeConfiguration.TEXT_CONFIG_FILENAME);
 		}
 		if (expectedDbFile != null) {
 			return Box.with(expectedDbFile);
@@ -71,7 +71,7 @@ public final class TextConfigFileManager {
 				LOG.error("Error while writing config file: " + e.getMessage());
 			}
 		} else {
-			LOG.warn("Unsupported OS! User is using " + OSValidator.OS_STRING + ". Config file not written.");
+			LOG.warn("Unsupported OS! User is using " + OSValidator.getOperatingSystem() + ". Config file not written.");
 		}
 	}
 }

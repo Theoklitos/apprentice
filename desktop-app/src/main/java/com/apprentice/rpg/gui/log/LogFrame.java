@@ -5,9 +5,9 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
+import com.apprentice.rpg.gui.ApprenticeTable;
 import com.apprentice.rpg.gui.IGlobalWindowState;
 
 /**
@@ -20,25 +20,21 @@ public final class LogFrame extends ApprenticeInternalFrame {
 
 	private static final long serialVersionUID = -1L;
 
-	private final JTable table;
+	private final ApprenticeTable table;
 	private final LogFrameTableModel tableModel;
 	private final JScrollPane tableScrollPane;
 
 	public LogFrame(final IGlobalWindowState globalWindowState) {
-		super(globalWindowState);
-		setTitle("Apprentice Log");
-		
+		super(globalWindowState, "Apprentice Log");
+
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		tableModel = new LogFrameTableModel();
-
-		table = new JTable(tableModel);
-		//table.setAutoResizeMode(JTable.);
+		table = new ApprenticeTable(tableModel);
 		table.getColumnModel().getColumn(0).setMaxWidth(75);
-		table.getColumnModel().getColumn(1).setMaxWidth(70);		
+		table.getColumnModel().getColumn(1).setMaxWidth(70);
 		tableScrollPane = new JScrollPane(table);
 		getContentPane().add(tableScrollPane, BorderLayout.CENTER);
-		setVisible(true);
 	}
 
 	/**
@@ -58,9 +54,7 @@ public final class LogFrame extends ApprenticeInternalFrame {
 	 * Wipes the table
 	 */
 	public void clearMessages() {
-		for (int i = 0; i < tableModel.getRowCount(); i++) {
-			tableModel.removeRow(i);
-		}
+		table.clearRows();
 	}
 
 	@Override

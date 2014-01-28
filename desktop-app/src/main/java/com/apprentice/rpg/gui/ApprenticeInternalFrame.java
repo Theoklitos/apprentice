@@ -26,8 +26,14 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 
 	private final IGlobalWindowState globalWindowState;
 
-	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState) {
-		this.globalWindowState = globalWindowState;
+	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState, final String title) {		
+		this.globalWindowState = globalWindowState;	
+		setTitle(title);
+		if (globalWindowState.getWindowState(getTitle()).hasContent()) {			
+			if( globalWindowState.getWindowState(getTitle()).getContent().isOpen()) {
+				throw new FrameAlreadyOpenEx("Tried to open frame \"" + getTitle() + "\" which was already open.");
+			}				
+		}		
 		WindowUtils.setInformationIcon(this);
 		setClosable(true);
 		setResizable(true);
@@ -35,6 +41,7 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 		setIconifiable(true);
 		setStateListeners();
 		setMinimumSize(getInitialSize());
+		setVisible(true);
 	}
 
 	/**
@@ -53,15 +60,21 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 	private final void setStateListeners() {
 		addInternalFrameListener(new InternalFrameListener() {
 
+			private boolean hasJustOpened;
+
 			@Override
-			public void internalFrameActivated(final InternalFrameEvent event) {				
-				final Box<WindowState> oldState = globalWindowState.getWindowState(getTitle());
-				if (oldState.hasContent()) {
-					getReferenceToSelf().setBounds(oldState.getContent().getBounds());
-				} else {
-					getReferenceToSelf().setSize(getInitialSize());
-					WindowUtils.centerInternalComponent(getParent(), getReferenceToSelf(), 0);
-					globalWindowState.updateWindow(getTitle(), getBounds(), true);
+			public void internalFrameActivated(final InternalFrameEvent event) {
+				if (hasJustOpened) {
+					final Box<WindowState> oldState = globalWindowState.getWindowState(getTitle());					
+					if (oldState.hasContent()) {
+						getReferenceToSelf().setBounds(oldState.getContent().getBounds());
+						globalWindowState.setWindowOpen(getTitle());
+					} else {
+						getReferenceToSelf().setSize(getInitialSize());
+						WindowUtils.centerInternalComponent(getParent(), getReferenceToSelf(), 0);
+						globalWindowState.updateWindow(getTitle(), getBounds(), true);
+					}
+					hasJustOpened = false;
 				}
 			}
 
@@ -71,7 +84,7 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 			}
 
 			@Override
-			public void internalFrameClosing(final InternalFrameEvent event) {				
+			public void internalFrameClosing(final InternalFrameEvent event) {
 				// nothing
 			}
 
@@ -86,13 +99,13 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 			}
 
 			@Override
-			public void internalFrameIconified(final InternalFrameEvent arg0) {
+			public void internalFrameIconified(final InternalFrameEvent event) {
 				// nothing
 			}
 
 			@Override
-			public void internalFrameOpened(final InternalFrameEvent arg0) {
-				// nothing
+			public void internalFrameOpened(final InternalFrameEvent event) {
+				hasJustOpened = true;
 			}
 		});
 	}

@@ -1,6 +1,6 @@
 package com.apprentice.rpg.dice;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 public class RollException extends ApprenticeEx {
 

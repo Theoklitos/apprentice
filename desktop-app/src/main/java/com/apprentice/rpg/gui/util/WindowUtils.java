@@ -17,8 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 
-import com.apprentice.rpg.ApprenticeEx;
 import com.apprentice.rpg.StartupApprentice;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 public final class WindowUtils {
 
@@ -45,13 +45,6 @@ public final class WindowUtils {
 		final int x = (parentSize.width - w) / 2;
 		final int y = (parentSize.height - h) / 2;
 		component.setLocation(x, y - verticalOffset);
-	}
-
-	/**
-	 * Shows a simple yes/no dialog. Returns true if yes.
-	 */
-	public static boolean getConfigrmationDialog(final String question, final String title) {
-		return JOptionPane.showConfirmDialog(null, question, title, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION;
 	}
 
 	/**
@@ -110,12 +103,26 @@ public final class WindowUtils {
 		frame.setFrameIcon(new ImageIcon(imageURL));
 	}
 
+	/**
+	 * Shows a simple yes/no dialog. Returns true if yes.
+	 */
+	public static boolean showConfigrmationDialog(final String question, final String title) {
+		return JOptionPane.showConfirmDialog(null, question, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+	}
+
 	public static void showErrorMessage(final String errorMessage) {
 		showErrorMessage(errorMessage, "Error!");
 	}
 
 	public static void showErrorMessage(final String errorMessage, final String title) {
 		JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.ERROR_MESSAGE);
+	}
+
+	/**
+	 * show a JInputDialog with a jtextfield, that returns a string
+	 */
+	public static String showInputDialog(final String message, final String title) {
+		return JOptionPane.showInputDialog(null, message, title, JOptionPane.NO_OPTION);
 	}
 
 	public static int showQuestionMessage(final String question, final String[] options, final String title) {

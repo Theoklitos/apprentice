@@ -1,6 +1,6 @@
 package com.apprentice.rpg.gui.character.player.creation;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
  * A player of the same name was to be created. Names must be unique

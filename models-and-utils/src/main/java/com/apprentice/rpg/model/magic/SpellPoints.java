@@ -1,5 +1,7 @@
 package com.apprentice.rpg.model.magic;
 
+import com.apprentice.rpg.model.CurrentMaximumPair;
+
 /**
  * The "mana" of a player; the bigger this number, the more spells he can cast. Based on D&D 2.5 edition,
  * Spells & Magic
@@ -9,56 +11,35 @@ package com.apprentice.rpg.model.magic;
  */
 public final class SpellPoints {
 
-	private int currentSpellPoints;
-	private int maximumSpellPoints;
+	private final CurrentMaximumPair values;
 
 	/**
 	 * No spell points
 	 */
 	public SpellPoints() {
-		this(0, 0);
+		this(0);
 	}
 
 	/**
 	 * current spell points will be set to max
 	 */
 	public SpellPoints(final int maximumSpellPoints) {
-		this(maximumSpellPoints, maximumSpellPoints);
-	}
-
-	public SpellPoints(final int currentSpellPoints, final int maximumSpellPoints) {
-		setMaximumSpellPoints(maximumSpellPoints);
-		setCurrentSpellPoints(currentSpellPoints);
+		values = new CurrentMaximumPair(0);
 	}
 
 	public int getCurrentSpellPoints() {
-		return currentSpellPoints;
+		return values.getCurrent();
 	}
 
 	public int getMaximumSpellPoints() {
-		return maximumSpellPoints;
+		return values.getMaximum();
 	}
 
-	/**
-	 * throws {@link IllegalArgumentException} cannot be larger than maximum spell points!
-	 */
-	public void setCurrentSpellPoints(final int currentSpellPoints) throws IllegalArgumentException {
-		if (currentSpellPoints > getMaximumSpellPoints()) {
-			throw new IllegalArgumentException("Current spell points (" + currentSpellPoints
-				+ ") where set to be larger than the maximum (" + getMaximumSpellPoints() + ")");
-		} else {
-			this.currentSpellPoints = currentSpellPoints;
-		}
+	public void setCurrentSpellPoints(final int currentSpellPoints) {
+		values.setCurrent(currentSpellPoints);
 	}
 
-	/**
-	 * sets the maximum spell points. If this is smaller than the current spell points, they are reduced to
-	 * the max
-	 */
 	public void setMaximumSpellPoints(final int maximumSpellPoints) {
-		this.maximumSpellPoints = maximumSpellPoints;
-		if (getCurrentSpellPoints() > maximumSpellPoints) {
-			setCurrentSpellPoints(maximumSpellPoints);
-		}
+		values.setMaximum(maximumSpellPoints);
 	}
 }

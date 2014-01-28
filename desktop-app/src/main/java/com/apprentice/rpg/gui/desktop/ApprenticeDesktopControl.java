@@ -6,24 +6,24 @@ import java.awt.Rectangle;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.ApprenticeEx;
-import com.apprentice.rpg.config.ApplicationConfiguration;
-import com.apprentice.rpg.config.ApplicationConfiguration.DesktopBackgroundType;
+import com.apprentice.rpg.config.ApprenticeConfiguration;
+import com.apprentice.rpg.config.ApprenticeConfiguration.DesktopBackgroundType;
 import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.gui.IGlobalWindowState;
 import com.apprentice.rpg.gui.util.WindowUtils;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.google.inject.Inject;
 
 public final class ApprenticeDesktopControl implements IApprenticeDesktopControl {
 
 	private static Logger LOG = Logger.getLogger(ApprenticeDesktopControl.class);
 
-	private final ApplicationConfiguration configuration;
+	private final ApprenticeConfiguration configuration;
 	private ApprenticeDesktop view;
 	private final IGlobalWindowState globalState;
 
 	@Inject
-	public ApprenticeDesktopControl(final IGlobalWindowState globalState, final ApplicationConfiguration configuration) {
+	public ApprenticeDesktopControl(final IGlobalWindowState globalState, final ApprenticeConfiguration configuration) {
 		this.globalState = globalState;
 		this.configuration = configuration;
 	}

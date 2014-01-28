@@ -68,17 +68,17 @@ public final class PlayerLevels {
 	}
 
 	/**
-	 * returns the mappings of class name -> character level. This is immutable.
-	 */
-	public Map<String, Integer> getClassLevels() {
-		return Maps.newHashMap(levels);
-	}
-
-	/**
 	 * How much experience does this character have?
 	 */
 	public int getExperiencePoints() {
 		return experiencePoints;
+	}
+
+	/**
+	 * returns a copy of the mappings of class name -> character level. 
+	 */
+	public Map<String, Integer> getLevels() {
+		return Maps.newHashMap(levels);
 	}
 
 	/**

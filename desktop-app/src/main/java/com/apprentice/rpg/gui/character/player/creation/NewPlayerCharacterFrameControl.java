@@ -1,6 +1,6 @@
 package com.apprentice.rpg.gui.character.player.creation;
 
-import com.apprentice.rpg.dao.vault.PlayerCharacterVault;
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ControlForView;
 import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.model.PlayerCharacter;
@@ -15,17 +15,16 @@ import com.google.inject.Inject;
 public final class NewPlayerCharacterFrameControl implements INewPlayerCharacterFrameControl, ControlForView {
 
 	private NewPlayerCharacterFrame view;
-	private final PlayerCharacterVault vault;
+	private final Vault dao;
 
 	@Inject
-	public NewPlayerCharacterFrameControl(final PlayerCharacterVault vault) {
-		this.vault = vault;
+	public NewPlayerCharacterFrameControl(final Vault dao) {
+		this.dao = dao;
 	}
 
-	
 	@Override
 	public void createCharacter(final PlayerCharacter character) {
-		vault.saveCharacter(character);
+		// vault.saveCharacter(character);/
 	}
 
 	@Override

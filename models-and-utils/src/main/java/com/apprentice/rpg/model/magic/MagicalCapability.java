@@ -1,8 +1,5 @@
 package com.apprentice.rpg.model.magic;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
 
 /**
  * A list of all the spells a character has available, regardless of whether they are cast or not. plus his
@@ -11,7 +8,7 @@ import com.google.common.collect.Lists;
 public final class MagicalCapability {
 
 	private final SpellPoints spellPoints;
-	private final List<Spell> spells;
+	//private final List<Spell> spells;
 
 	/**
 	 * Use this constructor if there is no capability
@@ -22,7 +19,14 @@ public final class MagicalCapability {
 
 	public MagicalCapability(final int maximumSpellPoints) {
 		spellPoints = new SpellPoints(maximumSpellPoints);
-		spells = Lists.newArrayList();
+		//spells = Lists.newArrayList();
+	}
+	
+	/**
+	 * returns the {@link SpellPoints} that this character has
+	 */
+	public SpellPoints getSpellPoints() {
+		return spellPoints;
 	}
 
 	/**

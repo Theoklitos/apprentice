@@ -1,18 +1,22 @@
-package com.apprentice.rpg.dao;
+package com.apprentice.rpg.database;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
- * When the database is corrupt and/or cannot be loaded
+ * Any errors/problems during database control
  * 
  * @author theoklitos
  * 
  */
-public final class CouldNotLoadDatabaseEx extends ApprenticeEx {
+public class ApprenticeDatabaseEx extends ApprenticeEx {
 
 	private static final long serialVersionUID = 1L;
 
-	public CouldNotLoadDatabaseEx(final Throwable e) {
+	public ApprenticeDatabaseEx(final String message) {
+		super(message);
+	}
+	
+	public ApprenticeDatabaseEx(final Throwable e) {
 		super(e);
 	}
 

@@ -1,4 +1,4 @@
-package com.apprentice.rpg;
+package com.apprentice.rpg.model;
 
 public class ApprenticeEx extends Error {
 

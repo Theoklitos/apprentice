@@ -8,13 +8,20 @@ import org.junit.Test;
 
 public final class TestIntegerRange {
 
+	@Test(expected = IllegalArgumentException.class)
+	public void initializationWasWrong() {
+		new IntegerRange(20, 4);
+	}
+
 	@Test
 	public void testCorrectParsing() {
-		final String text = "33-67";
+		final String parsableString = "33-67";
+		final String text = parsableString;
 		final IntegerRange range = new IntegerRange(text);
 
 		assertEquals(33, range.getMin());
 		assertEquals(67, range.getMax());
+		assertEquals(parsableString, range.toParsingString());
 	}
 
 	@Test
@@ -39,16 +46,6 @@ public final class TestIntegerRange {
 		assertFalse(range.contains(11));
 	}
 
-//	@Test
-//	public void testMatch() {
-//		final IntegerRange range1 = new IntegerRange("10-20");
-//		final IntegerRange range2 = new IntegerRange(10, 20);
-//
-//		assertTrue(range1.match(range2));
-//		assertTrue(range1.match(new IntegerRange("10-20")));
-//		assertFalse(range1.match(new IntegerRange(10, 21)));
-//	}
-
 	@Test
 	public void testSize() {
 		IntegerRange range = new IntegerRange(1, 2);
@@ -64,18 +61,4 @@ public final class TestIntegerRange {
 		assertEquals(16, range.size());
 	}
 
-//	@Test(expected = IntegerRangeException.class)
-//	public void testWrongInitialization() {
-//		new IntegerRange(5, 1);
-//	}
-//
-//	@Test(expected = IntegerRangeException.class)
-//	public void testWrongParsing() {
-//		new IntegerRange("a33-67");
-//	}
-//
-//	@Test(expected = IntegerRangeException.class)
-//	public void testWrongParsing2() {
-//		new IntegerRange("33--67");
-//	}
 }

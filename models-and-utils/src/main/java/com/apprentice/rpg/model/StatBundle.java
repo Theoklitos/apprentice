@@ -2,6 +2,13 @@ package com.apprentice.rpg.model;
 
 import java.util.Map;
 
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import com.apprentice.rpg.parsing.jackson.StatBundleDeserializer;
+import com.apprentice.rpg.parsing.jackson.StatBundleSerializer;
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
 /**
@@ -10,6 +17,8 @@ import com.google.common.collect.Maps;
  * @author theoklitos
  * 
  */
+@JsonSerialize(using = StatBundleSerializer.class)
+@JsonDeserialize(using = StatBundleDeserializer.class)
 public class StatBundle {
 
 	public enum StatType {
@@ -21,7 +30,13 @@ public class StatBundle {
 		CHARISMA
 	}
 
-	private final Map<StatType, Stat> statistics;
+	private final Map<String, Stat> statistics;
+
+	// for jackson
+	@SuppressWarnings("unused")
+	private StatBundle() {
+		statistics = Maps.newHashMap();
+	}
 
 	public StatBundle(final int initialStrength, final int initialDexterity, final int initialConstitution,
 			final int initialIntelligence, final int initialWisdom, final int initialCharisma) {
@@ -32,12 +47,39 @@ public class StatBundle {
 
 	public StatBundle(final Stat strength, final Stat dexterity, final Stat constitution, final Stat intelligence,
 			final Stat wisdom, final Stat charisma) {
-		statistics = Maps.newEnumMap(StatType.class);
-		statistics.put(StatType.STRENGTH, strength);
-		statistics.put(StatType.DEXTERITY, dexterity);
-		statistics.put(StatType.CONSTITUTION, constitution);
-		statistics.put(StatType.INTELLIGENCE, intelligence);
-		statistics.put(StatType.WISDOM, wisdom);
-		statistics.put(StatType.CHARISMA, charisma);
+		statistics = Maps.newHashMap();
+		statistics.put(StatType.STRENGTH.toString(), strength);
+		statistics.put(StatType.DEXTERITY.toString(), dexterity);
+		statistics.put(StatType.CONSTITUTION.toString(), constitution);
+		statistics.put(StatType.INTELLIGENCE.toString(), intelligence);
+		statistics.put(StatType.WISDOM.toString(), wisdom);
+		statistics.put(StatType.CHARISMA.toString(), charisma);
+	}
+
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof StatBundle) {
+			final StatBundle stats = (StatBundle) other;
+			return Objects.equal(statistics, stats.statistics);
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * return the stat based on the requested type. There exists one stat for each {@link StatType}
+	 */
+	public Stat getStat(final StatType type) {
+		return statistics.get(type.toString());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(statistics);
+	}
+
+	@Override
+	public String toString() {
+		return Joiner.on(",").withKeyValueSeparator(":").join(statistics); 
 	}
 }

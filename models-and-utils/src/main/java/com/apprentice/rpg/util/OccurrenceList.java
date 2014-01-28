@@ -2,7 +2,7 @@ package com.apprentice.rpg.util;
 
 import java.util.List;
 
-import com.apprentice.rpg.ApprenticeEx;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.google.common.collect.Lists;
 
 /**

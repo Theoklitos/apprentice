@@ -1,7 +1,7 @@
 package com.apprentice.rpg.parsing;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public final class TestParser {
 		assertEquals(pl1, pl2);
 
 		pl1.addExperiencePoints(666);
-		assertNotEquals(pl1, pl2);
+		assertNotSame(pl1, pl2);
 	}
 
 	@Test(expected = ParsingEx.class)

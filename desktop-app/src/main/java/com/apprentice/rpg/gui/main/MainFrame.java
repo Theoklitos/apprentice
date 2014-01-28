@@ -55,7 +55,7 @@ public final class MainFrame extends JFrame {
 	}
 
 	private void initComponents() {
-		final JPanel grandPane = new JPanel(new BorderLayout());
+		final JPanel grandPane = new JPanel(new BorderLayout());		
 		grandPane.add(desktop, BorderLayout.CENTER);
 		final EventBar eventBar = new EventBar();
 		eventBarControl.setView(eventBar);
@@ -95,7 +95,15 @@ public final class MainFrame extends JFrame {
 		final JMenuItem submntmItems = new JMenuItem("Misc Items");
 		mntmItems.add(submntmItems);
 		final JMenuItem mntmTypes = new JMenuItem("Types & Bodyparts");
+		mntmTypes.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				windowManager.showTypeAndBodyPartFrame();
+			}
+		});
 		mnVaults.add(mntmTypes);
+		
 
 		final JMenu mnConfiguration = new JMenu("Configuration");
 		menuBar.add(mnConfiguration);
@@ -119,7 +127,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.openLogFrame();
+				windowManager.showLogFrame();
 
 			}
 		});
