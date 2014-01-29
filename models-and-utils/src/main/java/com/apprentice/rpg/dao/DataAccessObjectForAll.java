@@ -29,8 +29,8 @@ public class DataAccessObjectForAll implements Vault {
 	/**
 	 * Starts a timer, call stopTimerAndLog() to log a message with the duration
 	 */
-	public static void startTimer() {
-		startTimeMillis = System.currentTimeMillis();
+	public static void startTimer() {		
+		startTimeMillis = System.currentTimeMillis();		 
 	}
 
 	/**
@@ -49,6 +49,7 @@ public class DataAccessObjectForAll implements Vault {
 			durationString = seconds + " and " + carryMillis + " ms.";
 
 		}
+		startTimeMillis = 0;
 		LOG.debug(taskName + ", duration: " + durationString);
 	}
 
@@ -94,20 +95,18 @@ public class DataAccessObjectForAll implements Vault {
 	@Override
 	public boolean delete(final Object item) {
 		startTimer();
-		if (exists(item)) {
+		if (exists(item,false)) {
 			connection.delete(item);
 			stopTimerAndLog("Deleted object \"" + item.getClass().getSimpleName() + "\"");
 			return true;
 		}
 		return false;
 	}
-
-	/**
-	 * Returns true if there exists an object of the given class that is {@link Nameable} and has this name
-	 */
+	
+	@Override
 	public boolean doesNameExist(final String name, final Class<? extends Nameable> memberOf) {
 		try {
-			getUniqueNamedResult(name, memberOf);
+			getUniqueNamedResult(name, memberOf, false);
 			return true;
 		} catch (final NoResultsFoundEx e) {
 			return false;
@@ -167,18 +166,27 @@ public class DataAccessObjectForAll implements Vault {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Nameable> T getUniqueNamedResult(final String name, final Class<T> typeToQueryFor)
 			throws TooManyResultsEx, NoResultsFoundEx {
-		startTimer();
+		return getUniqueNamedResult(name, typeToQueryFor, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Nameable> T getUniqueNamedResult(final String name, final Class<T> typeToQueryFor,
+			final boolean shouldLog) throws TooManyResultsEx, NoResultsFoundEx {
+		if (shouldLog) {
+			startTimer();
+		}
 		final List<T> result = connection.load(typeToQueryFor);
 		checkDoubles(result);
 		try {
 			for (final Object resultObject : result) {
 				if (resultObject instanceof Nameable) {
 					if (((Nameable) resultObject).getName().equals(name)) {
-						stopTimerAndLog("Loaded one object of type " + typeToQueryFor.getSimpleName());
+						if (shouldLog) {
+							stopTimerAndLog("Loaded one object of type \"" + typeToQueryFor.getSimpleName() + "\"");
+						}
 						return (T) resultObject;
 					}
 				}
@@ -236,6 +244,18 @@ public class DataAccessObjectForAll implements Vault {
 		} catch (final ClassCastException e) {
 			return Box.empty();
 		}
+	}
+
+	@Override
+	public void update(final Nameable item) {
+		startTimer();
+		for (final Nameable nameable : getAll(item.getClass(),false)) {			
+			if (nameable.getName().equals(item.getName()) && !nameable.equals(item)) {
+				throw new NameAlreadyExistsEx("There already exists one (or more) elements of type "
+					+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
+			}
+		}
+		update((Object) item);
 	}
 
 	@Override

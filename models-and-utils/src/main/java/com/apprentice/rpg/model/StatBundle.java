@@ -2,11 +2,6 @@ package com.apprentice.rpg.model;
 
 import java.util.Map;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import com.apprentice.rpg.parsing.jackson.StatBundleDeserializer;
-import com.apprentice.rpg.parsing.jackson.StatBundleSerializer;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
@@ -17,8 +12,6 @@ import com.google.common.collect.Maps;
  * @author theoklitos
  * 
  */
-@JsonSerialize(using = StatBundleSerializer.class)
-@JsonDeserialize(using = StatBundleDeserializer.class)
 public class StatBundle {
 
 	public enum StatType {
@@ -31,12 +24,6 @@ public class StatBundle {
 	}
 
 	private final Map<String, Stat> statistics;
-
-	// for jackson
-	@SuppressWarnings("unused")
-	private StatBundle() {
-		statistics = Maps.newHashMap();
-	}
 
 	public StatBundle(final int initialStrength, final int initialDexterity, final int initialConstitution,
 			final int initialIntelligence, final int initialWisdom, final int initialCharisma) {
@@ -65,7 +52,7 @@ public class StatBundle {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * return the stat based on the requested type. There exists one stat for each {@link StatType}
 	 */
@@ -80,6 +67,6 @@ public class StatBundle {
 
 	@Override
 	public String toString() {
-		return Joiner.on(",").withKeyValueSeparator(":").join(statistics); 
+		return Joiner.on(",").withKeyValueSeparator(":").join(statistics);
 	}
 }

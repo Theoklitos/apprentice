@@ -53,6 +53,9 @@ public final class DataFactory {
 		return pc;
 	}
 
+	/**
+	 * type #0 is the standard Human
+	 */
 	public List<IType> getTypes() {
 		return types;
 	}

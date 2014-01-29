@@ -31,13 +31,21 @@ public final class BodyPartToRangeMap {
 	}
 
 	/**
+	 * returns a copy of the {@link BodyPart} values of this mapping
+	 */
+	public List<BodyPart> getParts() {
+		return Lists.newArrayList(partMapping.values());
+	}
+
+	/**
 	 * Returns a list of body part(s) that are mapped for this number
 	 * 
 	 * throws {@link BodyPartMappingEx} if a number outside 1-100 is given
 	 */
 	public List<BodyPart> getPartsForNumber(final int number) throws BodyPartMappingEx {
 		if (number < 1 || number > 100) {
-			throw new BodyPartMappingEx("Body Parts are mapped only from 1 to 100, and a \"" + number + "\" was requested!");
+			throw new BodyPartMappingEx("Body Parts are mapped only from 1 to 100, and a \"" + number
+				+ "\" was requested!");
 		}
 		final List<BodyPart> result = Lists.newArrayList();
 		for (final IntegerRange range : partMapping.keySet()) {
@@ -85,7 +93,8 @@ public final class BodyPartToRangeMap {
 
 	@Override
 	public String toString() {
-		return Joiner.on(", ").withKeyValueSeparator(":").join(partMapping) + ".";
+		return Joiner.on(", ").withKeyValueSeparator(":").join(partMapping);
 	}
+
 
 }

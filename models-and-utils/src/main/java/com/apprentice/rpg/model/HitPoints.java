@@ -1,8 +1,5 @@
 package com.apprentice.rpg.model;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-
-import com.apprentice.rpg.parsing.jackson.HitPointDeserializer;
 import com.google.common.base.Objects;
 
 /**
@@ -11,23 +8,17 @@ import com.google.common.base.Objects;
  * @author theoklitos
  * 
  */
-@JsonDeserialize(using = HitPointDeserializer.class)
 public final class HitPoints {
 
 	private final CurrentMaximumPair values;
-	
-	
-	private HitPoints(){
-		this(0);
-	}
-	
+
 	/**
 	 * Sets both max and current points to the given int
 	 */
 	public HitPoints(final int initialHitPoints) {
 		values = new CurrentMaximumPair(initialHitPoints);
 	}
-	
+
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof HitPoints) {
@@ -37,7 +28,7 @@ public final class HitPoints {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * what are the HPs the character has now?
 	 */
@@ -51,7 +42,7 @@ public final class HitPoints {
 	public int getMaximumHitPoints() {
 		return values.getMaximum();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(values);

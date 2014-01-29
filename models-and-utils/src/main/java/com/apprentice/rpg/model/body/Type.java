@@ -1,14 +1,12 @@
 package com.apprentice.rpg.model.body;
 
 import java.util.List;
-
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import java.util.SortedMap;
 
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.parsing.jackson.TypeDeserializer;
-import com.apprentice.rpg.parsing.jackson.TypeSerializer;
+import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.Checker;
+import com.apprentice.rpg.util.IntegerRange;
 import com.google.common.base.Objects;
 
 /**
@@ -17,19 +15,10 @@ import com.google.common.base.Objects;
  * @author theoklitos
  * 
  */
-@JsonSerialize(using = TypeSerializer.class)
-@JsonDeserialize(using = TypeDeserializer.class)
 public final class Type implements IType {
 
 	private String name;
 	private BodyPartToRangeMap parts;
-
-	// used by jackson
-	@SuppressWarnings("unused")
-	private Type() {
-		name = null;
-		parts = null;
-	}
 
 	/**
 	 * @throws BodyPartMappingEx
@@ -74,8 +63,28 @@ public final class Type implements IType {
 	}
 
 	@Override
-	public BodyPartToRangeMap getParts() {
+	public BodyPartToRangeMap getPartMapping() {
 		return parts;
+	}
+
+	@Override
+	public List<BodyPart> getParts() {
+		return parts.getParts();
+	}
+
+	
+	@Override
+	public Box<IntegerRange> getRangeForPartName(final String bodyPartName) {
+		final BodyPart equivalentPart = new BodyPart(bodyPartName);
+		final SortedMap<IntegerRange, BodyPart> mapping = parts.getInternalMapping();
+		if (mapping.values().contains(equivalentPart)) {
+			for (final IntegerRange range : mapping.keySet()) {
+				if (mapping.get(range).equals(equivalentPart)) {
+					return Box.with(range);
+				}
+			}
+		}
+		return Box.empty();
 	}
 
 	@Override
@@ -105,6 +114,9 @@ public final class Type implements IType {
 	 * @throw throws BodyPartMappingEx
 	 */
 	private void verifyMapping(final BodyPartToRangeMap mapping) throws BodyPartMappingEx {
+		if(mapping.getInternalMapping().size() == 0) {
+			throw new BodyPartMappingEx("Body Part mapping is empty!");
+		}
 		if (mapping.getInternalMapping().firstKey().getMin() != 1) {
 			throw new BodyPartMappingEx("Body Part mapping must start from 1");
 		}

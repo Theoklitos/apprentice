@@ -4,16 +4,13 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectMapper.DefaultTyping;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
 
 import com.apprentice.rpg.model.IPlayerCharacter;
-import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.PlayerLevels;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Is responsible for parsing/converting all classes to/from JSON
@@ -23,12 +20,18 @@ import com.apprentice.rpg.model.body.IType;
  */
 public final class JsonParser implements ApprenticeParser {
 
-	private final ObjectMapper mapper;
+	public enum JsonPrintingOptions {
+		PLAYER_CHARACTERS,
+		TYPES,
+		BODY_PARTS,
+		WEAPONS,
+		ARMORS;
+	}
+	
+	private final Gson gson;
 
 	public JsonParser() {
-		mapper = new ObjectMapper();
-		// mapper.configure(Feature.FAIL_ON_EMPTY_BEANS, false);
-		mapper.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+		gson = new GsonBuilder().setPrettyPrinting().create();
 	}
 
 	private void emptynessCheck(final String text) {
@@ -40,7 +43,7 @@ public final class JsonParser implements ApprenticeParser {
 	@Override
 	public String getAsJsonString(final IPlayerCharacter playerCharacter) {
 		try {
-			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(playerCharacter);
+			return "gay";
 		} catch (final Exception e) {
 			throw new ParsingEx(e);
 		}
@@ -48,26 +51,11 @@ public final class JsonParser implements ApprenticeParser {
 
 	@Override
 	public String getBodyPartsAndTypesAsJsonString(final List<IType> types, final List<BodyPart> bodyParts) {
-		try {			
-			final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-			final ObjectNode parentNode = nodeFactory.objectNode();
-			
-			//final String oneTypeJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(types.get(0));						
-			//final JsonNode typesNode = mapper.valueToTree(bodyParts.get(0));						
-			//final ObjectNode bodyPartsNode = mapper.valueToTree(bodyParts);
-			
-			//final JsonNode
-			//bodyPartsNode.put
-			
-			final ObjectNode typesNode = parentNode.putObject("types");
-			
-			
-			//parentNode.put("bodyParts", bodyPartsNode);
-			
-			return parentNode.toString();
+		try {
+			return "gay";
 		} catch (final Exception e) {
 			throw new ParsingEx(e);
-		}		
+		}
 	}
 
 	/**
@@ -77,7 +65,7 @@ public final class JsonParser implements ApprenticeParser {
 	 */
 	public IPlayerCharacter parsePlayerCharacter(final String playerAsJson) throws ParsingEx {
 		try {
-			return mapper.readValue(playerAsJson, PlayerCharacter.class);
+			return null;
 		} catch (final Exception e) {
 			throw new ParsingEx(e);
 		}

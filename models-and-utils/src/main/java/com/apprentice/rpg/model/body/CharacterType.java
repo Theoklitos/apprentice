@@ -11,7 +11,6 @@ import com.google.common.base.Objects;
  * @author theoklitos
  * 
  */
-//@JsonDeserialize(using = CharacterTypeDeserializer.class)
 public final class CharacterType {
 
 	private final static String NOT_SPECIFIED_RACE = "Not specified";
@@ -19,14 +18,6 @@ public final class CharacterType {
 	private final IType type;
 	private final Size size;
 	private String race;
-
-	// used by jackson
-	@SuppressWarnings("unused")
-	private CharacterType() {
-		type = null;
-		size = Size.DIMUNITIVE;
-		race = null;
-	}
 
 	/**
 	 * Use this contructor if you don't care about the race
@@ -64,7 +55,7 @@ public final class CharacterType {
 	public Size getSize() {
 		return size;
 	}
-	
+
 	/**
 	 * What is the type of this character? Humanoid? Quadropod?
 	 */

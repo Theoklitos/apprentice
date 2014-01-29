@@ -94,7 +94,7 @@ public final class MainFrame extends JFrame {
 		mntmItems.add(submntmArmors);
 		final JMenuItem submntmItems = new JMenuItem("Misc Items");
 		mntmItems.add(submntmItems);
-		final JMenuItem mntmTypes = new JMenuItem("Types & Bodyparts");
+		final JMenuItem mntmTypes = new JMenuItem("Types & Body Parts");
 		mntmTypes.addActionListener(new ActionListener() {
 
 			@Override

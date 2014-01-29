@@ -5,18 +5,13 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.apprentice.rpg.model.StatBundle.StatType;
-import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.CharacterType;
 import com.apprentice.rpg.model.body.Size;
-import com.apprentice.rpg.model.body.Type;
 import com.apprentice.rpg.model.factories.DataFactory;
-import com.google.common.collect.Lists;
 
 public final class TestPlayerCharacter {
 
@@ -25,7 +20,7 @@ public final class TestPlayerCharacter {
 	private StatBundle stats;
 	private CharacterType characterType;
 	private DataFactory factory;
-
+		
 	@Test
 	public void equality() {
 		final IPlayerCharacter pc2 = factory.getPlayerCharacter();
@@ -52,11 +47,8 @@ public final class TestPlayerCharacter {
 	@Before
 	public void setup() {
 		factory = new DataFactory();
-		stats = new StatBundle(16, 12, 10, 18, 12, 4);
-		final List<BodyPart> parts = Lists.newArrayList();
-		parts.add(new BodyPart("left arm"));
-		parts.add(new BodyPart("right arm"));
-		characterType = new CharacterType(new Type("human", parts), Size.MEDIUM);
+		stats = new StatBundle(16, 12, 10, 18, 12, 4);		
+		characterType = new CharacterType(factory.getTypes().get(0), Size.MEDIUM);
 		pc = new PlayerCharacter(NAME, 10, stats, characterType);
 	}
 

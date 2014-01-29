@@ -1,7 +1,5 @@
 package com.apprentice.rpg.model.body;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Objects;
@@ -15,19 +13,10 @@ import com.google.common.base.Objects;
 public final class BodyPart implements Nameable {
 
 	private String name;
-
-	// used by jackson
-	@SuppressWarnings("unused")
-	private BodyPart() {
-		name = null;
-	}
-
-	/**
-	 * Names are converted to a pretty, capitalized-first form. Ie "head" and "HEAd" become "Head".
-	 */
+	
 	public BodyPart(final String name) {
 		Checker.checkNonNull("A Body Part must have a name!", true, name);
-		this.name = StringUtils.capitalize(name.toLowerCase());
+		this.name = name;
 	}
 
 	@Override

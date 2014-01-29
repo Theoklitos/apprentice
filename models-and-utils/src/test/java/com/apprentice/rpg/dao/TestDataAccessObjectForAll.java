@@ -14,8 +14,6 @@ import org.junit.Test;
 
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.model.body.Type;
 import com.google.common.collect.Lists;
 
 /**
@@ -30,80 +28,78 @@ public final class TestDataAccessObjectForAll {
 	private Mockery mockery;
 	private DataAccessObjectForAll dao;
 	private List<BodyPart> parts;
-	private List<IType> types;
-	private IType knownType;
+	private BodyPart knownPart;
 
 	@Test(expected = ItemAlreadyExistsEx.class)
 	public void cannotCreateIfItemAlreadyExists() {
-		dao.create(knownType);
+		dao.create(knownPart);
 	}
 
 	@Test
 	public void create() {
-		final IType newType = new Type("type100", parts);
+		final BodyPart newPart = new BodyPart("wings");
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).save(newType);
+				oneOf(connection).save(newPart);
 			}
 		});
-		dao.create(newType);
+		dao.create(newPart);
 	}
-	
+
 	@Test
 	public void deleteItemThatDoesntExist() {
-		assertFalse(dao.delete(new Type("name1000")));
+		assertFalse(dao.delete(new BodyPart("wrong name")));
 	}
 
 	@Test
 	public void deleteItemThatExists() {
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).delete(knownType);
+				oneOf(connection).delete(knownPart);
 			}
 		});
-		assertTrue(dao.delete(knownType));
+		assertTrue(dao.delete(knownPart));
 	}
 
 	@Test(expected = TooManyResultsEx.class)
 	public void detectDoubleNames() {
-		types.add(new Type("name2", parts));
-
-		dao.checkDoubles(types);
+		parts.add(new BodyPart("arms"));
+		dao.checkDoubles(parts);
 	}
 
 	@Test
 	public void doesElementWithNameExist() {
-		assertFalse(dao.doesNameExist("asdfas", IType.class));
-		assertFalse(dao.doesNameExist("wrong name", IType.class));
-		assertTrue(dao.doesNameExist("name1", IType.class));
-		assertTrue(dao.doesNameExist("name2", IType.class));
+		assertFalse(dao.doesNameExist("asdfas", BodyPart.class));
+		assertFalse(dao.doesNameExist("wrong name", BodyPart.class));
+		assertTrue(dao.doesNameExist("arms", BodyPart.class));
+		assertTrue(dao.doesNameExist("legs", BodyPart.class));
 	}
 
 	@Test
 	public void getAllItemsOfType() {
-		assertEquals(types, dao.getAll(IType.class));
+		assertEquals(parts, dao.getAll(BodyPart.class));
 	}
 
 	@Test
 	public void getUniqueObjectSuccessfully() {
-		final IType result = dao.getUniqueNamedResult("name1", IType.class);
-		assertEquals(knownType, result);
+		final BodyPart result = dao.getUniqueNamedResult("head", BodyPart.class);
+		assertEquals(knownPart, result);
 	}
 
 	@Test
 	public void itemDoesNotExist() {
-		final IType newType = new Type("newType", parts);
-		assertFalse(dao.exists(newType));
+		final BodyPart part = new BodyPart("tail");
+		assertFalse(dao.exists(part));
 	}
 
 	@Test
 	public void itemExists() {
-		assertTrue(dao.exists(knownType));
+		assertTrue(dao.exists(knownPart));
 	}
 
 	@Test(expected = NoResultsFoundEx.class)
 	public void noSuchNameExists() {
-		dao.getUniqueNamedResult("name10", IType.class);
+		dao.getUniqueNamedResult("tail", BodyPart.class);
 	}
 
 	@Before
@@ -114,26 +110,15 @@ public final class TestDataAccessObjectForAll {
 
 		// some test data
 		parts = Lists.newArrayList();
-		parts.add(new BodyPart("test"));
-		types = Lists.newArrayList();
-		knownType = new Type("name1", parts);
-		types.add(knownType);
-		types.add(new Type("name2", parts));
-		types.add(new Type("name3", parts));
-		types.add(new Type("name4", parts));
-		types.add(new Type("name5", parts));
+		knownPart = new BodyPart("head");
+		parts.add(knownPart);
+		parts.add(new BodyPart("arms"));
+		parts.add(new BodyPart("legs"));
 
 		mockery.checking(new Expectations() {
 			{
-				allowing(connection).load(IType.class);
-				will(returnValue(types));
-			}
-		});
-
-		mockery.checking(new Expectations() {
-			{
-				allowing(connection).load(Type.class);
-				will(returnValue(types));
+				allowing(connection).load(BodyPart.class);
+				will(returnValue(parts));
 			}
 		});
 	}
@@ -145,19 +130,25 @@ public final class TestDataAccessObjectForAll {
 
 	@Test(expected = TooManyResultsEx.class)
 	public void tooManyResultsFound() {
-		types.add(new Type("name1", parts));
-		dao.getUniqueNamedResult("name11", IType.class);
+		parts.add(new BodyPart("head"));
+		dao.getUniqueNamedResult("head", BodyPart.class);
 	}
 
 	@Test
 	public void update() {
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).save(knownType);
+				oneOf(connection).save(knownPart);
 			}
 		});
-		final BodyPart part = new BodyPart("newPart");
-		knownType.getParts().add(part);
-		dao.update(knownType);
+		knownPart.setName("new name");
+		dao.update(knownPart);
+	}
+
+	//@Test(expected = NameAlreadyExistsEx.class)
+	public void updateNameableSameName() {
+		final int i; //enabled when you figure this out 
+		knownPart.setName("arms");
+		dao.update(knownPart);
 	}
 }

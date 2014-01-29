@@ -2,6 +2,7 @@ package com.apprentice.rpg.gui.vault.type;
 
 import java.util.List;
 
+import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.gui.ControlForView;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrameControl.ItemType;
 import com.apprentice.rpg.model.Nameable;
@@ -17,9 +18,18 @@ import com.apprentice.rpg.model.body.IType;
 public interface ITypeAndBodyPartFrameControl extends ControlForView {
 
 	/**
-	 * creates a fresh new body part or type, with the given name
+	 * stores a new {@link BodyPart}
+	 * 
+	 * @throws ItemAlreadyExistsEx
 	 */
-	void create(String name, final ItemType itemType);
+	void create(BodyPart newPart) throws ItemAlreadyExistsEx;
+
+	/**
+	 * stores a new {@link IType}
+	 * 
+	 * @throws ItemAlreadyExistsEx
+	 */
+	void create(IType newType) throws ItemAlreadyExistsEx;
 
 	/**
 	 * removes this body part or type from the repository. Might affect existing players.
@@ -27,9 +37,20 @@ public interface ITypeAndBodyPartFrameControl extends ControlForView {
 	void delete(Nameable item, ItemType itemType);
 
 	/**
+	 * returns true if a {@link IType} with the given name exists in the database
+	 */
+	boolean doesTypeNameExist(String name);
+
+	/**
 	 * returns all the existing {@link BodyPart}s
 	 */
 	List<BodyPart> getBodyParts();
+
+	/**
+	 * returns a json string containing an object mapped to an array with all the body parts and one more to
+	 * allt he types
+	 */
+	String getJsonForAllTypesAndBodyParts();
 
 	/**
 	 * returns all the existing {@link IType}s

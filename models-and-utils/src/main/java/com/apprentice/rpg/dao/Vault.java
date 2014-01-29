@@ -32,6 +32,11 @@ public interface Vault {
 	boolean delete(Object item);
 
 	/**
+	 * Returns true if there exists an object of the given class that is {@link Nameable} and has this name
+	 */
+	boolean doesNameExist(String name, Class<? extends Nameable> memberOf);
+
+	/**
 	 * returns true if this object is already stored in the database. Note: Its state can be different, all
 	 * that matters is identity
 	 */
@@ -49,7 +54,8 @@ public interface Vault {
 	 * @throws TooManyResultsEx
 	 * @throws NoResultsFoundEx
 	 */
-	<T extends Nameable> T getUniqueNamedResult(String name, Class<T> typeToQueryFor) throws TooManyResultsEx, NoResultsFoundEx;
+	<T extends Nameable> T getUniqueNamedResult(String name, Class<T> typeToQueryFor) throws TooManyResultsEx,
+			NoResultsFoundEx;
 
 	/**
 	 * Used for when needing to get unique objects from DB. If more than one of this type exist, will not
@@ -59,9 +65,15 @@ public interface Vault {
 	<T> T getUniqueObjectFromDB(Class<T> type);
 
 	/**
-	 * creates or updates(overwrite) the given object in the database
+	 * creates or updates(overwrite) the given Nameable object in the database, after checking for name
+	 * duplication
 	 * 
-	 * @throws NameAleradyExistsEx
+	 * @throws NameAlreadyExistsEx
+	 */
+	void update(Nameable item) throws NameAlreadyExistsEx;
+
+	/**
+	 * creates or updates(overwrite) the given object in the database
 	 */
 	public void update(final Object item);
 

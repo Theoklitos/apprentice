@@ -21,16 +21,6 @@ public final class PlayerCharacter implements IPlayerCharacter {
 	private final StatBundle statBundle;
 	private final PlayerLevels levels;
 
-	// used by jackson
-	@SuppressWarnings("unused")
-	private PlayerCharacter() {
-		name = null;
-		hitPoints = null;
-		characterType = null;
-		statBundle = null;
-		levels = null;
-	}
-
 	public PlayerCharacter(final String name, final int initialHitPoints, final StatBundle initialStatBundle,
 			final CharacterType characterType) {
 		Checker.checkNonNull("Initialized character with null or emtpy value(s)", true, name, initialStatBundle,

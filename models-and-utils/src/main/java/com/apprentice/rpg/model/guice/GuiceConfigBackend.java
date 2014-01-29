@@ -18,8 +18,7 @@ public final class GuiceConfigBackend implements Module {
 	private final String databaseLocation;
 
 	public GuiceConfigBackend(final EmbeddedObjectContainer objectContainer, final String databaseLocation) {
-		this.objectContainer = objectContainer;
-		System.out.println(objectContainer.ext().systemInfo().toString());		
+		this.objectContainer = objectContainer;		
 		this.databaseLocation = databaseLocation;		
 	}
 	
