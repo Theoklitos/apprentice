@@ -18,17 +18,17 @@ public interface ApprenticeEventBus {
 	/**
 	 * should be fired when a new {@link BodyPart} is created or modified
 	 */
-	void objectUpdateEvent(BodyPart newPart);
+	void objectUpdateEvent(BodyPart updatedBodyPart);
 
 	/**
 	 * should be fired when a new {@link Type} is created or modified
 	 */
-	void objectUpdateEvent(IType type);
+	void objectUpdateEvent(IType updatedType);
 
 	/**
 	 * fires the given event
 	 */
-	void postEvent(DatabaseModificationEvent event);
+	void postEvent(DatabaseModificationEvent<?> event);
 
 	/**
 	 * Registes a class which will listen to events via the @Subscribe annotation

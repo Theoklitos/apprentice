@@ -1,20 +1,17 @@
 package com.apprentice.rpg.events;
 
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.IType;
 
-public class TypeUpdateEvent extends DatabaseUpdateEvent {
+/**
+ * Fired when a {@link IType} is changed
+ * 
+ * @author theoklitos
+ * 
+ */
+public class TypeUpdateEvent extends DatabaseUpdateEvent<IType> {
 
-	public TypeUpdateEvent(final Nameable type) {
-		super(type);
-	}
-
-	/**
-	 * returns the (new or updated) object that triggered this event
-	 */
-	@Override
-	public IType getPayload() {
-		return (IType) super.getPayload();
+	public TypeUpdateEvent(final IType newType) {
+		super(newType);
 	}
 
 }

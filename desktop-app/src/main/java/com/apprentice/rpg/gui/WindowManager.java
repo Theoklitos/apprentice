@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import com.apprentice.rpg.config.IApprenticeConfiguration;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.events.ApprenticeEventBus;
+import com.apprentice.rpg.events.database.IDataSynchronizer;
 import com.apprentice.rpg.gui.character.player.creation.INewPlayerCharacterFrameControl;
 import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrame;
 import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
@@ -60,10 +61,9 @@ public final class WindowManager implements IWindowManager {
 		eventBarControl = injector.getInstance(IEventBarControl.class);
 		logFrameControl = injector.getInstance(ILogFrameControl.class);
 		databaseSettingsFrameControl = injector.getInstance(IDatabaseSettingsFrameControl.class);
-		eventBus.register(databaseSettingsFrameControl);
 		newPlayerCharacterFrameControl = injector.getInstance(INewPlayerCharacterFrameControl.class);
-		eventBus.register(newPlayerCharacterFrameControl);
 		typeAndBodyPartFrameControl = injector.getInstance(ITypeAndBodyPartFrameControl.class);
+		registerEventHandlers();
 	}
 
 	/**
@@ -89,17 +89,14 @@ public final class WindowManager implements IWindowManager {
 		});
 	}
 
-	@Override
-	public void showLogFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final LogFrame logFrame = new LogFrame(globalWindowState);
-				logFrameControl.setView(logFrame);
-				desktop.add(logFrame);
-			}
-		});
+	/**
+	 * registers handlers on the {@link ApprenticeEventBus}
+	 */
+	private void registerEventHandlers() {
+		eventBus.register(databaseSettingsFrameControl);
+		eventBus.register(newPlayerCharacterFrameControl);
+		eventBus.register(typeAndBodyPartFrameControl);
+		eventBus.register(injector.getInstance(IDataSynchronizer.class));
 	}
 
 	@Override
@@ -109,9 +106,22 @@ public final class WindowManager implements IWindowManager {
 			@Override
 			public void run() {
 				final DatabaseSettingsFrame databaseFrame =
-					new DatabaseSettingsFrame(globalWindowState, databaseSettingsFrameControl);				
+					new DatabaseSettingsFrame(globalWindowState, databaseSettingsFrameControl);
 				databaseSettingsFrameControl.setView(databaseFrame);
 				desktop.add(databaseFrame);
+			}
+		});
+	}
+
+	@Override
+	public void showLogFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final LogFrame logFrame = new LogFrame(globalWindowState);
+				logFrameControl.setView(logFrame);
+				desktop.add(logFrame);
 			}
 		});
 	}

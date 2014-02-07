@@ -64,7 +64,7 @@ public final class Type implements IType {
 
 	@Override
 	public BodyPartToRangeMap getPartMapping() {
-		return parts;
+		return new BodyPartToRangeMap(parts);
 	}
 
 	@Override
@@ -72,7 +72,6 @@ public final class Type implements IType {
 		return parts.getParts();
 	}
 
-	
 	@Override
 	public Box<IntegerRange> getRangeForPartName(final String bodyPartName) {
 		final BodyPart equivalentPart = new BodyPart(bodyPartName);
@@ -114,7 +113,7 @@ public final class Type implements IType {
 	 * @throw throws BodyPartMappingEx
 	 */
 	private void verifyMapping(final BodyPartToRangeMap mapping) throws BodyPartMappingEx {
-		if(mapping.getInternalMapping().size() == 0) {
+		if (mapping.getInternalMapping().size() == 0) {
 			throw new BodyPartMappingEx("Body Part mapping is empty!");
 		}
 		if (mapping.getInternalMapping().firstKey().getMin() != 1) {

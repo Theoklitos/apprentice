@@ -1,11 +1,11 @@
 package com.apprentice.rpg.dao.vaults;
 
-import java.util.List;
+import java.util.Collection;
 
-import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.dao.NoResultsFoundEx;
 import com.apprentice.rpg.dao.TooManyResultsEx;
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.model.Nameable;
 
 /**
@@ -29,7 +29,7 @@ public interface IVault<T> {
 	/**
 	 * Returns all the items of type <T> stored in the database
 	 */
-	public List<T> getAll();
+	public Collection<T> getAll();
 
 	/**
 	 * Returns one and only one <T> object that must be {@link Nameable} and also has the given name.

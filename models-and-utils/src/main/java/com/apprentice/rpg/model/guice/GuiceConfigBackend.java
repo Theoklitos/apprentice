@@ -6,6 +6,8 @@ import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.database.Db4oConnection;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.JsonParser;
+import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter;
+import com.apprentice.rpg.parsing.exportImport.IDatabaseImporterExporter;
 import com.db4o.Db4oEmbedded;
 import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ext.Db4oException;
@@ -18,10 +20,10 @@ public final class GuiceConfigBackend implements Module {
 	private final String databaseLocation;
 
 	public GuiceConfigBackend(final EmbeddedObjectContainer objectContainer, final String databaseLocation) {
-		this.objectContainer = objectContainer;		
-		this.databaseLocation = databaseLocation;		
+		this.objectContainer = objectContainer;
+		this.databaseLocation = databaseLocation;
 	}
-	
+
 	public GuiceConfigBackend(final String databaseLocation) throws Db4oException {
 		this(Db4oEmbedded.openFile(databaseLocation), databaseLocation);
 	}
@@ -33,6 +35,7 @@ public final class GuiceConfigBackend implements Module {
 		final Vault vault = new DataAccessObjectForAll(db4oImpl);
 		binder.bind(Vault.class).toInstance(vault);
 		binder.bind(ApprenticeParser.class).to(JsonParser.class);
+		binder.bind(IDatabaseImporterExporter.class).to(DatabaseImporterExporter.class);
 	}
 
 }

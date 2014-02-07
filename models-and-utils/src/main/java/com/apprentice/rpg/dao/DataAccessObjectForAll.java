@@ -1,7 +1,7 @@
 package com.apprentice.rpg.dao;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
@@ -29,8 +29,8 @@ public class DataAccessObjectForAll implements Vault {
 	/**
 	 * Starts a timer, call stopTimerAndLog() to log a message with the duration
 	 */
-	public static void startTimer() {		
-		startTimeMillis = System.currentTimeMillis();		 
+	public static void startTimer() {
+		startTimeMillis = System.currentTimeMillis();
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class DataAccessObjectForAll implements Vault {
 		} else {
 			final int seconds = (int) (durationMillis / 1000);
 			final long carryMillis = durationMillis % 1000;
-			durationString = seconds + " and " + carryMillis + " ms.";
+			durationString = seconds + "s. and " + carryMillis + " ms.";
 
 		}
 		startTimeMillis = 0;
@@ -59,7 +59,7 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public void checkDoubles(final List<? extends Nameable> nameableObjects) throws TooManyResultsEx {
+	public void checkDoubles(final Collection<? extends Nameable> nameableObjects) throws TooManyResultsEx {
 		for (final Nameable object : nameableObjects) {
 			int hitCount = 0;
 			if (safelyCastObject(object).isEmpty()) {
@@ -95,14 +95,14 @@ public class DataAccessObjectForAll implements Vault {
 	@Override
 	public boolean delete(final Object item) {
 		startTimer();
-		if (exists(item,false)) {
+		if (exists(item, false)) {
 			connection.delete(item);
 			stopTimerAndLog("Deleted object \"" + item.getClass().getSimpleName() + "\"");
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean doesNameExist(final String name, final Class<? extends Nameable> memberOf) {
 		try {
@@ -128,7 +128,7 @@ public class DataAccessObjectForAll implements Vault {
 		if (shouldLog) {
 			startTimer();
 		}
-		final List<?> result = getAll(item.getClass(), false);
+		final Collection<?> result = getAll(item.getClass(), false);
 		for (final Object resultObject : result) {
 			if (resultObject.equals(item)) {
 				if (shouldLog) {
@@ -144,21 +144,26 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public <T> List<T> getAll(final Class<T> type) {
+	public Collection<Nameable> getAll() {
+		return getAll(Nameable.class);
+	}
+
+	@Override
+	public <T> Collection<T> getAll(final Class<T> type) {
 		return getAll(type, true);
 	}
 
 	/**
 	 * like getAll(), but can turn logging on/off
 	 */
-	public <T> List<T> getAll(final Class<T> type, final boolean shouldLog) {
+	public <T> Collection<T> getAll(final Class<T> type, final boolean shouldLog) {
 		if (shouldLog) {
 			startTimer();
 		}
 		try {
-			final List<T> result = connection.load(type);
+			final Collection<T> result = connection.load(type);
 			if (shouldLog) {
-				stopTimerAndLog("Loaded all objects of type \"" + type.getSimpleName() + "\"");
+				stopTimerAndLog("Loaded " + result.size() + " objects of type \"" + type.getSimpleName() + "\"");
 			}
 			return result;
 		} catch (final Db4oException e) {
@@ -178,7 +183,7 @@ public class DataAccessObjectForAll implements Vault {
 		if (shouldLog) {
 			startTimer();
 		}
-		final List<T> result = connection.load(typeToQueryFor);
+		final Collection<T> result = connection.load(typeToQueryFor);
 		checkDoubles(result);
 		try {
 			for (final Object resultObject : result) {
@@ -203,7 +208,7 @@ public class DataAccessObjectForAll implements Vault {
 	@Override
 	@SuppressWarnings("unchecked")
 	public final <T> T getUniqueObjectFromDB(final Class<T> type) {
-		final List<T> resultSet = connection.load(type);
+		final Collection<T> resultSet = connection.load(type);
 		T result = null;
 		if (resultSet.size() != 1) {
 			if (resultSet.size() > 1) {
@@ -228,9 +233,9 @@ public class DataAccessObjectForAll implements Vault {
 			} catch (final ClassCastException e) {
 				throw new ApprenticeEx(e);
 			}
-			connection.save(result);
+			connection.saveAndCommit(result);
 		} else {
-			result = resultSet.get(0);
+			result = resultSet.iterator().next();
 		}
 		return result;
 	}
@@ -249,13 +254,20 @@ public class DataAccessObjectForAll implements Vault {
 	@Override
 	public void update(final Nameable item) {
 		startTimer();
-		for (final Nameable nameable : getAll(item.getClass(),false)) {			
+		for (final Nameable nameable : getAll(item.getClass(), false)) {
 			if (nameable.getName().equals(item.getName()) && !nameable.equals(item)) {
 				throw new NameAlreadyExistsEx("There already exists one (or more) elements of type "
 					+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
 			}
 		}
 		update((Object) item);
+	}
+
+	@Override
+	public void update(final NameableVault importObject) {
+		for (final Nameable nameable : importObject.getAll()) {
+			update(nameable);
+		}
 	}
 
 	@Override
@@ -267,7 +279,7 @@ public class DataAccessObjectForAll implements Vault {
 			word = "Created ";
 		}
 		startTimer();
-		connection.save(item);
+		connection.saveAndCommit(item);
 		stopTimerAndLog(word + item.getClass().getSimpleName());
 	}
 

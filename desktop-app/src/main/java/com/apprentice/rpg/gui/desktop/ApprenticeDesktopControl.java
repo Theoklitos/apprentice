@@ -32,7 +32,7 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 	public Rectangle getDesktopBounds() {
 		return view.getBounds();
 	}
-	
+
 	@Override
 	public void setBackgroundColor(final Color color) {
 		view.setBackgroundImage(null);
@@ -73,7 +73,7 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 	@Override
 	public void setBackgroundImage(final String imagePath) {
 		try {
-			final Image background = WindowUtils.getImageFromPath(imagePath);
+			final Image background = globalState.getWindowUtils().getImageFromPath(imagePath);
 			view.setBackgroundImage(background);
 			// also store it in the config
 			configuration.setBackgroundImagePath(imagePath);
@@ -88,7 +88,7 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 	@Override
 	public void setDefaultDesktopBackground() {
 		try {
-			view.setBackgroundImage(WindowUtils.getDefaultDesktopBackgroundImage());
+			view.setBackgroundImage(globalState.getWindowUtils().getDefaultDesktopBackgroundImage());
 			configuration.setBackgroundDefaultImage();
 		} catch (final ApprenticeEx e) {
 			setBackgroundColor(Color.BLACK);
@@ -101,9 +101,9 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 	public void setView(final ControllableView view) {
 		this.view = (ApprenticeDesktop) view;
 		final BackgroundChangePopupMenu popupMenu = new BackgroundChangePopupMenu(this.view, this);
-		this.view.addMouseListener(popupMenu);		
-		
-		// TODO openinitialframes!				
+		this.view.addMouseListener(popupMenu);
+
+		// TODO openinitialframes!
 	}
 
 }

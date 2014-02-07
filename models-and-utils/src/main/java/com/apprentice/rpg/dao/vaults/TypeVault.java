@@ -1,6 +1,6 @@
 package com.apprentice.rpg.dao.vaults;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.apprentice.rpg.dao.DataAccessObjectForAll;
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
@@ -37,14 +37,14 @@ public final class TypeVault implements ITypeVault {
 		if(utils.exists(object)) {
 			throw new ItemAlreadyExistsEx("Object " + object + " was to be uniquely created but already exists!");
 		}		
-		connection.save(object);		
+		connection.saveAndCommit(object);		
 		DataAccessObjectForAll.stopTimerAndLog("Created \"IType\" object");		
 	}
 
 	@Override
-	public final List<IType> getAll() {
+	public final Collection<IType> getAll() {
 		DataAccessObjectForAll.startTimer();
-		final List<IType> result = connection.load(IType.class);
+		final Collection<IType> result = connection.load(IType.class);
 		DataAccessObjectForAll.stopTimerAndLog("Loaded all objects of type \"IType\"");
 		return result;
 	}
@@ -57,7 +57,7 @@ public final class TypeVault implements ITypeVault {
 	@Override
 	public void update(final IType item) {
 		DataAccessObjectForAll.startTimer();
-		connection.save(item);		
+		connection.saveAndCommit(item);		
 		DataAccessObjectForAll.stopTimerAndLog("Updated \"IType\" object");
 	}
 }

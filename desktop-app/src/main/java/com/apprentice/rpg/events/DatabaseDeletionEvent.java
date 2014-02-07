@@ -6,10 +6,10 @@ package com.apprentice.rpg.events;
  * @author theoklitos
  * 
  */
-public class DatabaseDeletionEvent extends DatabaseModificationEvent {
+public class DatabaseDeletionEvent<T> extends DatabaseModificationEvent<T> {
 
-	public DatabaseDeletionEvent(final Object object) {
-		super(object);
+	public DatabaseDeletionEvent(final T deletedObject) {
+		super(deletedObject);
 	}
 
 }

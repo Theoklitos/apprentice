@@ -1,20 +1,17 @@
 package com.apprentice.rpg.events;
 
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 
-public class BodyPartUpdateEvent extends DatabaseUpdateEvent {
+/**
+ * When a {@link BodyPart} is changed
+ * 
+ * @author theoklitos
+ *
+ */
+public class BodyPartUpdateEvent extends DatabaseUpdateEvent<BodyPart> {
 
-	public BodyPartUpdateEvent(final Nameable bodyPart) {
-		super(bodyPart);
-	}
-
-	/**
-	 * returns the (new or updated) object that triggered this event
-	 */
-	@Override
-	public BodyPart getPayload() {
-		return (BodyPart) super.getPayload();
+	public BodyPartUpdateEvent(final BodyPart updatedBodyPart) {
+		super(updatedBodyPart);
 	}
 
 }

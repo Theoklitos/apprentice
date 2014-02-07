@@ -78,8 +78,7 @@ public class DatabaseSettingsFrame extends ApprenticeInternalFrame {
 		EventQueue.invokeLater(new Runnable() {			
 
 			@Override
-			public void run() {
-				System.out.println(descriptionBuffer.toString());
+			public void run() {				
 				databaseContentsDescriptionLabel.setText(descriptionBuffer.toString());
 			}
 		});

@@ -31,6 +31,7 @@ public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFram
 		this.vault = vault;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void databaseUpdated(final DatabaseModificationEvent event) {
 		updateDatabaseInformationInView();

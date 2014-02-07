@@ -1,6 +1,6 @@
 package com.apprentice.rpg.database;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Connection to some persistent storage
@@ -34,7 +34,7 @@ public interface DatabaseConnection {
 	/**
 	 * returns a list of all the queried objects that exist in the database
 	 */
-	<T> List<T> load(Class<T> classToLoad);
+	<T> Collection<T> load(Class<T> classToLoad);
 
 	/**
 	 * Opens the database
@@ -42,10 +42,10 @@ public interface DatabaseConnection {
 	void openDB() throws ApprenticeDatabaseEx;
 
 	/**
-	 * Overwrites (or creates, if it does not exist) the given object
+	 * Overwrites (or creates, if it does not exist) the given object. Also commits the database.
 	 * 
 	 * @throws ApprenticeDatabaseEx
 	 */
-	void save(final Object item) throws ApprenticeDatabaseEx;
+	void saveAndCommit(final Object item) throws ApprenticeDatabaseEx;
 
 }

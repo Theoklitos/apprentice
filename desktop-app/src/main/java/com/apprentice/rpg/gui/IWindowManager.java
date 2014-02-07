@@ -2,7 +2,6 @@ package com.apprentice.rpg.gui;
 
 import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
 import com.apprentice.rpg.gui.main.MainFrame;
-import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
 import com.apprentice.rpg.model.PlayerCharacter;
 
 /**
@@ -19,14 +18,14 @@ public interface IWindowManager {
 	void initializeMainFrame();
 
 	/**
-	 * Shows the log4j displayer frame
-	 */
-	void showLogFrame();
-
-	/**
 	 * Shows the {@link DatabaseSettingsFrame}
 	 */
 	void showDatabaseSettingsFrame();
+
+	/**
+	 * Shows the log4j displayer frame
+	 */
+	void showLogFrame();
 
 	/**
 	 * Shows the frame used to create a new {@link PlayerCharacter}
@@ -34,7 +33,7 @@ public interface IWindowManager {
 	void showNewCharacterFrame();
 
 	/**
-	 * Shows the {@link TypeAndBodyPartFrame}
+	 * Shows the {@link exportItems}
 	 */
 	void showTypeAndBodyPartFrame();
 

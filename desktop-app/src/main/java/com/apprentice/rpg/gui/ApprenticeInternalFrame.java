@@ -8,7 +8,6 @@ import javax.swing.event.InternalFrameListener;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.util.Box;
 
 /**
@@ -26,15 +25,15 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 
 	private final IGlobalWindowState globalWindowState;
 
-	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState, final String title) {		
-		this.globalWindowState = globalWindowState;	
+	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState, final String title) {
+		this.globalWindowState = globalWindowState;
 		setTitle(title);
-		if (globalWindowState.getWindowState(getTitle()).hasContent()) {			
-			if( globalWindowState.getWindowState(getTitle()).getContent().isOpen()) {
-				throw new FrameAlreadyOpenEx("Tried to open frame \"" + getTitle() + "\" which was already open.");
-			}				
-		}		
-		WindowUtils.setInformationIcon(this);
+		if (globalWindowState.getWindowState(getTitle()).hasContent()) {
+			if (globalWindowState.getWindowState(getTitle()).getContent().isOpen()) {
+				//throw new FrameAlreadyOpenEx("Tried to open frame \"" + getTitle() + "\" which was already open.");
+			}
+		}
+		globalWindowState.getWindowUtils().setInformationIcon(this);
 		setClosable(true);
 		setResizable(true);
 		setMaximizable(true);
@@ -42,6 +41,13 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 		setStateListeners();
 		setMinimumSize(getInitialSize());
 		setVisible(true);
+	}
+
+	/**
+	 * returns a reference to the {@link IGlobalWindowState} that this frame has been given
+	 */
+	public IGlobalWindowState getGlobalWindowState() {
+		return globalWindowState;
 	}
 
 	/**
@@ -65,13 +71,14 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 			@Override
 			public void internalFrameActivated(final InternalFrameEvent event) {
 				if (hasJustOpened) {
-					final Box<WindowState> oldState = globalWindowState.getWindowState(getTitle());					
+					final Box<WindowState> oldState = globalWindowState.getWindowState(getTitle());
 					if (oldState.hasContent()) {
 						getReferenceToSelf().setBounds(oldState.getContent().getBounds());
 						globalWindowState.setWindowOpen(getTitle());
 					} else {
 						getReferenceToSelf().setSize(getInitialSize());
-						WindowUtils.centerInternalComponent(getParent(), getReferenceToSelf(), 0);
+						globalWindowState.getWindowUtils()
+								.centerInternalComponent(getParent(), getReferenceToSelf(), 0);
 						globalWindowState.updateWindow(getTitle(), getBounds(), true);
 					}
 					hasJustOpened = false;

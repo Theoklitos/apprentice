@@ -21,7 +21,7 @@ public final class TestIntegerRange {
 
 		assertEquals(33, range.getMin());
 		assertEquals(67, range.getMax());
-		assertEquals(parsableString, range.toParsingString());
+		assertEquals(parsableString, range.toString());
 	}
 
 	@Test

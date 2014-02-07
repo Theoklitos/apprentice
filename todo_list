@@ -1,12 +1,20 @@
 version 0.2!
-* finish vault frame
-* junit test everything - controls
-* investigate android side
+* import/export. Player also.
+* integration tests for the above
+
+* description and storage date. Set field in tables.
+* don't hit database so often!
+* unit test the typeAndBodyFrameStuff!
+* unit test other controls?
+* finish guicing IWindowUtils
+* restore closed frames. Handle fragile case on init() open closed frame*
+* database open/close
 
 Version 3!
-* work on new player
-* player frame!!
-* scrollable!
+* items = weapons + armor
+* magic!
 * splash screen
-* restore closed frames
-* database open/close
+
+Version 4!
+* Player Frame :)
+

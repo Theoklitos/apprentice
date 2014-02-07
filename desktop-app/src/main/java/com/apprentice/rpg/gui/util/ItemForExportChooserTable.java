@@ -1,0 +1,38 @@
+package com.apprentice.rpg.gui.util;
+
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.gui.ApprenticeTable;
+import com.apprentice.rpg.gui.vault.VaultFrameTableModel;
+import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
+import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
+
+public class ItemForExportChooserTable extends ApprenticeTable {
+
+	private static final long serialVersionUID = 1L;
+
+	public ItemForExportChooserTable(final ItemType type, final ExportConfigurationObject config, final Vault vault) {
+		final VaultFrameTableModel model = new VaultFrameTableModel(-1);		
+		model.setColumnCount(1);
+		setModel(model);		
+		for (final Nameable item : vault.getAll(type.type)) {
+			model.addRow(new String[] { item.getName()});
+		}
+		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);		
+		getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(final ListSelectionEvent event) {
+				final String selectedName = getSelectedName().getContent();
+				config.addNameForExport(type, selectedName);
+			}
+		});
+		this.repaint();
+		this.revalidate();		
+	}
+
+}

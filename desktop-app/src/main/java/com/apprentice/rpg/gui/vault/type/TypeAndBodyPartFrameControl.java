@@ -1,10 +1,11 @@
 package com.apprentice.rpg.gui.vault.type;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
+import com.apprentice.rpg.dao.ItemNotFoundEx;
+import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.BodyPartDeletionEvent;
@@ -17,79 +18,77 @@ import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.parsing.ApprenticeParser;
+import com.apprentice.rpg.parsing.ParsingEx;
+import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
+import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
+import com.apprentice.rpg.parsing.exportImport.IDatabaseImporterExporter;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 /**
- * Controls the {@link TypeAndBodyPartFrame}
+ * Controls the {@link exportItems}
  * 
  * @author theoklitos
  * 
  */
 public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl {
 
-	/**
-	 * used to facilitate method calls from the frame
-	 * 
-	 * @author theoklitos
-	 * 
-	 */
-	public enum ItemType {
-		TYPE,
-		BODY_PART;
-
-		@Override
-		public String toString() {			
-			if (name().equals(ItemType.TYPE.name())) {				
-				return "type";
-			} else {
-				return "body part";
-			}
-		}
-	}
-
 	private static Logger LOG = Logger.getLogger(TypeAndBodyPartFrameControl.class);
 
 	private final Vault vault;
 	private TypeAndBodyPartFrame view;
 	private final ApprenticeEventBus eventBus;
-	private final ApprenticeParser parser;
+	private final IDatabaseImporterExporter dbImporterExporter;
 
 	@Inject
-	public TypeAndBodyPartFrameControl(final Vault vault, final ApprenticeEventBus eventBus, final ApprenticeParser parser) {
+	public TypeAndBodyPartFrameControl(final Vault vault, final ApprenticeEventBus eventBus,
+			final IDatabaseImporterExporter dbImporterExporter) {
 		this.vault = vault;
 		this.eventBus = eventBus;
-		this.parser = parser;
+		this.dbImporterExporter = dbImporterExporter;
+	}
+
+	@Subscribe
+	public void bodyPartNameDelete(final BodyPartDeletionEvent event) {
+		view.removeBodyPartsInView(event.getPayload());
 	}
 
 	@Override
-	public void create(final BodyPart newPart) throws ItemAlreadyExistsEx {
-		vault.create(newPart);
-		eventBus.objectUpdateEvent(newPart);
-		view.refreshFromModel();
-	}
-
-	@Override
-	public void create(final IType newType) throws ItemAlreadyExistsEx {
-		vault.create(newType);
-		eventBus.objectUpdateEvent(newType);
-		view.refreshFromModel();
-	}
-
-	@Override
-	public void delete(final Nameable item, final ItemType itemType) {
-		DatabaseDeletionEvent event = null;
-		switch (itemType) {
+	public void createOrUpdate(final Nameable item, final ItemType type) throws NameAlreadyExistsEx {
+		final String message = vault.exists(item) ? "Updated " : "Created ";
+		DatabaseUpdateEvent<?> event = null;
+		switch (type) {
 		case BODY_PART:
-			event = new BodyPartDeletionEvent(item);
+			event = new BodyPartUpdateEvent((BodyPart) item);
 			break;
 		case TYPE:
-			event = new TypeDeletionEvent(item);
+			event = new TypeUpdateEvent((IType) item);
+			break;
+		}
+		vault.update(item);
+		LOG.info(message + type + " \"" + item.getName() + "\".");
+		eventBus.postEvent(event);
+		view.refreshFromModel(true);
+	}
+
+	@Override
+	public void deleteByName(final String name, final ItemType type) throws ItemNotFoundEx {
+		DatabaseDeletionEvent<?> event = null;
+		Nameable item = null;
+		switch (type) {
+		case BODY_PART:
+			item = getBodyPartForName(name);
+			event = new BodyPartDeletionEvent((BodyPart) item);
+			break;
+		case TYPE:
+			item = getTypeForName(name);
+			event = new TypeDeletionEvent((IType) item);
 			break;
 		}
 		if (vault.delete(item)) {
+			LOG.info("Deleted " + type + " \"" + item.getName() + "\".");
 			eventBus.postEvent(event);
-			view.refreshFromModel();
+			view.refreshFromModel(true);
 		}
 	}
 
@@ -99,41 +98,65 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 	}
 
 	@Override
-	public List<BodyPart> getBodyParts() {
+	public void exportForConfiguration(final ExportConfigurationObject config) throws ItemNotFoundEx, ParsingEx {
+		dbImporterExporter.export(config);
+	}
+
+	@Override
+	public BodyPart getBodyPartForName(final String bodyPartName) throws ItemNotFoundEx {
+		for (final BodyPart bodyPart : getBodyParts()) {
+			if (bodyPart.getName().equals(bodyPartName)) {
+				return bodyPart;
+			}
+		}
+		throw new ItemNotFoundEx("Body part \"" + bodyPartName + "\" does not exist.");
+	}
+
+	@Override
+	public Collection<BodyPart> getBodyParts() {
 		return vault.getAll(BodyPart.class);
 	}
 
 	@Override
-	public String getJsonForAllTypesAndBodyParts() {
-		// TODO Auto-generated method stub
-		return null;
+	public IType getTypeForName(final String typeName) throws ItemNotFoundEx {
+		for (final IType type : getTypes()) {
+			if (type.getName().equals(typeName)) {
+				return type;
+			}
+		}
+		throw new ItemNotFoundEx("Type \"" + typeName + "\" does not exist.");
 	}
 
 	@Override
-	public List<IType> getTypes() {
+	public Nameable getTypeOrBodyPartForName(final String name, final ItemType type) throws ItemNotFoundEx {
+		switch (type) {
+		case BODY_PART:
+			return getBodyPartForName(name);
+		case TYPE:
+			return getTypeForName(name);
+		}
+		throw new ItemNotFoundEx();
+	}
+
+	@Override
+	public Collection<IType> getTypes() {
 		return vault.getAll(IType.class);
+	}
+
+	@Override
+	public Vault getVault() {
+		return vault;
+	}
+
+	@Override
+	public void importFromFile(final String fileLocation) throws ParsingEx {
+		dbImporterExporter.importFrom(fileLocation);
+		view.refreshFromModel(true);
 	}
 
 	@Override
 	public void setView(final ControllableView view) {
 		this.view = (TypeAndBodyPartFrame) view;
-	}
-
-	@Override
-	public void update(final Nameable item, final ItemType type) {
-		DatabaseUpdateEvent event = null;
-		switch (type) {
-		case BODY_PART:
-			event = new BodyPartUpdateEvent(item);
-			break;
-		case TYPE:
-			event = new TypeUpdateEvent(item);
-			break;
-		}
-		vault.update(item);
-		LOG.info("Updated " + item.getClass().getSimpleName() + ".");
-		eventBus.postEvent(event);
-		view.refreshFromModel();
 	}
 
 }

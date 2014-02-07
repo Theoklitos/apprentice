@@ -51,6 +51,14 @@ public final class TestType {
 	}
 
 	@Test(expected = BodyPartMappingEx.class)
+	public void initializedWithNonConsecutive() {
+		final BodyPartToRangeMap wrongMapping = new BodyPartToRangeMap();		
+		wrongMapping.setPartForRange(1, 50, part1);
+		wrongMapping.setPartForRange(52, 100, part2);
+		new Type(NAME, wrongMapping);
+	}
+	
+	@Test(expected = BodyPartMappingEx.class)
 	public void initializedWithWrongParts() {
 		final BodyPartToRangeMap wrongMapping = new BodyPartToRangeMap();
 		wrongMapping.setPartForRange(1, 70, part1);

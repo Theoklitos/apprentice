@@ -62,15 +62,15 @@ public final class DataFactory {
 
 	private void initializeParts() {
 		allParts = Lists.newArrayList();
-		allParts.add(new BodyPart("Head"));
-		allParts.add(new BodyPart("Torso"));
-		allParts.add(new BodyPart("Left Arm"));
-		allParts.add(new BodyPart("Right Arm"));
-		allParts.add(new BodyPart("Left Leg"));
-		allParts.add(new BodyPart("Right Leg"));
-		allParts.add(new BodyPart("Left Wing"));
-		allParts.add(new BodyPart("Right Wing"));
-		allParts.add(new BodyPart("Tail"));
+		allParts.add(new BodyPart("Head")); // 0
+		allParts.add(new BodyPart("Torso")); // 1
+		allParts.add(new BodyPart("Left Arm")); // 2
+		allParts.add(new BodyPart("Right Arm")); // 3
+		allParts.add(new BodyPart("Left Leg")); // 4
+		allParts.add(new BodyPart("Right Leg")); // 5
+		allParts.add(new BodyPart("Left Wing")); // 6
+		allParts.add(new BodyPart("Right Wing")); // 7
+		allParts.add(new BodyPart("Tail")); // 8
 	}
 
 	private void initializeTypes() {
@@ -83,5 +83,17 @@ public final class DataFactory {
 		humanMapping.setPartForRange(79, 89, allParts.get(4));
 		humanMapping.setPartForRange(90, 100, allParts.get(5));
 		types.add(new Type("Human", humanMapping));
+
+		final BodyPartToRangeMap wingedHumanoidMapping = new BodyPartToRangeMap();
+		wingedHumanoidMapping.setPartForRange(1, 10, allParts.get(0));
+		wingedHumanoidMapping.setPartForRange(11, 50, allParts.get(1));
+		wingedHumanoidMapping.setPartForRange(51, 60, allParts.get(2));
+		wingedHumanoidMapping.setPartForRange(61, 70, allParts.get(3));
+		wingedHumanoidMapping.setPartForRange(71, 75, allParts.get(4));
+		wingedHumanoidMapping.setPartForRange(76, 80, allParts.get(5));
+		wingedHumanoidMapping.setPartForRange(81, 87, allParts.get(6));
+		wingedHumanoidMapping.setPartForRange(86, 94, allParts.get(7));
+		wingedHumanoidMapping.setPartForRange(95, 100, allParts.get(8));
+		types.add(new Type("Daemon", wingedHumanoidMapping));
 	}
 }

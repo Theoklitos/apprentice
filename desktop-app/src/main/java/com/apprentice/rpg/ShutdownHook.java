@@ -24,8 +24,8 @@ public final class ShutdownHook implements IShutdownHook {
 	}
 
 	public void shutdownGracefully() {
-		database.save(globalWindowState);
-		database.save(config);
+		database.saveAndCommit(globalWindowState);
+		database.saveAndCommit(config);
 		database.closeDB();
 		LOG.debug("Killing driz'zt...");
 		LOG.debug("Apprentice has been shut down. Have a nice day!");

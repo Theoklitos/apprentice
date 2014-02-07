@@ -18,7 +18,6 @@ import com.apprentice.rpg.gui.IGlobalWindowState;
 import com.apprentice.rpg.gui.IWindowManager;
 import com.apprentice.rpg.gui.WindowState;
 import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
-import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.util.Box;
 
 public final class MainFrame extends JFrame {
@@ -29,20 +28,22 @@ public final class MainFrame extends JFrame {
 	private final ApprenticeDesktop desktop;
 	private final IWindowManager windowManager;
 	private final IEventBarControl eventBarControl;
+	private final IGlobalWindowState globalState;
 
 	public MainFrame(final IGlobalWindowState globalState, final IWindowManager windowManager,
 			final IMainControl mainControl, final IEventBarControl eventBarControl, final ApprenticeDesktop desktop) {
+		this.globalState = globalState;
 		this.windowManager = windowManager;
 		this.mainControl = mainControl;
 		this.eventBarControl = eventBarControl;
 		this.desktop = desktop;
 
 		setTitle("Apprentice v0.2 - Built 0 Deathuary 2666");
-		WindowUtils.setDefaultIcon(this);
-		setSizeAndPosition(globalState);
+		globalState.getWindowUtils().setDefaultIcon(this);
+		setSizeAndPosition();
 		initMenus();
 		initComponents();
-		setShutdownHook(globalState);
+		setShutdownHook();
 	}
 
 	/**
@@ -50,12 +51,12 @@ public final class MainFrame extends JFrame {
 	 */
 	public void addInternalFrame(final JInternalFrame internalFrame) {
 		desktop.add(internalFrame);
-		WindowUtils.centerInternalComponent(this, internalFrame, 50);
+		globalState.getWindowUtils().centerInternalComponent(this, internalFrame, 50);
 		desktop.validate();
 	}
 
 	private void initComponents() {
-		final JPanel grandPane = new JPanel(new BorderLayout());		
+		final JPanel grandPane = new JPanel(new BorderLayout());
 		grandPane.add(desktop, BorderLayout.CENTER);
 		final EventBar eventBar = new EventBar();
 		eventBarControl.setView(eventBar);
@@ -103,7 +104,6 @@ public final class MainFrame extends JFrame {
 			}
 		});
 		mnVaults.add(mntmTypes);
-		
 
 		final JMenu mnConfiguration = new JMenu("Configuration");
 		menuBar.add(mnConfiguration);
@@ -136,7 +136,7 @@ public final class MainFrame extends JFrame {
 		mnHelp.add(mntmContact);
 	}
 
-	private void setShutdownHook(final IGlobalWindowState globalState) {
+	private void setShutdownHook() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -149,16 +149,16 @@ public final class MainFrame extends JFrame {
 	}
 
 	/**
-	 * ...using the {@link IGlobalWindowState}
+	 * stores information about this frame in the {@link IGlobalWindowState}
 	 */
-	private void setSizeAndPosition(final IGlobalWindowState globalState) {
+	private void setSizeAndPosition() {
 		final Box<WindowState> stateBox = globalState.getWindowState(getTitle());
 		setMinimumSize(new Dimension(700, 400));
 		if (stateBox.hasContent()) {
 			setBounds(stateBox.getContent().getBounds());
 		} else {
 			setSize(1000, 600);
-			WindowUtils.centerComponent(this, 100);
+			globalState.getWindowUtils().centerComponent(this, 100);
 		}
 	}
 

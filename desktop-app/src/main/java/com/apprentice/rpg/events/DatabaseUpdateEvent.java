@@ -4,11 +4,11 @@ package com.apprentice.rpg.events;
  * Fired on new or modified existing object in the DB
  * 
  * @author theoklitos
- *
+ * 
  */
-public class DatabaseUpdateEvent extends DatabaseModificationEvent {
+public class DatabaseUpdateEvent<T> extends DatabaseModificationEvent<T> {
 
-	public DatabaseUpdateEvent(final Object object) {
-		super(object);
+	public DatabaseUpdateEvent(final T updatedObject) {
+		super(updatedObject);
 	}
 }

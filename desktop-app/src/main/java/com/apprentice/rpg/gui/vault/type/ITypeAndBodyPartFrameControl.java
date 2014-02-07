@@ -1,16 +1,20 @@
 package com.apprentice.rpg.gui.vault.type;
 
-import java.util.List;
+import java.util.Collection;
 
-import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
+import com.apprentice.rpg.dao.ItemNotFoundEx;
+import com.apprentice.rpg.dao.NameAlreadyExistsEx;
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ControlForView;
-import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrameControl.ItemType;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.parsing.ParsingEx;
+import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
+import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
 
 /**
- * Controls the {@link TypeAndBodyPartFrame}
+ * Controls the {@link exportItems}
  * 
  * @author theoklitos
  * 
@@ -18,23 +22,19 @@ import com.apprentice.rpg.model.body.IType;
 public interface ITypeAndBodyPartFrameControl extends ControlForView {
 
 	/**
-	 * stores a new {@link BodyPart}
+	 * used to update an existing body part or a type
 	 * 
-	 * @throws ItemAlreadyExistsEx
+	 * @throws NameAlreadyExistsEx
 	 */
-	void create(BodyPart newPart) throws ItemAlreadyExistsEx;
+	void createOrUpdate(Nameable item, ItemType itemType) throws NameAlreadyExistsEx;
 
 	/**
-	 * stores a new {@link IType}
+	 * Deletes a type or body part which is identified by the given name.
 	 * 
-	 * @throws ItemAlreadyExistsEx
+	 * @throws ItemNotFoundEx
+	 *             if such an item does not eixst
 	 */
-	void create(IType newType) throws ItemAlreadyExistsEx;
-
-	/**
-	 * removes this body part or type from the repository. Might affect existing players.
-	 */
-	void delete(Nameable item, ItemType itemType);
+	void deleteByName(String name, ItemType type) throws ItemNotFoundEx;
 
 	/**
 	 * returns true if a {@link IType} with the given name exists in the database
@@ -42,24 +42,59 @@ public interface ITypeAndBodyPartFrameControl extends ControlForView {
 	boolean doesTypeNameExist(String name);
 
 	/**
-	 * returns all the existing {@link BodyPart}s
+	 * Uses the {@link ExportConfigurationObject} in order to write types+body parts to a file. Overwrites.
+	 * 
+	 * @throws ItemNotFoundEx
+	 *             if some name does not match an item in the vault
+	 * 
+	 * @throws ParsingEx
+	 *             error during parsing
 	 */
-	List<BodyPart> getBodyParts();
+	void exportForConfiguration(final ExportConfigurationObject config) throws ItemNotFoundEx, ParsingEx;
 
 	/**
-	 * returns a json string containing an object mapped to an array with all the body parts and one more to
-	 * allt he types
+	 * Searches in the vault and returns a {@link BodyPart} with the given name
+	 * 
+	 * @throws ItemNotFoundEx
+	 *             if such a body part does not exist
 	 */
-	String getJsonForAllTypesAndBodyParts();
+	BodyPart getBodyPartForName(String bodyPartName) throws ItemNotFoundEx;
+
+	/**
+	 * returns all the existing {@link BodyPart}s
+	 */
+	Collection<BodyPart> getBodyParts();
+
+	/**
+	 * Searches in the vault and returns a {@link IType} with the given name
+	 * 
+	 * @throws ItemNotFoundEx
+	 *             if such a type does not exist
+	 */
+	IType getTypeForName(String typeName) throws ItemNotFoundEx;
+
+	/**
+	 * returns either a {@link IType} or a {@link BodyPart}, based on what is requested
+	 * 
+	 * @throws ItemNotFoundEx
+	 */
+	Nameable getTypeOrBodyPartForName(String name, ItemType type) throws ItemNotFoundEx;
 
 	/**
 	 * returns all the existing {@link IType}s
 	 */
-	List<IType> getTypes();
+	Collection<IType> getTypes();
 
 	/**
-	 * used to update an existing body part or a type
+	 * returns a reference to the global {@link Vault}
 	 */
-	void update(Nameable item, ItemType itemType);
+	Vault getVault();
+
+	/**
+	 * will import body parts and types from the given file location
+	 * 
+	 * @throws {@link ParsingEx}
+	 */
+	void importFromFile(String fileLocation) throws ParsingEx;
 
 }

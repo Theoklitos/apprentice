@@ -15,7 +15,7 @@ import com.apprentice.rpg.util.IntegerRange;
 public interface IType extends Nameable {
 
 	/**
-	 * Returns a the body parts and the interger ranges they correspond to.
+	 * Returns a copy of the body parts and the interger ranges they correspond to - changing this will not affect the type
 	 */
 	BodyPartToRangeMap getPartMapping();
 

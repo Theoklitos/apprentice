@@ -1,6 +1,6 @@
 package com.apprentice.rpg.events;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
 
 /**
@@ -9,10 +9,10 @@ import com.apprentice.rpg.model.body.Type;
  * @author theoklitos
  * 
  */
-public class TypeDeletionEvent extends DatabaseDeletionEvent {
+public class TypeDeletionEvent extends DatabaseDeletionEvent<IType> {
 
-	public TypeDeletionEvent(final Nameable type) {
-		super(type);
+	public TypeDeletionEvent(final IType deletedType) {
+		super(deletedType);
 	}
 
 }

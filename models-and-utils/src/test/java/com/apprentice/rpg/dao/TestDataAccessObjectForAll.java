@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -14,7 +14,11 @@ import org.junit.Test;
 
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.google.common.collect.Lists;
+import com.apprentice.rpg.model.body.BodyPartToRangeMap;
+import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.body.Type;
+import com.apprentice.rpg.parsing.exportImport.ImportObject;
+import com.google.common.collect.Sets;
 
 /**
  * tests for the {@link DataAccessObjectForAll}
@@ -27,7 +31,9 @@ public final class TestDataAccessObjectForAll {
 	private DatabaseConnection connection;
 	private Mockery mockery;
 	private DataAccessObjectForAll dao;
-	private List<BodyPart> parts;
+	private Collection<BodyPart> parts;
+	private Collection<IType> types;
+	private IType type1;
 	private BodyPart knownPart;
 
 	@Test(expected = ItemAlreadyExistsEx.class)
@@ -40,7 +46,7 @@ public final class TestDataAccessObjectForAll {
 		final BodyPart newPart = new BodyPart("wings");
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).save(newPart);
+				oneOf(connection).saveAndCommit(newPart);
 			}
 		});
 		dao.create(newPart);
@@ -109,16 +115,23 @@ public final class TestDataAccessObjectForAll {
 		dao = new DataAccessObjectForAll(connection);
 
 		// some test data
-		parts = Lists.newArrayList();
+		parts = Sets.newHashSet();
 		knownPart = new BodyPart("head");
 		parts.add(knownPart);
 		parts.add(new BodyPart("arms"));
 		parts.add(new BodyPart("legs"));
+		final BodyPartToRangeMap mapping = new BodyPartToRangeMap();
+		mapping.setPartForRange(1, 100, knownPart);
+		types = Sets.newHashSet();
+		type1 = new Type("type1", mapping);
+		types.add(type1);
 
 		mockery.checking(new Expectations() {
 			{
 				allowing(connection).load(BodyPart.class);
 				will(returnValue(parts));
+				allowing(connection).load(Type.class);
+				will(returnValue(types));
 			}
 		});
 	}
@@ -138,16 +151,31 @@ public final class TestDataAccessObjectForAll {
 	public void update() {
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).save(knownPart);
+				oneOf(connection).saveAndCommit(knownPart);
 			}
 		});
 		knownPart.setName("new name");
 		dao.update(knownPart);
 	}
 
-	//@Test(expected = NameAlreadyExistsEx.class)
+	@Test
+	public void updateFromImportObject() {
+		final ImportObject io = new ImportObject();
+		io.addAll(Sets.newHashSet(knownPart));
+		io.addAll(types);
+
+		mockery.checking(new Expectations() {
+			{
+				oneOf(connection).saveAndCommit(knownPart);
+				oneOf(connection).saveAndCommit(type1);
+			}
+		});
+
+		dao.update(io);
+	}
+
+	@Test(expected = NameAlreadyExistsEx.class)
 	public void updateNameableSameName() {
-		final int i; //enabled when you figure this out 
 		knownPart.setName("arms");
 		dao.update(knownPart);
 	}

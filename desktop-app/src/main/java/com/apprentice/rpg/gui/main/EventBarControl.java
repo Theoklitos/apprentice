@@ -12,8 +12,8 @@ public class EventBarControl extends AppenderSkeleton implements IEventBarContro
 	private EventBar view;
 
 	@Override
-	protected void append(final LoggingEvent event) {
-		if (view != null && event.getLevel().equals(Level.INFO)) {
+	protected void append(final LoggingEvent event) {		
+		if (view != null && event.getLevel().toString().equals(Level.INFO.toString())) {
 			view.showMessage(event.getMessage().toString());
 		}
 	}

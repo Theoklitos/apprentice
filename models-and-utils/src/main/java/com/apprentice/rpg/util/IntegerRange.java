@@ -109,10 +109,6 @@ public final class IntegerRange implements Comparable<IntegerRange> {
 		return Math.abs(getMin() - getMax()) + 1;
 	}
 
-	public String toParsingString() {
-		return min + NUMBER_RANGE_INDICATOR + max;
-	}
-
 	@Override
 	public String toString() {
 		return getMin() + "-" + getMax();

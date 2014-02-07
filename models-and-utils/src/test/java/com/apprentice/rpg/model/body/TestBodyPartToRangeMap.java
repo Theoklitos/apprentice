@@ -9,6 +9,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.apprentice.rpg.util.Box;
+import com.apprentice.rpg.util.IntegerRange;
+
 /**
  * Tests for the {@link BodyPartToRangeMap}
  * 
@@ -22,12 +25,35 @@ public final class TestBodyPartToRangeMap {
 	private BodyPart arms;
 	private BodyPart legs;
 	private BodyPart balls;
+	private IntegerRange headRange;
+	private IntegerRange armsRange;
 
 	@Test
-	public void getNonExistingPart() {		
-		assertEquals(0,mapping.getPartsForNumber(60).size());
-		assertEquals(0,mapping.getPartsForNumber(78).size());
-		assertEquals(0,mapping.getPartsForNumber(99).size());
+	public void canRetrieveRangeForPart() {
+		assertTrue(mapping.getRangeForBodyPart(new BodyPart("non-existing")).isEmpty());
+		assertTrue(mapping.getRangeForBodyPart(new BodyPart("head1")).isEmpty());
+
+		final Box<IntegerRange> foundBox1 = mapping.getRangeForBodyPart(new BodyPart("head"));
+		assertTrue(foundBox1.hasContent());
+		assertEquals(headRange, foundBox1.getContent());
+		final Box<IntegerRange> foundBox2 = mapping.getRangeForBodyPart(new BodyPart("arms"));
+		assertTrue(foundBox2.hasContent());
+		assertEquals(armsRange, foundBox2.getContent());
+	}
+	
+	@Test
+	public void getEquals() {
+		final BodyPartToRangeMap copy = new BodyPartToRangeMap(mapping);
+		assertEquals(copy, mapping);
+		copy.setPartForRange(200, 300, head);
+		assertFalse(copy.equals(mapping));
+	}
+
+	@Test
+	public void getNonExistingPart() {
+		assertEquals(0, mapping.getPartsForNumber(60).size());
+		assertEquals(0, mapping.getPartsForNumber(78).size());
+		assertEquals(0, mapping.getPartsForNumber(99).size());
 	}
 
 	@Test
@@ -41,9 +67,17 @@ public final class TestBodyPartToRangeMap {
 		final BodyPart anotherArm = new BodyPart("another arm");
 		mapping.setPartForRange(11, 15, anotherArm);
 		final List<BodyPart> foundArms = mapping.getPartsForNumber(14);
-		assertEquals(2, foundArms.size());		
+		assertEquals(2, foundArms.size());
 		assertEquals(anotherArm, foundArms.get(0));
 		assertEquals(arms, foundArms.get(1));
+	}
+
+	@Test
+	public void hasMapping() {
+		assertTrue(mapping.hasMapping(new IntegerRange(1,10)));
+		assertTrue(mapping.hasMapping(11,20));
+		assertFalse(mapping.hasMapping(new IntegerRange(1,100)));
+		assertFalse(mapping.hasMapping(20,30));
 	}
 
 	@Test(expected = BodyPartMappingEx.class)
@@ -67,8 +101,10 @@ public final class TestBodyPartToRangeMap {
 		legs = new BodyPart("legs");
 		balls = new BodyPart("balls");
 		mapping = new BodyPartToRangeMap();
-		mapping.setPartForRange(1, 10, head);
-		mapping.setPartForRange(11, 20, arms);
+		headRange = new IntegerRange(1, 10);
+		mapping.setPartForRange(headRange, head);
+		armsRange = new IntegerRange(11, 20);
+		mapping.setPartForRange(armsRange, arms);
 		mapping.setPartForRange(21, 30, legs);
 		mapping.setPartForRange(31, 40, balls);
 	}

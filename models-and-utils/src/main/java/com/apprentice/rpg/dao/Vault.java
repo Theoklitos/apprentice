@@ -1,23 +1,23 @@
 package com.apprentice.rpg.dao;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.apprentice.rpg.model.Nameable;
 
 /**
- * Used to access the database in a nice, controlled manner
+ * Main interface to the database, a vault is a big Data Access Object
  * 
  * @author theoklitos
  * 
  */
-public interface Vault {
+public interface Vault extends NameableVault {
 
 	/**
 	 * if at least 2 {@link Nameable} objects share the same name, throws {@link TooManyResultsEx}
 	 * 
 	 * @throws TooManyResultsEx
 	 */
-	void checkDoubles(List<? extends Nameable> nameableObjects) throws TooManyResultsEx;
+	void checkDoubles(Collection<? extends Nameable> nameableObjects) throws TooManyResultsEx;
 
 	/**
 	 * Stores the object in the database, but will throw exception if such an object already exists
@@ -32,30 +32,15 @@ public interface Vault {
 	boolean delete(Object item);
 
 	/**
-	 * Returns true if there exists an object of the given class that is {@link Nameable} and has this name
-	 */
-	boolean doesNameExist(String name, Class<? extends Nameable> memberOf);
-
-	/**
-	 * returns true if this object is already stored in the database. Note: Its state can be different, all
-	 * that matters is identity
+	 * returns true if this object is already stored. Note: Its state can be different, all that matters is
+	 * identity
 	 */
 	<T> boolean exists(T item);
 
 	/**
-	 * Returns all the items of type <T> stored in the database
+	 * Returns all the items of type <T> that are stored.
 	 */
-	public <T> List<T> getAll(Class<T> type);
-
-	/**
-	 * Returns the single object that is persisted of the given type for the given name. If more than one, or
-	 * none, exist, exceptions will be thrown.
-	 * 
-	 * @throws TooManyResultsEx
-	 * @throws NoResultsFoundEx
-	 */
-	<T extends Nameable> T getUniqueNamedResult(String name, Class<T> typeToQueryFor) throws TooManyResultsEx,
-			NoResultsFoundEx;
+	public <T> Collection<T> getAll(Class<T> type);
 
 	/**
 	 * Used for when needing to get unique objects from DB. If more than one of this type exist, will not
@@ -65,15 +50,12 @@ public interface Vault {
 	<T> T getUniqueObjectFromDB(Class<T> type);
 
 	/**
-	 * creates or updates(overwrite) the given Nameable object in the database, after checking for name
-	 * duplication
-	 * 
-	 * @throws NameAlreadyExistsEx
+	 * will update all the objects inside the given {@link NameableVault}
 	 */
-	void update(Nameable item) throws NameAlreadyExistsEx;
+	public void update(final NameableVault simpleVault);
 
 	/**
-	 * creates or updates(overwrite) the given object in the database
+	 * creates or updates(overwritea) the given object
 	 */
 	public void update(final Object item);
 

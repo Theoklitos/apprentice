@@ -1,6 +1,6 @@
 package com.apprentice.rpg.database;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
@@ -59,7 +59,7 @@ public class Db4oConnection implements DatabaseConnection {
 	}
 
 	@Override
-	public <T> List<T> load(final Class<T> classToLoad) {
+	public <T> Collection<T> load(final Class<T> classToLoad) {
 		final ObjectSet<T> resultObjectSet = database.query(classToLoad);		
 		return resultObjectSet.subList(0, resultObjectSet.size());
 	}
@@ -78,9 +78,10 @@ public class Db4oConnection implements DatabaseConnection {
 	}
 
 	@Override
-	public void save(final Object object) {
+	public void saveAndCommit(final Object object) {
 		activate(object);
 		database.store(object);
+		database.commit();
 	}
 
 	@Override

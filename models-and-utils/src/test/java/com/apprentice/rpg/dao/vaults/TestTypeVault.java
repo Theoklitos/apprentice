@@ -2,6 +2,7 @@ package com.apprentice.rpg.dao.vaults;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -37,7 +38,7 @@ public final class TestTypeVault {
 			{
 				oneOf(utils).exists(knownType);
 				will(returnValue(false));
-				oneOf(connection).save(knownType);
+				oneOf(connection).saveAndCommit(knownType);
 			}
 		});
 
@@ -65,7 +66,7 @@ public final class TestTypeVault {
 			}
 		});
 
-		final List<IType> allTypes = vault.getAll();
+		final Collection<IType> allTypes = vault.getAll();
 		assertEquals(types, allTypes);
 	}
 
@@ -99,7 +100,7 @@ public final class TestTypeVault {
 	public void update() {
 		mockery.checking(new Expectations() {
 			{
-				oneOf(connection).save(knownType);
+				oneOf(connection).saveAndCommit(knownType);
 			}
 		});
 
