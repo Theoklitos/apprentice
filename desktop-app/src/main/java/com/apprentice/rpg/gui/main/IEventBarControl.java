@@ -8,6 +8,6 @@ import com.apprentice.rpg.gui.ControlForView;
  * @author theoklitos
  * 
  */
-public interface IEventBarControl extends ControlForView {
+public interface IEventBarControl extends ControlForView<EventBar> {
 	// marker interface
 }

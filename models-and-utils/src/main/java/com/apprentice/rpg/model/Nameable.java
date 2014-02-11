@@ -9,9 +9,19 @@ package com.apprentice.rpg.model;
 public interface Nameable {
 
 	/**
+	 * returns a small user-defined text that describes this object
+	 */
+	public String getDescription();
+
+	/**
 	 * returns the "name" of this obejct that is expected to be somewhat unique
 	 */
 	public String getName();
+
+	/**
+	 * sets the description of this object
+	 */
+	public void setDescription(final String description);
 
 	/**
 	 * Changes the name of this object. There is no guarantee that it has remained unique; the DB must check

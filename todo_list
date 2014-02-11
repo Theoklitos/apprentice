@@ -1,20 +1,25 @@
-version 0.2!
-* import/export. Player also.
-* integration tests for the above
-
-* description and storage date. Set field in tables.
-* don't hit database so often!
-* unit test the typeAndBodyFrameStuff!
-* unit test other controls?
-* finish guicing IWindowUtils
-* restore closed frames. Handle fragile case on init() open closed frame*
-* database open/close
-
 Version 3!
-* items = weapons + armor
-* magic!
-* splash screen
+weapons
+when exporting weapons, refactor exporter table control
+fix controls, injector smarter idea
+move level parsing to individual objects, not in parser
+export all necessary parts per type
+armor
+spells
+export whole database
 
 Version 4!
 * Player Frame :)
+
+
+
+#################### Testing Backlog
+* unit test simple vault
+* unit test the LogFrameControl
+* unit tests for DatabaseImportExport
+* unit tests for ExportConfigObject
+
+
+#################### Feature Backlog
+splash screen?
 

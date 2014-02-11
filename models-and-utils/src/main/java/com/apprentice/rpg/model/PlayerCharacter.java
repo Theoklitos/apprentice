@@ -3,6 +3,7 @@ package com.apprentice.rpg.model;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.model.body.BaseApprenticeObject;
 import com.apprentice.rpg.model.body.CharacterType;
 import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Objects;
@@ -11,11 +12,10 @@ import com.google.common.base.Objects;
  * Basic class for the system, represents a human-avatar in the rpg game, a "PC"
  * 
  */
-public final class PlayerCharacter implements IPlayerCharacter {
+public final class PlayerCharacter extends BaseApprenticeObject implements IPlayerCharacter {
 
 	private static Logger LOG = Logger.getLogger(PlayerCharacter.class);
 
-	private String name;
 	private final HitPoints hitPoints;
 	private final CharacterType characterType;
 	private final StatBundle statBundle;
@@ -23,9 +23,9 @@ public final class PlayerCharacter implements IPlayerCharacter {
 
 	public PlayerCharacter(final String name, final int initialHitPoints, final StatBundle initialStatBundle,
 			final CharacterType characterType) {
-		Checker.checkNonNull("Initialized character with null or emtpy value(s)", true, name, initialStatBundle,
+		super(name);
+		Checker.checkNonNull("Initialized character with null or emtpy value(s)", true, initialStatBundle,
 				characterType);
-		this.name = name;
 		this.characterType = characterType;
 		hitPoints = new HitPoints(initialHitPoints);
 		statBundle = initialStatBundle;
@@ -69,11 +69,6 @@ public final class PlayerCharacter implements IPlayerCharacter {
 		return levels;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	/**
 	 * returns one of the 6 character's statistics
 	 */
@@ -92,13 +87,8 @@ public final class PlayerCharacter implements IPlayerCharacter {
 	}
 
 	@Override
-	public void setName(final String newName) {
-		this.name = newName;
-	}
-
-	@Override
 	public String toString() {
-		return name + ", " + getLevels();
+		return getName() + ", " + getLevels();
 	}
 
 }

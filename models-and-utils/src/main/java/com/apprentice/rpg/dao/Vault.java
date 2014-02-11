@@ -2,6 +2,8 @@ package com.apprentice.rpg.dao;
 
 import java.util.Collection;
 
+import com.apprentice.rpg.dao.simple.NameableVault;
+import com.apprentice.rpg.dao.time.ModificationTimeVault;
 import com.apprentice.rpg.model.Nameable;
 
 /**
@@ -10,7 +12,7 @@ import com.apprentice.rpg.model.Nameable;
  * @author theoklitos
  * 
  */
-public interface Vault extends NameableVault {
+public interface Vault extends NameableVault, ModificationTimeVault {
 
 	/**
 	 * if at least 2 {@link Nameable} objects share the same name, throws {@link TooManyResultsEx}
@@ -51,12 +53,15 @@ public interface Vault extends NameableVault {
 
 	/**
 	 * will update all the objects inside the given {@link NameableVault}
+	 * 
+	 * @throws NameAlreadyExistsEx
+	 *             if the update changed the name (in case of a {@link Nameable}) to an existing one
 	 */
-	public void update(final NameableVault simpleVault);
+	public void update(final NameableVault simpleVault) throws NameAlreadyExistsEx;
 
 	/**
 	 * creates or updates(overwritea) the given object
 	 */
-	public void update(final Object item);
+	public void update(final Object item) throws NameAlreadyExistsEx;
 
 }

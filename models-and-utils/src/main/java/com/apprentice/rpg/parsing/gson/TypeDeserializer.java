@@ -3,7 +3,7 @@ package com.apprentice.rpg.parsing.gson;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import com.apprentice.rpg.dao.NameableVault;
+import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.BodyPartToRangeMap;
 import com.apprentice.rpg.model.body.Type;
@@ -40,6 +40,7 @@ public class TypeDeserializer implements JsonDeserializer<Type> {
 			mapping.setPartForRange(range, part);
 		}
 		final Type result = new Type(topLevelObject.get("name").getAsString(), mapping);
+		result.setDescription(topLevelObject.get("description").getAsString());
 		return result;
 	}
 

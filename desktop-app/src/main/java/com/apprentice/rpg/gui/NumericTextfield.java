@@ -38,7 +38,23 @@ public final class NumericTextfield extends JTextField {
 	private static final long serialVersionUID = 1L;
 
 	public NumericTextfield() {
+		this(-1, 0);
+	}
+
+	public NumericTextfield(final int columns) {
+		this(-1, columns);
+	}
+
+	public NumericTextfield(final int initialNumber, final int columns) {
+		super(columns);
 		((AbstractDocument) getDocument()).setDocumentFilter(new OnlyNumbersFilter());
+		if (initialNumber != -1) {
+			setText(Integer.toString(initialNumber));
+		}
+	}
+
+	public int getTextAsInteger() {
+		return Integer.valueOf(getText());
 	}
 
 }

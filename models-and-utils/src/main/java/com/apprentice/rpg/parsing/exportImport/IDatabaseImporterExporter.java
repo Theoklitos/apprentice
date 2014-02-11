@@ -1,7 +1,7 @@
 package com.apprentice.rpg.parsing.exportImport;
 
 import com.apprentice.rpg.dao.ItemNotFoundEx;
-import com.apprentice.rpg.dao.NameableVault;
+import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
 

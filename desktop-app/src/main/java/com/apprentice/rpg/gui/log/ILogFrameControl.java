@@ -8,6 +8,6 @@ import com.apprentice.rpg.gui.ControlForView;
  * @author theoklitos
  * 
  */
-public interface ILogFrameControl extends ControlForView {
-
+public interface ILogFrameControl extends ControlForView<ILogFrame> {
+	// marker
 }

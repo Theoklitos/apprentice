@@ -28,11 +28,7 @@ public final class ExportConfigurationObject {
 	 * Adds the given name to the given {@link ItemType} for export
 	 */
 	public void addNameForExport(final ItemType type, final String selectedName) {
-		Set<String> names = typeToNameMapping.get(selectedName);
-		if (names == null) {
-			names = Sets.newHashSet();
-			typeToNameMapping.put(type, names);
-		}
+		final Set<String> names = getNamesForType(type);
 		names.add(selectedName);
 	}
 
@@ -47,7 +43,12 @@ public final class ExportConfigurationObject {
 	 * Returns the defined names for the {@link Nameable}s names
 	 */
 	public Set<String> getNamesForType(final ItemType type) {
-		return typeToNameMapping.get(type);
+		Set<String> result = typeToNameMapping.get(type);
+		if (result == null) {
+			result = Sets.newHashSet();
+			typeToNameMapping.put(type, result);
+		}
+		return result;
 	}
 
 	/**

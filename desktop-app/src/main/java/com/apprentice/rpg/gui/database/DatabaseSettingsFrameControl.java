@@ -1,11 +1,17 @@
 package com.apprentice.rpg.gui.database;
 
+import java.io.File;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.events.DatabaseModificationEvent;
-import com.apprentice.rpg.gui.ControllableView;
+import com.apprentice.rpg.gui.IWindowManager;
+import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
@@ -21,14 +27,40 @@ import com.google.inject.Inject;
  */
 public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFrameControl {
 
-	private DatabaseSettingsFrame view;
+	private static Logger LOG = Logger.getLogger(DatabaseSettingsFrameControl.class);
+
+	private IDatabaseSettingsFrame view;
+	private final IWindowManager windowManager;
+	private final ITextConfigFileManager textfileManager;
 	private final DatabaseConnection databaseConnection;
 	private final Vault vault;
 
 	@Inject
-	public DatabaseSettingsFrameControl(final DatabaseConnection databaseConnection, final Vault vault) {
+	public DatabaseSettingsFrameControl(final DatabaseConnection databaseConnection, final Vault vault,
+			final IWindowManager windowManager, final ITextConfigFileManager textfileManager) {
 		this.databaseConnection = databaseConnection;
 		this.vault = vault;
+		this.windowManager = windowManager;
+		this.textfileManager = textfileManager;
+	}
+
+	@Override
+	public void changeDatabaseLocation(final String databaseLocation) throws ApprenticeDatabaseEx {
+		if (!new File(databaseLocation).exists()) {
+			throw new ApprenticeDatabaseEx("File " + databaseLocation + " does not exist.");
+		}
+		changeDatabaseLocationUnsafe(databaseLocation);
+	}
+
+	/**
+	 * changes the database without checking if the file exists first. Called directly for testing
+	 */
+	protected void changeDatabaseLocationUnsafe(final String databaseLocation) throws ApprenticeDatabaseEx {
+		databaseConnection.setDatabase(databaseLocation);
+		textfileManager.writeDatabaseLocation(databaseLocation);
+		windowManager.closeAllFrames();
+		windowManager.openFrame(new WindowStateIdentifier(view.getClass()));
+		LOG.info("Using new database " + databaseLocation);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -36,15 +68,15 @@ public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFram
 	public void databaseUpdated(final DatabaseModificationEvent event) {
 		updateDatabaseInformationInView();
 	}
-	
+
 	@Override
 	public String getDatabaseLocation() {
 		return databaseConnection.getLocation();
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (DatabaseSettingsFrame) view;
+	public void setView(final IDatabaseSettingsFrame view) {
+		this.view = view;
 	}
 
 	@Override
@@ -52,12 +84,12 @@ public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFram
 		if (view != null) {
 			final List<String> lines = Lists.newArrayList();
 			// players
-			final int pcSize = vault.getAll(IPlayerCharacter.class).size();
-			final String pcMessage = pcSize != 1 ? pcSize + " player characters." : pcSize + " player character."; 
+			final int pcSize = vault.getAllNameables(IPlayerCharacter.class).size();
+			final String pcMessage = pcSize != 1 ? pcSize + " player characters." : pcSize + " player character.";
 			lines.add(pcMessage);
-			// types and parts			
-			lines.add(vault.getAll(IType.class).size() + " types, comprised of " + vault.getAll(BodyPart.class).size()
-				+ " body parts.");
+			// types and parts
+			lines.add(vault.getAllNameables(IType.class).size() + " types, comprised of "
+				+ vault.getAllNameables(BodyPart.class).size() + " body parts.");
 			view.setDatabaseDescription(lines);
 		}
 	}

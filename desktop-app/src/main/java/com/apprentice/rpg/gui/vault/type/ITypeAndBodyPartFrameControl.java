@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.gui.ControlForView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
@@ -19,7 +20,7 @@ import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
  * @author theoklitos
  * 
  */
-public interface ITypeAndBodyPartFrameControl extends ControlForView {
+public interface ITypeAndBodyPartFrameControl extends ControlForView<ITypeAndBodyPartFrame> {
 
 	/**
 	 * used to update an existing body part or a type
@@ -64,6 +65,16 @@ public interface ITypeAndBodyPartFrameControl extends ControlForView {
 	 * returns all the existing {@link BodyPart}s
 	 */
 	Collection<BodyPart> getBodyParts();
+
+	/**
+	 * returns a reference to the global {@link ApprenticeEventBus}
+	 */
+	ApprenticeEventBus getEventBus();
+
+	/**
+	 * returns a string that describes the last update tim for the given item (and type)
+	 */
+	String getLastUpdateTime(String typeName, ItemType type);
 
 	/**
 	 * Searches in the vault and returns a {@link IType} with the given name

@@ -8,15 +8,15 @@ import javax.swing.JScrollPane;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ApprenticeTable;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 
 /**
- * Frame that is fed the log4j stream.
+ * Frame that is fed the INFO messages from the log4j stream.
  * 
  * @author theoklitos
  * 
  */
-public final class LogFrame extends ApprenticeInternalFrame {
+public final class LogFrame extends ApprenticeInternalFrame implements ILogFrame {
 
 	private static final long serialVersionUID = -1L;
 
@@ -36,10 +36,8 @@ public final class LogFrame extends ApprenticeInternalFrame {
 		tableScrollPane = new JScrollPane(table);
 		getContentPane().add(tableScrollPane, BorderLayout.CENTER);
 	}
-
-	/**
-	 * Adds the string message as a new row to the table inside this logframe
-	 */
+	
+	@Override
 	public void appendMessage(final String date, final String type, final String message) {
 		EventQueue.invokeLater(new Runnable() {
 
@@ -50,9 +48,7 @@ public final class LogFrame extends ApprenticeInternalFrame {
 		});
 	}
 
-	/**
-	 * Wipes the table
-	 */
+	@Override
 	public void clearMessages() {
 		table.clearRows();
 	}

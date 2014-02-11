@@ -3,6 +3,7 @@ package com.apprentice.rpg.util;
 import java.util.List;
 
 import com.apprentice.rpg.model.ApprenticeEx;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 /**
@@ -54,6 +55,11 @@ public final class OccurrenceList<E> {
 		occurrences.clear();
 	}
 
+	@Override
+	public boolean equals(final Object other) {
+		return match(other);
+	}
+
 	public E get(final int index) {
 		return content.get(index);
 	}
@@ -100,10 +106,15 @@ public final class OccurrenceList<E> {
 		int index;
 		try {
 			index = content.indexOf(element);
+			return occurrences.get(index);
 		} catch (final IndexOutOfBoundsException e) {
 			throw new ApprenticeEx(e);
 		}
-		return occurrences.get(index);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(content, occurrences);
 	}
 
 	/**

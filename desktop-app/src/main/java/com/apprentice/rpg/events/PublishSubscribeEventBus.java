@@ -2,6 +2,7 @@ package com.apprentice.rpg.events;
 
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.google.common.eventbus.EventBus;
@@ -23,23 +24,13 @@ public class PublishSubscribeEventBus implements ApprenticeEventBus {
 	}
 
 	@Override
-	public void objectDeleteEvent(final BodyPart bodyPart) {
+	public void postDeleteEvent(final BodyPart bodyPart) {
 		postEventInternal(new BodyPartDeletionEvent(bodyPart));
 	}
 
 	@Override
-	public void objectDeleteEvent(final IType type) {
+	public void postDeleteEvent(final IType type) {
 		postEventInternal(new TypeDeletionEvent(type));
-	}
-
-	@Override
-	public void objectUpdateEvent(final BodyPart updatedBodyPart) {
-		postEventInternal(new BodyPartUpdateEvent(updatedBodyPart));
-	}
-
-	@Override
-	public void objectUpdateEvent(final IType updatedType) {
-		postEventInternal(new TypeUpdateEvent(updatedType));
 	}
 
 	@Override
@@ -50,6 +41,25 @@ public class PublishSubscribeEventBus implements ApprenticeEventBus {
 	private void postEventInternal(final DatabaseModificationEvent<?> event) {
 		LOG.debug("Posted " + event.getClass().getSimpleName() + event);
 		eventBus.post(event);
+	}
+
+	@Override
+	public void postUpdateEvent(final BodyPart updatedBodyPart) {
+		postEventInternal(new BodyPartUpdateEvent(updatedBodyPart));
+	}
+
+	@Override
+	public void postUpdateEvent(final IType updatedType) {
+		postEventInternal(new TypeUpdateEvent(updatedType));
+	}
+
+	@Override
+	public void postUpdateEvent(final Nameable object) {
+		if (BodyPart.class.isAssignableFrom(object.getClass())) {
+			postDeleteEvent((BodyPart)object);
+		} else if (IType.class.isAssignableFrom(object.getClass())) {
+			postDeleteEvent((IType)object);
+		}		
 	}
 
 	@Override

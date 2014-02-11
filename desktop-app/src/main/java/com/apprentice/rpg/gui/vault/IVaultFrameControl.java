@@ -7,6 +7,6 @@ import com.apprentice.rpg.gui.ControlForView;
  * @author theoklitos
  *
  */
-public interface IVaultFrameControl extends ControlForView {
+public interface IVaultFrameControl extends ControlForView<GenericVaultFrame> {
 
 }

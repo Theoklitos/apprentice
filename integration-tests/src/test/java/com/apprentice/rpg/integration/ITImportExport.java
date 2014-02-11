@@ -1,6 +1,7 @@
 package com.apprentice.rpg.integration;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +15,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.apprentice.rpg.dao.NameableVault;
+import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
-import com.apprentice.rpg.util.ApprenticeMatcher;
+import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.google.common.collect.Sets;
 
 /**
@@ -43,6 +44,11 @@ public final class ITImportExport extends AbstractIntegrationTest {
 	}
 
 	@Test
+	public void importArmorAndConflictOccurs() {
+		fail("implement me");
+	}
+
+	@Test
 	public void importTypeAndBodyPartsToEmptyDatabase() throws IOException {
 		saveAllFactoryDataToDatbase();
 		final ExportConfigurationObject config = new ExportConfigurationObject();
@@ -59,16 +65,21 @@ public final class ITImportExport extends AbstractIntegrationTest {
 
 		final List<IType> expectedTypes = factory.getTypes();
 		final List<BodyPart> expectedBodyParts = factory.getBodyParts();
-		final Collection<IType> importedTypes = vault.getAll(IType.class);
-		final Collection<BodyPart> importedBodyParts = vault.getAll(BodyPart.class);
+		final Collection<IType> importedTypes = vault.getAllNameables(IType.class);
+		final Collection<BodyPart> importedBodyParts = vault.getAllNameables(BodyPart.class);
 
-		assertTrue(ApprenticeMatcher.areAllElementsEqual(expectedTypes, importedTypes));
-		assertTrue(ApprenticeMatcher.areAllElementsEqual(expectedBodyParts, importedBodyParts));
-		
+		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(expectedTypes, importedTypes));
+		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(expectedBodyParts, importedBodyParts));
+
 		LOG.info("Succesfully imported " + importedTypes.size() + " types, " + importedBodyParts.size()
 			+ " body parts.");
 	}
-	
+
+	@Test
+	public void importWeaponsAndSomeAlreadyExistInDatabase() {
+		fail("implement me");
+	}
+
 	/**
 	 * sets the "Human" and "Daemon" name stuff in the configuration object
 	 */
@@ -92,7 +103,7 @@ public final class ITImportExport extends AbstractIntegrationTest {
 	}
 
 	@Before
-	public void setup() {		
+	public void setup() {
 		ie = new DatabaseImporterExporter(vault, parser);
 	}
 

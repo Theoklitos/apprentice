@@ -8,6 +8,10 @@ import javax.swing.event.InternalFrameListener;
 
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.gui.util.IWindowUtils;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.WindowState;
+import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.util.Box;
 
 /**
@@ -24,13 +28,20 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 	private static final long serialVersionUID = 1L;
 
 	private final IGlobalWindowState globalWindowState;
+	private final String variable;
 
 	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState, final String title) {
+		this(globalWindowState, title, null);
+	}
+
+	public ApprenticeInternalFrame(final IGlobalWindowState globalWindowState, final String title, final String variable) {
 		this.globalWindowState = globalWindowState;
+		this.variable = variable;
+
 		setTitle(title);
-		if (globalWindowState.getWindowState(getTitle()).hasContent()) {
-			if (globalWindowState.getWindowState(getTitle()).getContent().isOpen()) {
-				//throw new FrameAlreadyOpenEx("Tried to open frame \"" + getTitle() + "\" which was already open.");
+		if (globalWindowState.getWindowState(getWindowStateIdentifier()).hasContent()) {
+			if (globalWindowState.getWindowState(getWindowStateIdentifier()).getContent().isOpen()) {				
+				throw new FrameAlreadyOpenEx("Tried to open frame \"" + getTitle() + "\" which was already open.");
 			}
 		}
 		globalWindowState.getWindowUtils().setInformationIcon(this);
@@ -63,6 +74,20 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 		return this;
 	}
 
+	/**
+	 * creaates a {@link WindowStateIdentifier} for this internal frame
+	 */
+	private WindowStateIdentifier getWindowStateIdentifier() {
+		return new WindowStateIdentifier(getClass(), variable);
+	}
+
+	/**
+	 * returns a reference to the {@link IWindowUtils} that this frame has been given
+	 */
+	public IWindowUtils getWindowUtils() {
+		return globalWindowState.getWindowUtils();
+	}
+
 	private final void setStateListeners() {
 		addInternalFrameListener(new InternalFrameListener() {
 
@@ -71,15 +96,15 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 			@Override
 			public void internalFrameActivated(final InternalFrameEvent event) {
 				if (hasJustOpened) {
-					final Box<WindowState> oldState = globalWindowState.getWindowState(getTitle());
+					final Box<WindowState> oldState = globalWindowState.getWindowState(getWindowStateIdentifier());
 					if (oldState.hasContent()) {
 						getReferenceToSelf().setBounds(oldState.getContent().getBounds());
-						globalWindowState.setWindowOpen(getTitle());
+						globalWindowState.setWindowOpen(getWindowStateIdentifier(),true);
 					} else {
 						getReferenceToSelf().setSize(getInitialSize());
 						globalWindowState.getWindowUtils()
 								.centerInternalComponent(getParent(), getReferenceToSelf(), 0);
-						globalWindowState.updateWindow(getTitle(), getBounds(), true);
+						globalWindowState.setWindowState(getWindowStateIdentifier(), getBounds(), true);
 					}
 					hasJustOpened = false;
 				}
@@ -87,7 +112,7 @@ public abstract class ApprenticeInternalFrame extends JInternalFrame implements 
 
 			@Override
 			public void internalFrameClosed(final InternalFrameEvent event) {
-				globalWindowState.updateWindow(getTitle(), getBounds(), false);
+				globalWindowState.setWindowState(getWindowStateIdentifier(), getBounds(), false);
 			}
 
 			@Override

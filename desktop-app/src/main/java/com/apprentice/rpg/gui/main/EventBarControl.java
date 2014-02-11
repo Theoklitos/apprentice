@@ -5,8 +5,6 @@ import java.util.logging.Level;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
-import com.apprentice.rpg.gui.ControllableView;
-
 public class EventBarControl extends AppenderSkeleton implements IEventBarControl {
 
 	private EventBar view;
@@ -29,8 +27,8 @@ public class EventBarControl extends AppenderSkeleton implements IEventBarContro
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (EventBar) view;
+	public void setView(final EventBar view) {
+		this.view = view;
 	}
 
 }

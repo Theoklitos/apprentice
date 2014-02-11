@@ -24,6 +24,7 @@ public class TypeSerializer implements JsonSerializer<IType> {
 			final JsonSerializationContext context) {
 		final JsonObject result = new JsonObject();
 		result.addProperty("name", src.getName());
+		result.addProperty("description", src.getDescription());
 		final JsonObject parts = new JsonObject();
 		final JsonObject partMapping = new JsonObject();
 		for (final Entry<IntegerRange, BodyPart> mapping : src.getPartMapping().getSequentialMapping()) {

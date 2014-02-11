@@ -12,6 +12,8 @@ import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
 import com.apprentice.rpg.gui.database.IDatabaseSettingsFrameControl;
 import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
 import com.apprentice.rpg.gui.desktop.IApprenticeDesktopControl;
+import com.apprentice.rpg.gui.dice.DiceRollerFrame;
+import com.apprentice.rpg.gui.dice.DiceRollerFrameControl;
 import com.apprentice.rpg.gui.log.ILogFrameControl;
 import com.apprentice.rpg.gui.log.LogFrame;
 import com.apprentice.rpg.gui.main.IEventBarControl;
@@ -19,6 +21,9 @@ import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainFrame;
 import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -55,7 +60,6 @@ public final class WindowManager implements IWindowManager {
 		globalWindowState = injector.getInstance(IGlobalWindowState.class);
 		parser = injector.getInstance(ApprenticeParser.class);
 		eventBus = injector.getInstance(ApprenticeEventBus.class);
-
 		mainControl = injector.getInstance(IMainControl.class);
 		desktopControl = injector.getInstance(IApprenticeDesktopControl.class);
 		eventBarControl = injector.getInstance(IEventBarControl.class);
@@ -64,6 +68,14 @@ public final class WindowManager implements IWindowManager {
 		newPlayerCharacterFrameControl = injector.getInstance(INewPlayerCharacterFrameControl.class);
 		typeAndBodyPartFrameControl = injector.getInstance(ITypeAndBodyPartFrameControl.class);
 		registerEventHandlers();
+	}
+
+	@Override
+	public void closeAllFrames() {
+		desktop.closeAllFrames();
+		for (final WindowStateIdentifier indentifier : globalWindowState.getAllFrameIdentifiers()) {
+			globalWindowState.setWindowOpen(indentifier, false);
+		}
 	}
 
 	/**
@@ -85,8 +97,25 @@ public final class WindowManager implements IWindowManager {
 				final MainFrame mainFrame =
 					new MainFrame(globalWindowState, getReferenceToSelf(), mainControl, eventBarControl, desktop);
 				mainFrame.setVisible(true);
+				restoreOpenFrames();
 			}
 		});
+	}
+
+	@Override
+	public void openFrame(final WindowStateIdentifier openFrameIdentifier) {
+		final Class<?> internalFrame = openFrameIdentifier.getWindowClass();
+		if (internalFrame.isAssignableFrom(DatabaseSettingsFrame.class)) {
+			showDatabaseSettingsFrame();
+		} else if (internalFrame.isAssignableFrom(LogFrame.class)) {
+			showLogFrame();
+		} else if (internalFrame.isAssignableFrom(NewPlayerCharacterFrame.class)) {
+			showNewCharacterFrame();
+		} else if (internalFrame.isAssignableFrom(TypeAndBodyPartFrame.class)) {
+			showTypeAndBodyPartFrame();
+		} else {
+			throw new ApprenticeEx("Frame of type " + internalFrame.getClass() + " could not be restored.");
+		}
 	}
 
 	/**
@@ -97,6 +126,16 @@ public final class WindowManager implements IWindowManager {
 		eventBus.register(newPlayerCharacterFrameControl);
 		eventBus.register(typeAndBodyPartFrameControl);
 		eventBus.register(injector.getInstance(IDataSynchronizer.class));
+	}
+
+	/**
+	 * re-opens any frames that were previously closed
+	 */
+	protected void restoreOpenFrames() {
+		for (final WindowStateIdentifier openFrameIdentifier : globalWindowState.getOpenInternalFrames()) {
+			globalWindowState.setWindowOpen(openFrameIdentifier, false);
+			openFrame(openFrameIdentifier);
+		}
 	}
 
 	@Override
@@ -111,6 +150,21 @@ public final class WindowManager implements IWindowManager {
 				desktop.add(databaseFrame);
 			}
 		});
+	}
+
+	@Override
+	public void showDiceRollerFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final DiceRollerFrameControl control = injector.getInstance(DiceRollerFrameControl.class);
+				final DiceRollerFrame diceFrame = new DiceRollerFrame(globalWindowState, control);
+				control.setView(diceFrame);
+				desktop.add(diceFrame);
+			}
+		});
+
 	}
 
 	@Override

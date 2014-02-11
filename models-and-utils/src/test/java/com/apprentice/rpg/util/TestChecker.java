@@ -2,9 +2,9 @@ package com.apprentice.rpg.util;
 
 import org.junit.Test;
 
-import com.apprentice.rpg.dice.Roll;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.magic.Spell;
+import com.apprentice.rpg.random.dice.Roll;
 
 /**
  * Tests for the {@link Checker}, using any class that uses it

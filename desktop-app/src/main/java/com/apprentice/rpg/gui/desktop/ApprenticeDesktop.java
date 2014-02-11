@@ -5,16 +5,18 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.beans.PropertyVetoException;
+import java.util.Collection;
 
 import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
 import javax.swing.Painter;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ControllableView;
+import com.google.common.collect.Sets;
 
 /**
  * The main window that every gui element resides into
@@ -32,18 +34,28 @@ public final class ApprenticeDesktop extends JDesktopPane implements Controllabl
 	private Color color;
 	private Image image;
 	private final IApprenticeDesktopControl control;
+	private final Collection<ApprenticeInternalFrame> internalFrames;
 
 	public ApprenticeDesktop(final IApprenticeDesktopControl control) {
 		this.control = control;
+		internalFrames = Sets.newHashSet();
 	}
 
-	public void add(final JInternalFrame internalFrame) {
+	public void add(final ApprenticeInternalFrame internalFrame) {
 		super.add(internalFrame);
 		try {
 			internalFrame.setSelected(true);
+			internalFrames.add(internalFrame);
 		} catch (final PropertyVetoException e) {
 			// do nothing
 		}
+	}
+
+	public void closeAllFrames() {
+		for (final ApprenticeInternalFrame internalFrame : internalFrames) {
+			internalFrame.setVisible(false);
+		}
+		internalFrames.clear();
 	}
 
 	public IApprenticeDesktopControl getControl() {

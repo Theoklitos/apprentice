@@ -14,7 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.config.ApprenticeConfiguration;
+import com.apprentice.rpg.config.ITextConfigFileManager;
+import com.apprentice.rpg.config.TextConfigFileManager;
 import com.apprentice.rpg.gui.main.IMainControl;
+import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.guice.GuiceConfigGui;
 import com.apprentice.rpg.model.guice.GuiceConfigBackend;
@@ -38,7 +41,7 @@ public final class StartupApprentice {
 	/**
 	 * Uses a {@link JFileChooser} to get a database location
 	 */
-	private static String chooseDatabaseLocation() {
+	private static String chooseDatabaseLocation(final IWindowUtils windowUtils) {
 		final JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Select Database");
 		fileChooser.setApproveButtonText("Use this Database");
@@ -46,11 +49,11 @@ public final class StartupApprentice {
 		if (result == JFileChooser.APPROVE_OPTION) {
 			return fileChooser.getSelectedFile().getAbsolutePath();
 		} else {
-			if (WindowUtils
+			if (windowUtils
 					.showWarningQuestionMessage(
 							"Apprentice needs a database!\nDo you want to go back and select or create a new one?\nOtherwise the program will terminate.",
 							"Database")) {
-				return chooseDatabaseLocation();
+				return chooseDatabaseLocation(windowUtils);
 			} else {
 				LOG.info("Shut down due to lack of database.");
 				System.exit(0);
@@ -62,9 +65,10 @@ public final class StartupApprentice {
 	/**
 	 * figures out where the database should be at
 	 */
-	private static String determineDatabaseLocation() {
+	private static String determineDatabaseLocation(final IWindowUtils windowUtils,
+			final ITextConfigFileManager textfileManager) {
 		// look for text config file
-		final Box<File> configFile = TextConfigFileManager.getConfigFileBasedOnOS();
+		final Box<File> configFile = textfileManager.getConfigFileBasedOnOS();
 		String databasePath = null;
 		// use it to load the db
 		if (configFile.hasContent() && configFile.getContent().exists()) {
@@ -82,7 +86,7 @@ public final class StartupApprentice {
 		if (StringUtils.isEmpty(databasePath)) {
 			databasePath = ApprenticeConfiguration.getDefaultDatabasePath();
 			if (!new File(databasePath).exists()) {
-				databasePath = getDatabaseLocationWhenExpectedFileWasNotFound(databasePath);
+				databasePath = getDatabaseLocationWhenExpectedFileWasNotFound(databasePath, windowUtils);
 			}
 		}
 		return databasePath;
@@ -91,44 +95,64 @@ public final class StartupApprentice {
 	/**
 	 * We expected to find a db file, but nothing was there. Ask.
 	 */
-	private static String getDatabaseLocationWhenExpectedFileWasNotFound(final String expectedDatabasePath) {
+	private static String getDatabaseLocationWhenExpectedFileWasNotFound(final String expectedDatabasePath,
+			final IWindowUtils windowUtils) {
 		LOG.warn("Expected database  " + expectedDatabasePath + " not found!");
 		final int response =
-			WindowUtils
+			windowUtils
 					.showQuestionMessage(
 							"Could not find a database file!\nWould you like to initialize a new new (emtpy) one, or locate a database file yourself?\nNote that the database location can be changed at any time.",
 							new String[] { "New", "Find Existing" }, "No Database Found");
 		if (response == 0) {
 			return expectedDatabasePath;
 		} else {
-			return chooseDatabaseLocation();
+			return chooseDatabaseLocation(windowUtils);
 		}
+	}
+
+	/**
+	 * Used to catch exceptions from the EventQueue
+	 * 
+	 * @param windowUtils
+	 */
+	private static void handleUncaughtExceptions(final IWindowUtils windowUtils) {
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(final Thread thread, final Throwable e) {
+				if (StringUtils.isNotBlank(e.getMessage())) {
+					windowUtils.showErrorMessage(e.getMessage());
+				}
+				LOG.error("Uncaught Exception!", e);
+			}
+		});
 	}
 
 	/**
 	 * Initializes the database (showing various popups and warnings if the location is not ok) and creates
 	 * the {@link Injector}
 	 */
-	private static Injector initializeDependencies(final String databasePath) {
+	private static Injector initializeDependencies(final String databasePath, final IWindowUtils windowUtils) {
 		EmbeddedObjectContainer container = null;
 		try {
-			//final EmbeddedConfiguration configuration = Db4oEmbedded.newConfiguration();
-			//configuration.common().updateDepth(Integer.MAX_VALUE);
 			container = Db4oEmbedded.openFile(databasePath);
 		} catch (final Db4oException e) {
-			WindowUtils
+			windowUtils
 					.showErrorMessage(
 							"Either your database is currently being used, or is seriouly corrupted, or you didn't choose a database file!\nYou need to either select or create a database.",
 							"Database Load Error");
-			return initializeDependencies(chooseDatabaseLocation());
+			return initializeDependencies(chooseDatabaseLocation(windowUtils), windowUtils);
 		}
 		return Guice.createInjector(new GuiceConfigBackend(container, databasePath), new GuiceConfigGui());
 	}
 
 	public static final void main(final String args[]) {
-		final String dabtabasePath = determineDatabaseLocation();
-		final Injector injector = initializeDependencies(dabtabasePath);
-		TextConfigFileManager.writeDatabaseLocation(dabtabasePath);
+		final IWindowUtils windowUtils = new WindowUtils();
+		final ITextConfigFileManager textfileManager = new TextConfigFileManager();
+
+		final String dabtabasePath = determineDatabaseLocation(windowUtils, textfileManager);
+		final Injector injector = initializeDependencies(dabtabasePath, windowUtils);
+		textfileManager.writeDatabaseLocation(dabtabasePath);
+		handleUncaughtExceptions(windowUtils);
 		startGui(injector);
 	}
 

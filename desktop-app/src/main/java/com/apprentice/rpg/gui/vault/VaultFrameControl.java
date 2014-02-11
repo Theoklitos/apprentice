@@ -1,7 +1,6 @@
 package com.apprentice.rpg.gui.vault;
 
 import com.apprentice.rpg.dao.Vault;
-import com.apprentice.rpg.gui.ControllableView;
 import com.google.inject.Inject;
 
 /**
@@ -21,8 +20,8 @@ public final class VaultFrameControl implements IVaultFrameControl {
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (GenericVaultFrame) view;
+	public void setView(final GenericVaultFrame view) {
+		this.view = view;
 	}
 
 }

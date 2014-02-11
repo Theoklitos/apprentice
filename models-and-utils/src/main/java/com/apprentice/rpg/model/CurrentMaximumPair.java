@@ -15,7 +15,7 @@ public class CurrentMaximumPair {
 	private int current;
 
 	/**
-	 * sets both current and maximum to =initialvalue
+	 * sets both current and maximum to = initialvalue
 	 */
 	public CurrentMaximumPair(final int initialValue) {
 		setMaximum(initialValue);
@@ -69,7 +69,7 @@ public class CurrentMaximumPair {
 
 	@Override
 	public String toString() {
-		return getCurrent() + "/" + getMaximum();
+		return getMaximum() + "/" + getCurrent();
 	}
 
 }

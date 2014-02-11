@@ -17,6 +17,7 @@ public final class BackgroundChangePopupMenu extends MouseAdapter {
 
 	private final JPopupMenu popupMenu;
 	private final IApprenticeDesktopControl desktopControl;
+	@SuppressWarnings("unused")
 	private final ApprenticeDesktop desktop;
 
 	public BackgroundChangePopupMenu(final ApprenticeDesktop desktop, final ApprenticeDesktopControl desktopControl) {

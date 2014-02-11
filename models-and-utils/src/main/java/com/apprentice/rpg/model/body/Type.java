@@ -15,9 +15,8 @@ import com.google.common.base.Objects;
  * @author theoklitos
  * 
  */
-public final class Type implements IType {
+public final class Type extends BaseApprenticeObject implements IType {
 
-	private String name;
 	private BodyPartToRangeMap parts;
 
 	/**
@@ -25,8 +24,8 @@ public final class Type implements IType {
 	 *             if the {@link BodyPartToRangeMap} is not consecutively mapped from 1 to 100
 	 */
 	public Type(final String name, final BodyPartToRangeMap parts) {
-		Checker.checkNonNull("Type initialized with empty/null values", true, name, parts);
-		this.name = name;
+		super(name);
+		Checker.checkNonNull("Type initialized null parts", true, parts);
 		setBodyPartMapping(parts);
 	}
 
@@ -34,15 +33,10 @@ public final class Type implements IType {
 	public boolean equals(final Object other) {
 		if (other instanceof Type) {
 			final Type type = (Type) other;
-			return Objects.equal(getName(), type.getName()) && Objects.equal(getParts(), type.getParts());
+			return super.equals(other) && Objects.equal(getParts(), type.getParts());
 		} else {
 			return false;
 		}
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	/**
@@ -57,7 +51,7 @@ public final class Type implements IType {
 			return parts.get(0);
 		} else {
 			// this cannot happen, but just in case...
-			throw new BodyPartMappingEx("Type \"" + name + "\" had either 0 or >1 mappings for number " + number
+			throw new BodyPartMappingEx("Type \"" + getName() + "\" had either 0 or >1 mappings for number " + number
 				+ "! Check your type verification code.");
 		}
 	}
@@ -88,7 +82,7 @@ public final class Type implements IType {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(getName(), getParts());
+		return Objects.hashCode(getParts());
 	}
 
 	@Override
@@ -98,13 +92,8 @@ public final class Type implements IType {
 	}
 
 	@Override
-	public void setName(final String newName) {
-		this.name = newName;
-	}
-
-	@Override
 	public String toString() {
-		return name + ", has bodyparts: " + parts.toString();
+		return getName() + ", has bodyparts: " + parts.toString();
 	}
 
 	/**

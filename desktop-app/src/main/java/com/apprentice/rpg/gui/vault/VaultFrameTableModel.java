@@ -21,14 +21,14 @@ public final class VaultFrameTableModel extends DefaultTableModel {
 	 * uses default column names, only 1st column editable
 	 */
 	public VaultFrameTableModel() {
-		this("Name", "Created or Last Modified", 1);
+		this(1);
 	}
 
 	/**
 	 * uses default column names, sets the column to be editable
 	 */
 	public VaultFrameTableModel(final int editableColumn) {
-		this("Name", "Created or Last Modified", editableColumn);
+		this("Name", "Created/Modified", editableColumn);
 	}
 
 	/**

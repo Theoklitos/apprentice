@@ -21,9 +21,9 @@ public interface DatabaseConnection {
 	void commit();
 
 	/**
-	 * deletes the given object from the database. 
+	 * deletes the given object from the database.
 	 */
-	void delete(Object item);
+	void delete(Object object);
 
 	/**
 	 * Returns a string that describes where this database is located, i.e. if its a file, returns its path
@@ -47,5 +47,10 @@ public interface DatabaseConnection {
 	 * @throws ApprenticeDatabaseEx
 	 */
 	void saveAndCommit(final Object item) throws ApprenticeDatabaseEx;
+
+	/**
+	 * will close and re open the database to this location
+	 */
+	void setDatabase(String databaseLocation) throws ApprenticeDatabaseEx;
 
 }

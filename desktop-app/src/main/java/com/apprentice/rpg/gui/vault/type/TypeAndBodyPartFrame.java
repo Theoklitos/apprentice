@@ -26,7 +26,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
@@ -34,10 +33,10 @@ import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ApprenticeTable;
-import com.apprentice.rpg.gui.IGlobalWindowState;
-import com.apprentice.rpg.gui.util.WindowUtils;
+import com.apprentice.rpg.gui.description.DescriptionPanel;
 import com.apprentice.rpg.gui.vault.GenericVaultFrame;
 import com.apprentice.rpg.gui.vault.VaultFrameTableModel;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.BodyPartToRangeMap;
@@ -59,7 +58,7 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
+public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITypeAndBodyPartFrame {
 
 	private static Logger LOG = Logger.getLogger(TypeAndBodyPartFrame.class);
 
@@ -79,6 +78,8 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 
 	private final ITypeAndBodyPartFrameControl control;
 
+	private DescriptionPanel descriptionPanel;
+
 	public TypeAndBodyPartFrame(final IGlobalWindowState globalWindowState, final ITypeAndBodyPartFrameControl control) {
 		super(globalWindowState, "Types and Body Parts");
 		this.control = control;
@@ -95,7 +96,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"), }));
 
 		initComponents();
-		refreshFromModel(true);
+		refreshFromModel();
 	}
 
 	/**
@@ -143,7 +144,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 			if (newTypeBox.hasContent()) {
 				control.createOrUpdate(newTypeBox.getContent(), ItemType.TYPE);
 			} else {
-				refreshFromModel(true);
+				refreshFromModel();
 			}
 		}
 	}
@@ -152,24 +153,31 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 	 * when a new type or body part is created
 	 */
 	private final void createNewItem(final JPopupMenu popup, final ItemType type) {
-		final String name = WindowUtils.showInputDialog("Enter a name for the new " + type + ":", "New " + type);
-		if (StringUtils.isBlank(name)) {
+		final Box<String> nameBox =
+			getWindowUtils().showInputDialog("Enter a name for the new " + type + ":", "New " + type);
+		if (nameBox.isEmpty()) {
 			return;
 		}
+		final String name = nameBox.getContent();
 		try {
 			switch (type) {
 			case TYPE:
 				state.createType(name);
 				state.setSelectedTypeName(name);
-				refreshFromModel(true);
+				refreshFromModel();
 				break;
 			case BODY_PART:
-				state.setSelectedBodyPartName(name);
-				control.createOrUpdate(new BodyPart(name), ItemType.BODY_PART);
+				try {
+					control.getBodyPartForName(name); // to see if its already there
+					throw new ItemAlreadyExistsEx();
+				} catch (final ItemNotFoundEx e) {
+					state.setSelectedBodyPartName(name);
+					control.createOrUpdate(new BodyPart(name), ItemType.BODY_PART);
+				}
 			default:
 			}
 		} catch (final ItemAlreadyExistsEx e) {
-			WindowUtils.showErrorMessage("A " + type + " with name \"" + name + "\" already exists!");
+			getWindowUtils().showErrorMessage("A " + type + " with name \"" + name + "\" already exists!");
 			// call the click again - Deprecated
 			// final int buttonNumber = type.equals(ItemType.TYPE) ? 0 : 1;
 			// ((JMenuItem) popup.getComponent(buttonNumber)).doClick();
@@ -193,8 +201,10 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 			default:
 				break;
 			}
-			if (WindowUtils.showConfigrmationDialog("Are you sure you want to delete the \"" + name + "\" " + itemType
-				+ "?\nThis will probably have repercussions on Player Characters that use it.", "Confirm Deletion")) {
+			if (getWindowUtils().showConfigrmationDialog(
+					"Are you sure you want to delete the \"" + name + "\" " + itemType
+						+ "?\nThis will probably have repercussions on Player Characters that use it.",
+					"Confirm Deletion")) {
 				control.deleteByName(name, itemType);
 			}
 		}
@@ -239,7 +249,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 					try {
 						control.importFromFile(fileChooser.getSelectedFile().getAbsolutePath());
 					} catch (final Exception e) {
-						WindowUtils.showErrorMessage(e.getMessage(), "Error during Import");
+						getWindowUtils().showErrorMessage(e.getMessage(), "Error during Import");
 					}
 				}
 			});
@@ -265,6 +275,11 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 					final String selectedName = typeTable.getSelectedName().getContent();
 					state.setSelectedTypeName(selectedName);
 					updateBodyPartsTableForActiveType();
+					try {
+						descriptionPanel.setElement(control.getTypeForName(selectedName));
+					} catch (final ItemNotFoundEx e) {
+						// type is not fully formed, do nothing
+					}
 					bodyPartVaultTable.clearSelection();
 				}
 			}
@@ -383,13 +398,14 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 				if (bodyPartVaultTable.getSelectedName().hasContent()) {
 					final String selectedName = bodyPartVaultTable.getSelectedName().getContent();
 					state.setSelectedBodyPartName(selectedName);
+					descriptionPanel.setElement(control.getBodyPartForName(selectedName));
 					typeTable.clearSelection();
 				}
 			}
 		});
 		scrollPaneBodyPartsVault.setViewportView(bodyPartVaultTable);
 
-		final JPanel descriptionPanel = new JPanel();
+		descriptionPanel = new DescriptionPanel(control.getVault(), getWindowUtils(), control.getEventBus());
 		descriptionPanel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Description",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		getContentPane().add(descriptionPanel, "2, 6, 7, 1, fill, fill");
@@ -434,28 +450,24 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 		buttonPanel.add(btnDelete);
 	}
 
-	/**
-	 * calls the backend (control) and updates the data in the tables
-	 * 
-	 * @param shouldHitDatabase
-	 */
-	public void refreshFromModel(final boolean shouldHitDatabase) {
+	@Override
+	public void refreshFromModel() {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				// update
-				if (shouldHitDatabase) {
-					state.setTypes(control.getTypes());
-					state.setBodyParts(control.getBodyParts());
-				}
+				state.setTypes(control.getTypes());
+				state.setBodyParts(control.getBodyParts());
 				// set the tables
 				typeTableModel.clearAllRows();
 				for (final String typeName : state.getTypeNames()) {
-					typeTableModel.addRow(new String[] { typeName, "TBI" });
+					typeTableModel.addRow(new String[] { typeName, control.getLastUpdateTime(typeName, ItemType.TYPE) });
 				}
 				bodyPartVaultTableModel.clearAllRows();
 				for (final BodyPart part : state.getBodyParts()) {
-					bodyPartVaultTableModel.addRow(new String[] { part.getName(), "TBI" });
+					final String bodyPartName = part.getName();
+					bodyPartVaultTableModel.addRow(new String[] { bodyPartName,
+						control.getLastUpdateTime(bodyPartName, ItemType.BODY_PART) });
 				}
 				final Box<ItemType> selected = state.getLastSelectedItemType();
 				if (selected.hasContent()) {
@@ -470,12 +482,10 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 		});
 	}
 
-	/**
-	 * removes this body part from the temporary types of the view, if exists
-	 */
+	@Override
 	public void removeBodyPartsInView(final BodyPart deletedBodyPart) {
 		state.removePartFromAllTypes(deletedBodyPart);
-		refreshFromModel(false);
+		refreshFromModel();
 	}
 
 	/**
@@ -489,7 +499,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 			if (newTypeBox.hasContent()) {
 				control.createOrUpdate(newTypeBox.getContent(), ItemType.TYPE);
 			} else {
-				refreshFromModel(true);
+				refreshFromModel();
 			}
 		}
 	}
@@ -522,9 +532,12 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 			final VaultFrameTableModel model) {
 		try {
 			final String newName = model.getValueAt(table.getSelectedRow(), 0).toString();
+			if (newName.equals(oldName)) {
+				return;
+			}
 			final Nameable oldItem = control.getTypeOrBodyPartForName(oldName, type);
 			if (type.equals(ItemType.BODY_PART) && state.shouldProceedWithBodyPartRenamingFlag()) {
-				if (!WindowUtils
+				if (!getWindowUtils()
 						.showConfigrmationDialog(
 								"Are you sure you want to rename this body part?\nThis might affect Player Characters that use it, in regards to the armor they can equip.",
 								"Change Body Part Name")) {
@@ -538,7 +551,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 				state.setSelectedItemName(newName, type);
 				control.createOrUpdate(oldItem, type);
 			} catch (final NameAlreadyExistsEx e) {
-				WindowUtils.showErrorMessage("A " + type + " with name \"" + newName + "\" already exists!");
+				getWindowUtils().showErrorMessage("A " + type + " with name \"" + newName + "\" already exists!");
 				state.setSelectedItemName(oldName, type);
 			} finally {
 				state.setShouldProceedWithRenamingFlag(true);
@@ -554,12 +567,15 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame {
 	 */
 	private void tryToChangeTypeName(final String oldName, final ApprenticeTable table, final VaultFrameTableModel model) {
 		final String newName = model.getValueAt(table.getSelectedRow(), 0).toString();
+		if (oldName.equals(newName)) {
+			return;
+		}
 		if (!control.doesTypeNameExist(newName)) {
 			// change is only a temp name
 			try {
 				state.changeTypeName(oldName, newName);
 			} catch (final NameAlreadyExistsEx e) {
-				WindowUtils.showErrorMessage("A type with name \"" + newName + "\" already exists!");
+				getWindowUtils().showErrorMessage("A type with name \"" + newName + "\" already exists!");
 			}
 			updateBodyPartsTableForActiveType();
 			return;

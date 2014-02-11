@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.config.IApprenticeConfiguration;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.google.inject.Inject;
 
 public final class ShutdownHook implements IShutdownHook {

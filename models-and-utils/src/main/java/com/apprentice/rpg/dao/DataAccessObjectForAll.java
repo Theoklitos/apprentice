@@ -4,7 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
+import com.apprentice.rpg.dao.simple.NameableVault;
+import com.apprentice.rpg.dao.time.ModificationTimeVault;
+import com.apprentice.rpg.dao.time.TimeToNameableMapper;
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.ApprenticeEx;
@@ -14,7 +18,7 @@ import com.db4o.ext.Db4oException;
 import com.google.inject.Inject;
 
 /**
- * Is used as a front to access all (yet) types of classes.
+ * Connects to the database and is used as a front to access all types of classes.
  * 
  * @author theoklitos
  * 
@@ -24,6 +28,8 @@ public class DataAccessObjectForAll implements Vault {
 	private static Logger LOG = Logger.getLogger(DataAccessObjectForAll.class);
 
 	private final DatabaseConnection connection;
+	private final ModificationTimeVault modificationTime;
+
 	private static long startTimeMillis;
 
 	/**
@@ -56,6 +62,14 @@ public class DataAccessObjectForAll implements Vault {
 	@Inject
 	public DataAccessObjectForAll(final DatabaseConnection connection) {
 		this.connection = connection;
+		this.modificationTime = getModificationTimeVault();
+	}
+
+	@Override
+	public void addAll(final Collection<? extends Nameable> nameables) {
+		for (final Nameable object : nameables) {
+			update(object);
+		}
 	}
 
 	@Override
@@ -144,11 +158,6 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public Collection<Nameable> getAll() {
-		return getAll(Nameable.class);
-	}
-
-	@Override
 	public <T> Collection<T> getAll(final Class<T> type) {
 		return getAll(type, true);
 	}
@@ -169,6 +178,32 @@ public class DataAccessObjectForAll implements Vault {
 		} catch (final Db4oException e) {
 			throw new ApprenticeDatabaseEx(e);
 		}
+	}
+
+	@Override
+	public Collection<Nameable> getAllNameables() {
+		return getAllNameables(Nameable.class);
+	}
+
+	@Override
+	public <T extends Nameable> Collection<T> getAllNameables(final Class<T> nameableType) {
+		return getAll(nameableType, true);
+	}
+
+	/**
+	 * lazy initialization
+	 */
+	protected ModificationTimeVault getModificationTimeVault() {
+		if (modificationTime == null) {
+			return getUniqueObjectFromDB(TimeToNameableMapper.class);
+		} else {
+			return modificationTime;
+		}
+	}
+
+	@Override
+	public String getPrettyUpdateTime(final Nameable item) {
+		return getModificationTimeVault().getPrettyUpdateTime(item);
 	}
 
 	@Override
@@ -252,12 +287,21 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public void update(final Nameable item) {
+	public void update(final Nameable item) throws NameAlreadyExistsEx {
+		final NameAlreadyExistsEx exception =
+			new NameAlreadyExistsEx("There already exists one (or more) elements of type "
+				+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
 		startTimer();
+		int count = 0;
 		for (final Nameable nameable : getAll(item.getClass(), false)) {
+			if (nameable.equals(item)) {
+				count++;
+				if (count > 1) {
+					throw exception;
+				}
+			}
 			if (nameable.getName().equals(item.getName()) && !nameable.equals(item)) {
-				throw new NameAlreadyExistsEx("There already exists one (or more) elements of type "
-					+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
+				throw exception;
 			}
 		}
 		update((Object) item);
@@ -265,13 +309,13 @@ public class DataAccessObjectForAll implements Vault {
 
 	@Override
 	public void update(final NameableVault importObject) {
-		for (final Nameable nameable : importObject.getAll()) {
+		for (final Nameable nameable : importObject.getAllNameables()) {
 			update(nameable);
 		}
 	}
 
 	@Override
-	public void update(final Object item) {
+	public void update(final Object item) throws NameAlreadyExistsEx {
 		String word = null;
 		if (exists(item, false)) {
 			word = "Updated ";
@@ -279,8 +323,24 @@ public class DataAccessObjectForAll implements Vault {
 			word = "Created ";
 		}
 		startTimer();
+		updateModificationTime(item);
 		connection.saveAndCommit(item);
 		stopTimerAndLog(word + item.getClass().getSimpleName());
+	}
+
+	@Override
+	public void updated(final DateTime when, final Nameable item) {
+		getModificationTimeVault().updated(when, item);
+	}
+
+	/**
+	 * updates the information in the {@link ModificationTimeVault}
+	 */
+	private void updateModificationTime(final Object item) {
+		if (Nameable.class.isAssignableFrom(item.getClass())) {
+			updated(new DateTime(), (Nameable) item);
+			connection.saveAndCommit(modificationTime);
+		}
 	}
 
 }

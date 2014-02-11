@@ -1,6 +1,7 @@
 package com.apprentice.rpg.model.body;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -28,6 +29,14 @@ public final class TestType {
 	@Test(expected = ApprenticeEx.class)
 	public void cannotGivePartOutsideRange() {
 		type.getPartForNumber(101);
+	}
+	
+	@Test
+	public void equality() {
+		final IType type2 = new Type(NAME, validParts);
+		assertEquals(type,type2);		
+		type.setDescription("different description");
+		assertFalse(type.equals(type2));
 	}
 
 	@Test

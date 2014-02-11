@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.db4o.Db4oEmbedded;
 import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ObjectSet;
+import com.db4o.ext.Db4oException;
 import com.db4o.ext.Db4oIOException;
 
 /**
@@ -19,8 +20,8 @@ public class Db4oConnection implements DatabaseConnection {
 
 	private static Logger LOG = Logger.getLogger(Db4oConnection.class);
 
-	public EmbeddedObjectContainer database;
-	private final String databaseLocation;
+	private EmbeddedObjectContainer database;
+	private String databaseLocation;
 
 	public Db4oConnection(final EmbeddedObjectContainer database, final String databaseLocation) {
 		this.database = database;
@@ -49,8 +50,8 @@ public class Db4oConnection implements DatabaseConnection {
 	}
 
 	@Override
-	public void delete(final Object item) {		
-		database.delete(item);		
+	public void delete(final Object object) {
+		database.delete(object);
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public class Db4oConnection implements DatabaseConnection {
 
 	@Override
 	public <T> Collection<T> load(final Class<T> classToLoad) {
-		final ObjectSet<T> resultObjectSet = database.query(classToLoad);		
+		final ObjectSet<T> resultObjectSet = database.query(classToLoad);
 		return resultObjectSet.subList(0, resultObjectSet.size());
 	}
 
@@ -82,6 +83,22 @@ public class Db4oConnection implements DatabaseConnection {
 		activate(object);
 		database.store(object);
 		database.commit();
+	}
+
+	@Override
+	public void setDatabase(final String databaseLocation) {
+		EmbeddedObjectContainer attemptedDatabase;
+		try {
+			attemptedDatabase = Db4oEmbedded.openFile(databaseLocation);
+			attemptedDatabase.ext().configure().updateDepth(Integer.MAX_VALUE);
+			attemptedDatabase.ext().configure().exceptionsOnNotStorable(false);
+		} catch (final Db4oException e) {
+			throw new ApprenticeDatabaseEx("Could not open database \"" + databaseLocation
+				+ "\"\nAre you sure its an apprentice database file?");
+		}
+		closeDB();
+		this.database = attemptedDatabase;
+		this.databaseLocation = databaseLocation;
 	}
 
 	@Override

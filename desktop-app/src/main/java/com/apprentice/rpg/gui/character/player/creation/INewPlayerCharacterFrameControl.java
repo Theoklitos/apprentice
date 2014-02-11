@@ -9,7 +9,7 @@ import com.apprentice.rpg.model.PlayerCharacter;
  * @author theoklitos
  * 
  */
-public interface INewPlayerCharacterFrameControl extends ControlForView {
+public interface INewPlayerCharacterFrameControl extends ControlForView<INewPlayerCharacterFrame> {
 	
 	/**
 	 * Persists the character in the backend

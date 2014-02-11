@@ -1,11 +1,14 @@
 package com.apprentice.rpg.gui;
 
+import java.util.Set;
+
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.Box;
+import com.google.common.collect.Sets;
 
 /**
  * A {@link JTable} with some extra functionality
@@ -60,6 +63,18 @@ public class ApprenticeTable extends JTable {
 			final String name = getModel().getValueAt(getSelectedRow(), 0).toString();
 			return Box.with(ApprenticeStringUtils.removeHtmlTags(name.trim()));
 		}
+	}
+
+	/**
+	 * returns a collection with all the selected names
+	 */
+	public final Set<String> getSelectedNames() {
+		final Set<String> result = Sets.newHashSet();
+		for (final int selectedRow : getSelectedRows()) {
+			final String name = ApprenticeStringUtils.removeHtmlTags(getValueAt(selectedRow, 0).toString());
+			result.add(name);
+		}
+		return result;
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.io.File;
@@ -15,18 +16,23 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.apprentice.rpg.StartupApprentice;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
+import com.apprentice.rpg.util.Box;
 
 /**
  * helper functions for the swing gui, ie option panes, icons, etc
@@ -38,45 +44,6 @@ public final class WindowUtils implements IWindowUtils {
 	public final static String DEFAULT_DESKTOP_FILENAME = "desktop.jpg";
 	public final static String INFO_ICON_FILENAME = "information.png";
 	public final static String IMAGES_FOLDER = "/images";
-
-	/**
-	 * Shows a simple yes/no dialog. Returns true if yes.
-	 */
-	public static boolean showConfigrmationDialog(final String question, final String title) {
-		return JOptionPane.showConfirmDialog(null, question, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-	}
-
-	public static void showErrorMessage(final String errorMessage) {
-		showErrorMessage(errorMessage, "Error!");
-	}
-
-	public static void showErrorMessage(final String errorMessage, final String title) {
-		JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.ERROR_MESSAGE);
-	}
-
-	/**
-	 * show a JInputDialog with a jtextfield, that returns a string
-	 */
-	public static String showInputDialog(final String message, final String title) {
-		return JOptionPane.showInputDialog(null, message, title, JOptionPane.NO_OPTION);
-	}
-
-	public static int showQuestionMessage(final String question, final String[] options, final String title) {
-		return JOptionPane.showOptionDialog(null, question, title, JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, null);
-	}
-
-	public static void showWarningMessage(final String warningMessage, final String title) {
-		JOptionPane.showMessageDialog(null, warningMessage, title, JOptionPane.WARNING_MESSAGE);
-	}
-
-	/**
-	 * shows a yes/no warning question. Returns true if yes.
-	 */
-	public static boolean showWarningQuestionMessage(final String question, final String title) {
-		return JOptionPane.showOptionDialog(null, question, title, JOptionPane.YES_NO_OPTION,
-				JOptionPane.WARNING_MESSAGE, null, new String[] { "Yes", "No" }, null) == JOptionPane.YES_OPTION;
-	}
 
 	@Override
 	public void centerComponent(final Component component, final int verticalOffset) {
@@ -152,8 +119,73 @@ public final class WindowUtils implements IWindowUtils {
 	}
 
 	@Override
+	public Box<String> showBigTextFieldDialog(final String title, final String preExistingContent) {
+		final JScrollPane scrollPane = new JScrollPane();
+		final JTextArea textArea = new JTextArea(10,30);
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setMargin(new Insets(5, 5, 5, 5));
+		textArea.setText(preExistingContent);
+		scrollPane.getViewport().setView(textArea);
+		final JPanel dialogPanel = new JPanel();
+		dialogPanel.add(scrollPane);
+		final int returnValue =
+			JOptionPane.showConfirmDialog(null, scrollPane, title, JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+		if (returnValue == JOptionPane.CANCEL_OPTION) {
+			return Box.empty();
+		} else {
+			return Box.with(textArea.getText());
+		}
+	}
+
+	@Override
+	public boolean showConfigrmationDialog(final String question, final String title) {
+		return JOptionPane.showConfirmDialog(null, question, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+	}
+
+	@Override
+	public void showErrorMessage(final String errorMessage) {
+		showErrorMessage(errorMessage, "Error!");
+	}
+
+	@Override
+	public void showErrorMessage(final String errorMessage, final String title) {
+		JOptionPane.showMessageDialog(null, errorMessage, title, JOptionPane.ERROR_MESSAGE);
+	}
+
+	@Override
+	public Box<String> showFileChooser(final String title, final String buttonText) {
+		final JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle(title);
+		fileChooser.setApproveButtonText(buttonText);
+		final int result = fileChooser.showDialog(null, null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			return Box.with(fileChooser.getSelectedFile().getAbsolutePath());
+		} else {
+			return Box.empty();
+		}
+	}
+
+	@Override
+	public Box<String> showInputDialog(final String message, final String title) {
+		final String result = JOptionPane.showInputDialog(null, message, title, JOptionPane.NO_OPTION);
+		if (StringUtils.isBlank(result)) {
+			return Box.empty();
+		} else {
+			return Box.with(result);
+		}
+	}
+
+	@Override
+	public int showQuestionMessage(final String question, final String[] options, final String title) {
+		return JOptionPane.showOptionDialog(null, question, title, JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, null);
+	}
+
+	@Override
 	public boolean showTypeAndBodyPartNameSelection(final ExportConfigurationObject config, final Vault vault) {
-		final JPanel mainPanel = new JPanel(new GridLayout(0, 2, 5, 5));		
+		final JPanel mainPanel = new JPanel(new GridLayout(0, 2, 5, 5));
 		final ItemForExportChooserTable typeTable = new ItemForExportChooserTable(ItemType.TYPE, config, vault);
 		final JPanel typePanel = new JPanel();
 		typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.Y_AXIS));
@@ -166,8 +198,8 @@ public final class WindowUtils implements IWindowUtils {
 		final ItemForExportChooserTable bodyPartTable =
 			new ItemForExportChooserTable(ItemType.BODY_PART, config, vault);
 		final JPanel bodyPartPanel = new JPanel();
-		bodyPartPanel.setLayout(new BoxLayout(bodyPartPanel, BoxLayout.Y_AXIS));		
-		bodyPartPanel.add(new JLabel("Body Parts"));		
+		bodyPartPanel.setLayout(new BoxLayout(bodyPartPanel, BoxLayout.Y_AXIS));
+		bodyPartPanel.add(new JLabel("Body Parts"));
 		bodyPartPanel.add(bodyPartTable);
 		final JScrollPane bodyPartScrollPane = new JScrollPane();
 		bodyPartScrollPane.setViewportView(bodyPartPanel);
@@ -177,5 +209,16 @@ public final class WindowUtils implements IWindowUtils {
 			JOptionPane.showConfirmDialog(null, mainPanel, "Choose Items to Export", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE);
 		return option == JOptionPane.YES_OPTION;
+	}
+
+	@Override
+	public void showWarningMessage(final String warningMessage, final String title) {
+		JOptionPane.showMessageDialog(null, warningMessage, title, JOptionPane.WARNING_MESSAGE);
+	}
+
+	@Override
+	public boolean showWarningQuestionMessage(final String question, final String title) {
+		return JOptionPane.showOptionDialog(null, question, title, JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE, null, new String[] { "Yes", "No" }, null) == JOptionPane.YES_OPTION;
 	}
 }

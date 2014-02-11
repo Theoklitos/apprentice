@@ -18,15 +18,15 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.lang3.StringUtils;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.gui.IGlobalWindowState;
 import com.apprentice.rpg.gui.NumericTextfield;
 import com.apprentice.rpg.gui.PlayerLevelsTextfield;
-import com.apprentice.rpg.gui.util.WindowUtils;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.Stat;
 import com.apprentice.rpg.model.StatBundle;
 import com.apprentice.rpg.model.StatBundle.StatType;
 import com.apprentice.rpg.model.body.CharacterType;
+import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Size;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.google.common.collect.Lists;
@@ -41,7 +41,7 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame {
+public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame implements INewPlayerCharacterFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -120,19 +120,21 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame {
 					verifyAllAttributes();
 					final PlayerCharacter newPlayer = assemblePlayerCharater();
 					// one last confirmation
-					if (WindowUtils.showConfigrmationDialog("Your player will be named \"" + newPlayer.getName()
-						+ "\" forever,  for names cannot change. Are you sure you want to proceed?",
+					if (getWindowUtils().showConfigrmationDialog(
+							"Your player will be named \"" + newPlayer.getName()
+								+ "\" forever,  for names cannot change. Are you sure you want to proceed?",
 							"Confirm New Player Creation")) {
 						try {
 							control.createCharacter(newPlayer);
 						} catch (final PlayerNameConflictEx e) {
-							WindowUtils.showErrorMessage("A player with the name \"" + newPlayer.getName()
-								+ "\" already exsits! Player not created.");
+							getWindowUtils().showErrorMessage(
+									"A player with the name \"" + newPlayer.getName()
+										+ "\" already exsits! Player not created.");
 
 						}
 					}
 				} catch (final NewCharacterCreationEx e) {
-					WindowUtils.showErrorMessage(e.getMessage(), "Wrong or Missing Value");
+					getWindowUtils().showErrorMessage(e.getMessage(), "Wrong or Missing Value");
 				}
 			}
 		});
@@ -233,7 +235,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame {
 		final JLabel lblType = new JLabel("Type:");
 		genericCharacterInformation.add(lblType, "7, 8, right, default");
 
-		final JComboBox cmbType = new JComboBox();
+		final JComboBox<IType> cmbType = new JComboBox<IType>();
 		genericCharacterInformation.add(cmbType, "11, 8, fill, default");
 
 		final JLabel lblDexterity = new JLabel("Dexterity:");

@@ -1,8 +1,6 @@
 package com.apprentice.rpg.gui.character.player.creation;
 
 import com.apprentice.rpg.dao.Vault;
-import com.apprentice.rpg.gui.ControlForView;
-import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.model.PlayerCharacter;
 import com.google.inject.Inject;
 
@@ -12,9 +10,9 @@ import com.google.inject.Inject;
  * @author theoklitos
  * 
  */
-public final class NewPlayerCharacterFrameControl implements INewPlayerCharacterFrameControl, ControlForView {
+public final class NewPlayerCharacterFrameControl implements INewPlayerCharacterFrameControl {
 
-	private NewPlayerCharacterFrame view;
+	private INewPlayerCharacterFrame view;
 	private final Vault dao;
 
 	@Inject
@@ -28,7 +26,7 @@ public final class NewPlayerCharacterFrameControl implements INewPlayerCharacter
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (NewPlayerCharacterFrame) view;
+	public void setView(final INewPlayerCharacterFrame view) {
+		this.view = view;
 	}
 }

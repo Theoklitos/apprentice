@@ -14,10 +14,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import com.apprentice.rpg.gui.IGlobalWindowState;
 import com.apprentice.rpg.gui.IWindowManager;
-import com.apprentice.rpg.gui.WindowState;
 import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.WindowState;
+import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.util.Box;
 
 public final class MainFrame extends JFrame {
@@ -38,7 +39,7 @@ public final class MainFrame extends JFrame {
 		this.eventBarControl = eventBarControl;
 		this.desktop = desktop;
 
-		setTitle("Apprentice v0.2 - Built 0 Deathuary 2666");
+		setTitle("Apprentice v0.3 - Built 9 February 2014");
 		globalState.getWindowUtils().setDefaultIcon(this);
 		setSizeAndPosition();
 		initMenus();
@@ -83,6 +84,16 @@ public final class MainFrame extends JFrame {
 		final JMenuItem mntmSummonPlayer = new JMenuItem("Summon Player");
 		mnPlayerCharacters.add(mntmSummonPlayer);
 
+		final JMenu mnDice = new JMenu("Dice Roller");
+		menuBar.add(mnDice);		
+		mnDice.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				windowManager.showDiceRollerFrame();
+			}
+		});
+
 		final JMenu mnVaults = new JMenu("Vaults");
 		menuBar.add(mnVaults);
 		final JMenuItem mntmPlayers = new JMenuItem("Players");
@@ -93,8 +104,8 @@ public final class MainFrame extends JFrame {
 		mntmItems.add(submntmWeapons);
 		final JMenuItem submntmArmors = new JMenuItem("Armors");
 		mntmItems.add(submntmArmors);
-		final JMenuItem submntmItems = new JMenuItem("Misc Items");
-		mntmItems.add(submntmItems);
+		final JMenuItem submntmSpells = new JMenuItem("Spells");
+		mntmItems.add(submntmSpells);
 		final JMenuItem mntmTypes = new JMenuItem("Types & Body Parts");
 		mntmTypes.addActionListener(new ActionListener() {
 
@@ -141,7 +152,7 @@ public final class MainFrame extends JFrame {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent we) {
-				globalState.updateWindow(getTitle(), getBounds(), true);
+				globalState.setWindowState(new WindowStateIdentifier(getClass()), getBounds(), true);
 				mainControl.shutdownGracefully();
 				System.exit(0);
 			}
@@ -152,7 +163,7 @@ public final class MainFrame extends JFrame {
 	 * stores information about this frame in the {@link IGlobalWindowState}
 	 */
 	private void setSizeAndPosition() {
-		final Box<WindowState> stateBox = globalState.getWindowState(getTitle());
+		final Box<WindowState> stateBox = globalState.getWindowState(new WindowStateIdentifier(getClass()));
 		setMinimumSize(new Dimension(700, 400));
 		if (stateBox.hasContent()) {
 			setBounds(stateBox.getContent().getBounds());

@@ -10,6 +10,7 @@ import javax.swing.JInternalFrame;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
+import com.apprentice.rpg.util.Box;
 
 /**
  * helper functions for the swing gui, ie option panes, icons, etc
@@ -50,11 +51,60 @@ public interface IWindowUtils {
 	void setInformationIcon(JInternalFrame frame);
 
 	/**
+	 * Shows an option pane with a bigger textfield and returns the text the user inputed in a box, if any.
+	 * Empty box otherwise
+	 */
+	Box<String> showBigTextFieldDialog(String title, String preExistingContent);
+
+	/**
+	 * Shows a simple yes/no dialog. Returns true if yes.
+	 */
+	boolean showConfigrmationDialog(String question, String title);
+
+	/**
+	 * Displays a simple error message
+	 */
+	void showErrorMessage(String errorMessage);
+
+	/**
+	 * Displays a simple error message
+	 */
+	void showErrorMessage(String errorMessage, String title);
+
+	/**
+	 * presents a file chooser and returns a box with the file URL the user chose. Emtpy box if user pressed
+	 * on the cancel/X button etc
+	 */
+	Box<String> showFileChooser(String title, String buttonText);
+
+	/**
+	 * show a JInputDialog with a jtextfield and returns a box with anything the user inputed. Emtpy box if he
+	 * pressed "cancel"
+	 */
+	Box<String> showInputDialog(String message, String title);
+
+	/**
+	 * Shows a question message which displays the given options. Return number if the array position # of the
+	 * option that the user chose.
+	 */
+	int showQuestionMessage(String question, String[] options, String title);
+
+	/**
 	 * shows two jtables, one for types and one for bodyparts, and saves the selection in the
 	 * {@link ExportConfigurationObject}
 	 * 
 	 * @return true if the user confirmed (press OK), false if he cancelled
 	 */
 	boolean showTypeAndBodyPartNameSelection(ExportConfigurationObject config, final Vault vault);
+
+	/**
+	 * shows a yes/no warning question. Returns true if yes.
+	 */
+	void showWarningMessage(String warningMessage, String title);
+
+	/**
+	 * shows a yes/no warning question. Returns true if yes.
+	 */
+	boolean showWarningQuestionMessage(String question, String title);
 
 }

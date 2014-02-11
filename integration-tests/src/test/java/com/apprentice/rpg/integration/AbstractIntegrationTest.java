@@ -67,7 +67,7 @@ public abstract class AbstractIntegrationTest {
 			vault.delete(object);
 		}
 		database.commit();
-		assertEquals(0,vault.getAll(Object.class).size());
+		assertEquals(0, vault.getAll(Object.class).size());
 	}
 
 	/**

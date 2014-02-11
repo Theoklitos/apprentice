@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.dao.time.ModificationTimeVault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.BodyPartDeletionEvent;
 import com.apprentice.rpg.events.BodyPartUpdateEvent;
@@ -14,7 +15,6 @@ import com.apprentice.rpg.events.DatabaseDeletionEvent;
 import com.apprentice.rpg.events.DatabaseUpdateEvent;
 import com.apprentice.rpg.events.TypeDeletionEvent;
 import com.apprentice.rpg.events.TypeUpdateEvent;
-import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
@@ -22,6 +22,7 @@ import com.apprentice.rpg.parsing.ParsingEx;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
 import com.apprentice.rpg.parsing.exportImport.IDatabaseImporterExporter;
+import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
@@ -35,8 +36,12 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 
 	private static Logger LOG = Logger.getLogger(TypeAndBodyPartFrameControl.class);
 
+	private final Collection<BodyPart> bodyPartBuffer;
+	private final Collection<IType> typeBuffer;
+	private boolean isBufferUpdated;
+
 	private final Vault vault;
-	private TypeAndBodyPartFrame view;
+	private ITypeAndBodyPartFrame view;
 	private final ApprenticeEventBus eventBus;
 	private final IDatabaseImporterExporter dbImporterExporter;
 
@@ -46,6 +51,9 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 		this.vault = vault;
 		this.eventBus = eventBus;
 		this.dbImporterExporter = dbImporterExporter;
+
+		bodyPartBuffer = Sets.newHashSet();
+		typeBuffer = Sets.newHashSet();
 	}
 
 	@Subscribe
@@ -66,9 +74,10 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 			break;
 		}
 		vault.update(item);
-		LOG.info(message + type + " \"" + item.getName() + "\".");
+		isBufferUpdated = false;
+		LOG.info(message + type + " " + item.getName() + "\".");
 		eventBus.postEvent(event);
-		view.refreshFromModel(true);
+		view.refreshFromModel();
 	}
 
 	@Override
@@ -86,9 +95,10 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 			break;
 		}
 		if (vault.delete(item)) {
-			LOG.info("Deleted " + type + " \"" + item.getName() + "\".");
+			isBufferUpdated = false;
+			LOG.info("Deleted " + type + " " + item.getName());
 			eventBus.postEvent(event);
-			view.refreshFromModel(true);
+			view.refreshFromModel();
 		}
 	}
 
@@ -114,7 +124,24 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 
 	@Override
 	public Collection<BodyPart> getBodyParts() {
-		return vault.getAll(BodyPart.class);
+		if (!isBufferUpdated) {
+			updateBuffer();
+		}
+		return bodyPartBuffer;
+	}
+
+	@Override
+	public ApprenticeEventBus getEventBus() {
+		return eventBus;
+	}
+
+	@Override
+	public String getLastUpdateTime(final String typeName, final ItemType type) {
+		try {
+			return vault.getPrettyUpdateTime(getTypeOrBodyPartForName(typeName, type));
+		} catch (final ItemNotFoundEx e) {
+			return ModificationTimeVault.NO_TIMING_DESCRIPTION;
+		}
 	}
 
 	@Override
@@ -140,7 +167,10 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 
 	@Override
 	public Collection<IType> getTypes() {
-		return vault.getAll(IType.class);
+		if (!isBufferUpdated) {
+			updateBuffer();
+		}
+		return typeBuffer;
 	}
 
 	@Override
@@ -151,12 +181,33 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 	@Override
 	public void importFromFile(final String fileLocation) throws ParsingEx {
 		dbImporterExporter.importFrom(fileLocation);
-		view.refreshFromModel(true);
+		isBufferUpdated = false;
+		view.refreshFromModel();
+	}
+
+	/**
+	 * called by tests
+	 */
+	protected void setIsBufferUpdated(final boolean isBufferUpdated) {
+		this.isBufferUpdated = isBufferUpdated;
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (TypeAndBodyPartFrame) view;
+	public void setView(final ITypeAndBodyPartFrame view) {
+		this.view = view;
+	}
+
+	/**
+	 * hits the database
+	 */
+	private void updateBuffer() {
+		if (!isBufferUpdated) {
+			bodyPartBuffer.clear();
+			bodyPartBuffer.addAll(vault.getAllNameables(BodyPart.class));
+			typeBuffer.clear();
+			typeBuffer.addAll(vault.getAllNameables(IType.class));
+			isBufferUpdated = true;
+		}
 	}
 
 }

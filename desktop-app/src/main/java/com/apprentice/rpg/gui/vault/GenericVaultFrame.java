@@ -11,7 +11,7 @@ import javax.swing.border.TitledBorder;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ControllableView;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;

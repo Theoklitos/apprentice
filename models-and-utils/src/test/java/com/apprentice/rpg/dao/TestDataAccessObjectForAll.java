@@ -8,16 +8,21 @@ import java.util.Collection;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.apprentice.rpg.dao.simple.NameableVault;
+import com.apprentice.rpg.dao.simple.SimpleVault;
+import com.apprentice.rpg.dao.time.ModificationTimeVault;
+import com.apprentice.rpg.dao.time.TimeToNameableMapper;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.BodyPartToRangeMap;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
-import com.apprentice.rpg.parsing.exportImport.ImportObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -35,6 +40,23 @@ public final class TestDataAccessObjectForAll {
 	private Collection<IType> types;
 	private IType type1;
 	private BodyPart knownPart;
+	private ModificationTimeVault timeVault;
+
+	@Test
+	public void allElementsAreAdded() {
+		final BodyPart newPart1 = new BodyPart("new part 1");
+		final BodyPart newPart2 = new BodyPart("new part 2");
+		final Collection<BodyPart> newParts = Sets.newHashSet(newPart1, newPart2);
+		mockery.checking(new Expectations() {
+			{
+				oneOf(connection).saveAndCommit(newPart1);
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart1)));
+				oneOf(connection).saveAndCommit(newPart2);
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart2)));
+			}
+		});
+		dao.addAll(newParts);		
+	}
 
 	@Test(expected = ItemAlreadyExistsEx.class)
 	public void cannotCreateIfItemAlreadyExists() {
@@ -47,6 +69,7 @@ public final class TestDataAccessObjectForAll {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(newPart);
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart)));
 			}
 		});
 		dao.create(newPart);
@@ -83,7 +106,7 @@ public final class TestDataAccessObjectForAll {
 
 	@Test
 	public void getAllItemsOfType() {
-		assertEquals(parts, dao.getAll(BodyPart.class));
+		assertEquals(parts, dao.getAllNameables(BodyPart.class));
 	}
 
 	@Test
@@ -112,10 +135,10 @@ public final class TestDataAccessObjectForAll {
 	public void setup() {
 		mockery = new Mockery();
 		connection = mockery.mock(DatabaseConnection.class);
-		dao = new DataAccessObjectForAll(connection);
+		timeVault = mockery.mock(ModificationTimeVault.class);
 
 		// some test data
-		parts = Sets.newHashSet();
+		parts = Lists.newArrayList();
 		knownPart = new BodyPart("head");
 		parts.add(knownPart);
 		parts.add(new BodyPart("arms"));
@@ -132,8 +155,13 @@ public final class TestDataAccessObjectForAll {
 				will(returnValue(parts));
 				allowing(connection).load(Type.class);
 				will(returnValue(types));
+				allowing(connection).load(TimeToNameableMapper.class);
+				will(returnValue(Sets.newHashSet(timeVault)));
+				allowing(connection).saveAndCommit(timeVault);
 			}
 		});
+
+		dao = new DataAccessObjectForAll(connection);
 	}
 
 	@After
@@ -152,6 +180,7 @@ public final class TestDataAccessObjectForAll {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(knownPart);
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(knownPart)));
 			}
 		});
 		knownPart.setName("new name");
@@ -159,19 +188,21 @@ public final class TestDataAccessObjectForAll {
 	}
 
 	@Test
-	public void updateFromImportObject() {
-		final ImportObject io = new ImportObject();
-		io.addAll(Sets.newHashSet(knownPart));
-		io.addAll(types);
+	public void updateFromSimpleVault() {
+		final NameableVault simpleVault = new SimpleVault();
+		simpleVault.addAll(Sets.newHashSet(knownPart));
+		simpleVault.addAll(types);
 
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(knownPart);
 				oneOf(connection).saveAndCommit(type1);
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(knownPart)));
+				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(type1)));
 			}
 		});
 
-		dao.update(io);
+		dao.update(simpleVault);
 	}
 
 	@Test(expected = NameAlreadyExistsEx.class)

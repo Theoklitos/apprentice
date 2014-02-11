@@ -1,7 +1,7 @@
 package com.apprentice.rpg.model;
 
-import com.apprentice.rpg.dice.Roll;
 import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.random.dice.Roll;
 import com.google.common.base.Objects;
 
 /**

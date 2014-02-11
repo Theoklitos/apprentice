@@ -8,9 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.config.ApprenticeConfiguration.DesktopBackgroundType;
-import com.apprentice.rpg.gui.ControllableView;
-import com.apprentice.rpg.gui.IGlobalWindowState;
-import com.apprentice.rpg.gui.util.WindowUtils;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.google.inject.Inject;
 
@@ -63,8 +61,9 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 			try {
 				setBackgroundImage(backgroundImagePath);
 			} catch (final ApprenticeEx e) {
-				WindowUtils.showErrorMessage("Stored background image \"" + backgroundImagePath
-					+ "\" does not point to a valid image.\nUsing default background.");
+				globalState.getWindowUtils().showErrorMessage(
+						"Stored background image \"" + backgroundImagePath
+							+ "\" does not point to a valid image.\nUsing default background.");
 				setDefaultDesktopBackground();
 			}
 		}
@@ -77,10 +76,11 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 			view.setBackgroundImage(background);
 			// also store it in the config
 			configuration.setBackgroundImagePath(imagePath);
-			LOG.info("Background image set to \"" + imagePath + "\"");
+			LOG.info("Background image set to " + imagePath);
 		} catch (final ApprenticeEx e) {
-			WindowUtils.showErrorMessage("Could not set background image  \"" + imagePath + "\"!\nReason: "
-				+ e.getMessage() + "\nUsing default background.");
+			globalState.getWindowUtils().showErrorMessage(
+					"Could not set background image  \"" + imagePath + "\"!\nReason: " + e.getMessage()
+						+ "\nUsing default background.");
 			setDefaultDesktopBackground();
 		}
 	}
@@ -98,12 +98,10 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 	}
 
 	@Override
-	public void setView(final ControllableView view) {
-		this.view = (ApprenticeDesktop) view;
+	public void setView(final ApprenticeDesktop view) {
+		this.view = view;
 		final BackgroundChangePopupMenu popupMenu = new BackgroundChangePopupMenu(this.view, this);
 		this.view.addMouseListener(popupMenu);
-
-		// TODO openinitialframes!
 	}
 
 }

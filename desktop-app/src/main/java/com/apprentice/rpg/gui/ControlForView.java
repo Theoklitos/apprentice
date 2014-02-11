@@ -6,10 +6,10 @@ package com.apprentice.rpg.gui;
  * @author theoklitos
  * 
  */
-public interface ControlForView {
+public interface ControlForView<T extends ControllableView> {
 
 	/**
 	 * Sets the view that this control is managing
 	 */
-	public void setView(final ControllableView view);
+	public void setView(final T view);
 }

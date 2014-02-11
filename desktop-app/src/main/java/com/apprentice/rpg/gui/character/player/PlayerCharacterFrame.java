@@ -3,7 +3,7 @@ package com.apprentice.rpg.gui.character.player;
 import java.awt.Dimension;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.gui.IGlobalWindowState;
+import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 
 /**
  * The playable, electronic character sheet.

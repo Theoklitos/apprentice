@@ -1,5 +1,7 @@
 package com.apprentice.rpg.gui.util;
 
+import java.util.Set;
+
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -19,7 +21,7 @@ public class ItemForExportChooserTable extends ApprenticeTable {
 		final VaultFrameTableModel model = new VaultFrameTableModel(-1);		
 		model.setColumnCount(1);
 		setModel(model);		
-		for (final Nameable item : vault.getAll(type.type)) {
+		for (final Nameable item : vault.getAllNameables(type.type)) {
 			model.addRow(new String[] { item.getName()});
 		}
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);		
@@ -27,8 +29,9 @@ public class ItemForExportChooserTable extends ApprenticeTable {
 
 			@Override
 			public void valueChanged(final ListSelectionEvent event) {
-				final String selectedName = getSelectedName().getContent();
-				config.addNameForExport(type, selectedName);
+				final Set<String> selectedNames = getSelectedNames();				
+				config.setNamesForExport(type, selectedNames);
+				System.out.println("Config changed: " + config);
 			}
 		});
 		this.repaint();

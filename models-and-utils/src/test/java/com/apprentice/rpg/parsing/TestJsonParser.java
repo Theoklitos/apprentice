@@ -14,6 +14,7 @@ import com.apprentice.rpg.model.PlayerLevels;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.factories.DataFactory;
+import com.apprentice.rpg.model.weapon.Weapon;
 
 public final class TestJsonParser {
 
@@ -32,7 +33,7 @@ public final class TestJsonParser {
 		assertEquals(part, parsed);
 		LOG.info("Parsed back: " + parsed + ". Success.");
 	}
-
+	
 	@Test
 	public void canParsePlayerLevels() {
 		final PlayerLevels expected1 = new PlayerLevels();
@@ -50,18 +51,18 @@ public final class TestJsonParser {
 		expected3.addLevels("thief", 11);
 		assertEquals(expected3, parser.parseWithoutExperience("warrior99/mage5/thief11"));
 	}
-
+	
 	@Test
 	public void canParserPlayerCharacter() {
 		final IPlayerCharacter playerCharacter = factory.getPlayerCharacter();
 		final String playerAsJson = parser.getAsJsonString(playerCharacter);
 		LOG.info("Converted player \"" + playerCharacter + "\" to:\n" + playerAsJson + "\n\n");
 
-		final IPlayerCharacter parsed = parser.parsePlayerCharacter(playerAsJson);
+		final IPlayerCharacter parsed = parser.parsePlayerCharacter(playerAsJson, factory);
 		LOG.info("Got back: " + parsed);
 
 		assertEquals(playerCharacter, parsed);
-		LOG.info("Success!");
+		LOG.info("Success.");
 	}
 
 	@Test
@@ -69,9 +70,19 @@ public final class TestJsonParser {
 		final IType human = factory.getTypes().get(0);
 		final String json = parser.getAsJsonString(human);
 		LOG.info("Converted type to:\n" + json);
-		final IType parsed = parser.parseType(json);
+		final IType parsed = parser.parseType(json, factory);
 		assertEquals(human, parsed);
-		LOG.info("Parsed back: " + parsed + ". Success..");
+		LOG.info("Parsed back: " + parsed + ". Success.");
+	}
+
+	@Test
+	public void canParseWeaponPrototype() {
+		final Weapon weaponPrototype = factory.getWeapons().get(0);
+		final String json = parser.getAsJsonString(weaponPrototype);
+		LOG.info("Converted weapon to:\n" + json);
+		//final W parsed = parser.parseWeapon(json);
+		//assertEquals(part, parsed);
+		//LOG.info("Parsed back: " + parsed + ". Success.");
 	}
 
 	@Before
