@@ -1,11 +1,12 @@
 package com.apprentice.rpg.parsing.gson;
 
-import com.apprentice.rpg.dao.simple.NameableVault;
+import java.lang.reflect.Type;
+
 import com.apprentice.rpg.model.weapon.Weapon;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 /**
@@ -14,19 +15,16 @@ import com.google.gson.JsonParseException;
  * @author theoklitos
  * 
  */
-public class WeaponDeserializer implements JsonDeserializer<Weapon> {
+public class WeaponDeserializer extends ApprenticeParsingComponent implements JsonDeserializer<Weapon> {
 
-	private NameableVault nameableVault;
-
-	@Override
-	public Weapon deserialize(final JsonElement json, final java.lang.reflect.Type typeOfT,
-			final JsonDeserializationContext context) throws JsonParseException {
-		final JsonObject topLevelObject = json.getAsJsonObject();
-		return null;
+	public WeaponDeserializer() {
+		super(Weapon.class);
 	}
 
-	public void setNameableVault(final NameableVault nameableVault) {
-		this.nameableVault = nameableVault;
+	@Override
+	public Weapon deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
+			throws JsonParseException {
+		return context.deserialize(json, WeaponPrototype.class);
 	}
 
 }

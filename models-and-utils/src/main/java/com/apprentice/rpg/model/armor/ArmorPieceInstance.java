@@ -10,13 +10,10 @@ import com.apprentice.rpg.random.ApprenticeRandom;
  * @author theoklitos
  * 
  */
-public final class ArmorPieceInstance extends DurableItemInstance implements IArmorPieceInstance {
-
-	private final ArmorPiece prototype;
+public final class ArmorPieceInstance extends DurableItemInstance<ArmorPiece> implements IArmorPieceInstance {
 
 	public ArmorPieceInstance(final ArmorPiece prototype) {
 		super(prototype);
-		this.prototype = prototype;
 	}
 
 	@Override
@@ -26,7 +23,7 @@ public final class ArmorPieceInstance extends DurableItemInstance implements IAr
 
 	@Override
 	public String toString() {
-		return prototype.toString() + ", health: " + getDurability() + ". Current DR: " + getCurrentRoll();
+		return getPrototype().toString() + ", health: " + getDurability() + ". Current DR: " + getCurrentRoll();
 	}
 
 }

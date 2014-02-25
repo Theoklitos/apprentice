@@ -38,9 +38,28 @@ public final class ITImportExport extends AbstractIntegrationTest {
 
 	private DatabaseImporterExporter ie;
 
+	private ExportConfigurationObject config;
+
 	@After
 	public void after() {
 		TMP_EXPORT_IMPORT_FILE.delete();
+	}
+
+	@Test
+	public void exportImportAllDatabase() throws IOException {
+		saveAllFactoryDataToDatbase();
+		config.addNames(vault.getAllNameables());
+		ie.export(config);
+
+		LOG.info("Exported the whole database to  " + config.getFileLocation() + ":\n"
+			+ FileUtils.readFileToString(TMP_EXPORT_IMPORT_FILE));
+
+		emptyDatabase();
+	}
+
+	@Test
+	public void exportWeapons() {
+		fail("implement me");
 	}
 
 	@Test
@@ -51,7 +70,6 @@ public final class ITImportExport extends AbstractIntegrationTest {
 	@Test
 	public void importTypeAndBodyPartsToEmptyDatabase() throws IOException {
 		saveAllFactoryDataToDatbase();
-		final ExportConfigurationObject config = new ExportConfigurationObject();
 		setAllTypeAndBodyPartNames(config);
 		ie.export(config);
 
@@ -84,7 +102,6 @@ public final class ITImportExport extends AbstractIntegrationTest {
 	 * sets the "Human" and "Daemon" name stuff in the configuration object
 	 */
 	private void setAllTypeAndBodyPartNames(final ExportConfigurationObject config) {
-		config.setFileLocation(TMP_EXPORT_IMPORT_FILE.getAbsolutePath());
 		final Set<String> typeNames = Sets.newHashSet();
 		typeNames.add(factory.getTypes().get(0).getName());
 		typeNames.add(factory.getTypes().get(1).getName());
@@ -105,6 +122,8 @@ public final class ITImportExport extends AbstractIntegrationTest {
 	@Before
 	public void setup() {
 		ie = new DatabaseImporterExporter(vault, parser);
+		config = new ExportConfigurationObject();
+		config.setFileLocation(TMP_EXPORT_IMPORT_FILE.getAbsolutePath());
 	}
 
 }

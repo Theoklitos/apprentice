@@ -3,14 +3,20 @@ package com.apprentice.rpg.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.junit.Test;
 
+import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.damage.DamageRoll;
+import com.apprentice.rpg.model.weapon.Weapon;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.strike.StrikeType;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -75,6 +81,45 @@ public final class TestApprenticeCollectionUtils {
 
 	@Test
 	public void intersectionOfNamebales() {
-		fail("implement this with weapons");
+		final Weapon weapon1 = new WeaponPrototype("sword1", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final Weapon weapon2 = new WeaponPrototype("sword2", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final Weapon weapon3 = new WeaponPrototype("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final Weapon weapon4 = new WeaponPrototype("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final Collection<Weapon> col1 = Sets.newHashSet(weapon1, weapon2, weapon3, weapon4);
+		final Collection<Weapon> col2 = Sets.newHashSet(weapon1, weapon3);
+
+		final Collection<? extends Nameable> intersection =
+			ApprenticeCollectionUtils.getIntersectingNameableElements(col1, col2);
+		assertEquals(2, intersection.size());
+		assertTrue(intersection.contains(weapon1));
+		assertTrue(intersection.contains(weapon3));
+	}
+
+	@Test
+	public void mapsAreEqual() {
+		final Map<Integer, String> map1 = Maps.newHashMap();
+		map1.put(2, "two");
+		map1.put(3, "whatever");
+		map1.put(1, "one");
+		final Map<Integer, String> map2 = Maps.newHashMap();
+		map2.put(1, "one");
+		map2.put(2, "two");
+		map2.put(3, "whatever");
+
+		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(map1, map2));
+	}
+	
+	@Test
+	public void mapsAreNotEqual() {
+		final Map<Integer, String> map1 = Maps.newHashMap();
+		map1.put(2, "one");
+		map1.put(3, "two");
+		map1.put(1, "three");
+		final Map<Integer, String> map2 = Maps.newHashMap();
+		map2.put(1, "one");
+		map2.put(2, "two");
+		map2.put(3, "three");
+
+		assertFalse(ApprenticeCollectionUtils.areAllElementsEqual(map1, map2));
 	}
 }

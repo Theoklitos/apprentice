@@ -9,7 +9,7 @@ import com.apprentice.rpg.random.ApprenticeRandom;
  * @author theoklitos
  * 
  */
-public interface IArmorPieceInstance extends IDurableItemInstance {
+public interface IArmorPieceInstance extends IDurableItemInstance<ArmorPiece> {
 
 	/**
 	 * returns the (random) number of damage points to be absorbed, due to DR 

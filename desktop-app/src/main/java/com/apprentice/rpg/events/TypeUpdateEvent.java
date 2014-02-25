@@ -8,7 +8,7 @@ import com.apprentice.rpg.model.body.IType;
  * @author theoklitos
  * 
  */
-public class TypeUpdateEvent extends DatabaseUpdateEvent<IType> {
+public final class TypeUpdateEvent extends TypeModificationEvent {
 
 	public TypeUpdateEvent(final IType newType) {
 		super(newType);

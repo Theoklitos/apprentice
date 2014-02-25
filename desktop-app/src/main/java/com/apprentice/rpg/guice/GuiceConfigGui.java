@@ -27,6 +27,8 @@ import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainControl;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.util.WindowUtils;
+import com.apprentice.rpg.gui.vault.IVaultFrameControl;
+import com.apprentice.rpg.gui.vault.VaultFrameControl;
 import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.windowState.GlobalWindowState;
@@ -45,7 +47,7 @@ public final class GuiceConfigGui implements Module {
 	public void configure(final Binder binder) {
 		binder.bind(IWindowManager.class).to(WindowManager.class);
 		binder.bind(IWindowUtils.class).to(WindowUtils.class);
-		binder.bind(ITextConfigFileManager.class).to(TextConfigFileManager.class);		
+		binder.bind(ITextConfigFileManager.class).to(TextConfigFileManager.class);
 		binder.bind(ApprenticeEventBus.class).to(PublishSubscribeEventBus.class).in(Scopes.SINGLETON);
 		binder.bind(IDataSynchronizer.class).to(DataSynchronizer.class);
 		binder.bind(IApprenticeDesktopControl.class).to(ApprenticeDesktopControl.class);
@@ -53,6 +55,7 @@ public final class GuiceConfigGui implements Module {
 		binder.bind(IDatabaseSettingsFrameControl.class).to(DatabaseSettingsFrameControl.class);
 		binder.bind(INewPlayerCharacterFrameControl.class).to(NewPlayerCharacterFrameControl.class);
 		binder.bind(ITypeAndBodyPartFrameControl.class).to(TypeAndBodyPartFrameControl.class);
+		binder.bind(IVaultFrameControl.class).to(VaultFrameControl.class);
 
 		binder.bind(ILogFrameControl.class)
 				.toInstance((LogFrameControl) Logger.getRootLogger().getAppender("logFrame"));

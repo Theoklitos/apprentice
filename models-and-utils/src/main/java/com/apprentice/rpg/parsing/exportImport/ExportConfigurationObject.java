@@ -1,10 +1,12 @@
 package com.apprentice.rpg.parsing.exportImport;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
+import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,6 +32,18 @@ public final class ExportConfigurationObject {
 	public void addNameForExport(final ItemType type, final String selectedName) {
 		final Set<String> names = getNamesForType(type);
 		names.add(selectedName);
+	}
+
+	/**
+	 * will add all the names of the given nameables
+	 */
+	public void addNames(final Collection<? extends Nameable> allNameables) {
+		for (final Nameable nameable : allNameables) {			
+			final Box<ItemType> typeBox = DatabaseImporterExporter.getTypeForClass(nameable);
+			if (typeBox.hasContent()) {				
+				addNameForExport(typeBox.getContent(), nameable.getName());
+			}
+		}
 	}
 
 	/**
@@ -66,9 +80,26 @@ public final class ExportConfigurationObject {
 		typeToNameMapping.put(type, names);
 	}
 
+	/**
+	 * total number of names regardless of type
+	 */
+	public int size() {
+		int count = 0;
+		for (final ItemType type : typeToNameMapping.keySet()) {
+			final Set<String> names = typeToNameMapping.get(type);
+			if (names != null) {
+				count += names.size();
+			}
+		}
+		return count;
+	}
+
 	@Override
 	public String toString() {
-		return "File: " + fileLocation + ". Names: "
-			+ Joiner.on(",").withKeyValueSeparator(":").join(typeToNameMapping);
+		String fileLocationString = "No file defined";
+		if (fileLocation != null) {
+			fileLocationString = "File: " + fileLocation;
+		}
+		return fileLocationString + ". Names: " + Joiner.on(",").withKeyValueSeparator(":").join(typeToNameMapping);
 	}
 }

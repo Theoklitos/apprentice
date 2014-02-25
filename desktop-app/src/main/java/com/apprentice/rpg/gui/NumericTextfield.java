@@ -6,6 +6,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A textfield that allows only number to be inputed
  * 
@@ -53,8 +55,15 @@ public final class NumericTextfield extends JTextField {
 		}
 	}
 
+	/**
+	 * If no text is inputted, will return 0
+	 */
 	public int getTextAsInteger() {
-		return Integer.valueOf(getText());
+		if (StringUtils.isBlank(getText().trim())) {
+			return 0;
+		} else {
+			return Integer.valueOf(getText());
+		}
 	}
 
 }

@@ -1,9 +1,12 @@
 package com.apprentice.rpg.model;
 
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.apprentice.rpg.parsing.ParsingEx;
+import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
@@ -21,6 +24,47 @@ public final class PlayerLevels {
 
 	public PlayerLevels() {
 		levels = Maps.newHashMap();
+		experiencePoints = 0;
+	}
+
+	/**
+	 * tries to understand the levels string, experience will still be 0 though
+	 * 
+	 * @throws ParsingEx if the levels string text is not understood
+	 */
+	public PlayerLevels(final String levelsString) throws ParsingEx {
+		Checker.checkNonNull("No player levels string given", true, levelsString);
+		levels = Maps.newHashMap();
+		final String rawText = levelsString.toLowerCase().trim();
+		final StringTokenizer tokenizer = new StringTokenizer(rawText, "/");
+		try {
+			while (tokenizer.hasMoreElements()) {
+				String className;
+				int level;
+				final String withLevels = tokenizer.nextElement().toString();
+				if (withLevels.length() > 3 && StringUtils.isNumeric(withLevels.substring(withLevels.length() - 3))) {
+					// level too big
+					throw new ParsingEx("Levels up to 99 supported only.");
+				} else if (withLevels.length() > 2
+					&& StringUtils.isNumeric(withLevels.substring(withLevels.length() - 2))) {
+					// 2 digit levels
+					className = withLevels.substring(0, withLevels.length() - 2);
+					level = Integer.valueOf(withLevels.substring(withLevels.length() - 2));
+				} else if (withLevels.length() > 1
+					&& StringUtils.isNumeric(withLevels.substring(withLevels.length() - 1))) {
+					// 1 digit
+					className = withLevels.substring(0, withLevels.length() - 1);
+					level = Integer.valueOf(withLevels.substring(withLevels.length() - 1));
+				} else {
+					// no level
+					throw new ParsingEx("No level was given for class \"" + withLevels + "\"");
+				}
+				addLevels(className, level);
+			}
+
+		} catch (final NumberFormatException e) {
+			throw new ParsingEx("Could not understand level number: " + e.getMessage());
+		}
 		experiencePoints = 0;
 	}
 
@@ -75,7 +119,7 @@ public final class PlayerLevels {
 	}
 
 	/**
-	 * returns a copy of the mappings of class name -> character level. 
+	 * returns a copy of the mappings of class name -> character level.
 	 */
 	public Map<String, Integer> getLevels() {
 		return Maps.newHashMap(levels);

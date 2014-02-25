@@ -5,7 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import com.apprentice.rpg.model.ApprenticeEx;
 
 /**
- * Model for the table in the {@link GenericVaultFrame}
+ * Model for the table in the {@link AbstractVaultFrame}
  * 
  * @author theoklitos
  * 

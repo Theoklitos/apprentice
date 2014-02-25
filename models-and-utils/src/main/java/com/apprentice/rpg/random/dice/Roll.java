@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 
 import com.apprentice.rpg.model.ApprenticeEx;
+import com.apprentice.rpg.parsing.ParsingEx;
 import com.apprentice.rpg.random.ApprenticeRandom;
 import com.apprentice.rpg.util.Checker;
 import com.apprentice.rpg.util.OccurrenceList;
@@ -25,7 +26,7 @@ public final class Roll {
 	public static Roll getCreateZeroRoll() {
 		try {
 			return new Roll("D0");
-		} catch (final RollException e) {
+		} catch (final ParsingEx e) {
 			throw new ApprenticeEx("This should not have happened. Look inside the getCreateZeroRoll() method");
 		}
 	}
@@ -97,10 +98,10 @@ public final class Roll {
 	/**
 	 * Main constructor. Tries to understand the text.
 	 * 
-	 * @throws RollException
+	 * @throws ParsingEx
 	 *             if the roll was not understood
 	 */
-	public Roll(final String text) {
+	public Roll(final String text) throws ParsingEx {
 		Checker.checkNonNull("Error while parsing dice roll", true, text);
 		final String actualText = text.trim().toUpperCase();
 		this.dice = new OccurrenceList<Integer>();
@@ -300,10 +301,10 @@ public final class Roll {
 		return stringResult;
 	}
 
-	private void understandElement(final String text, final boolean isPositive) throws RollException {
+	private void understandElement(final String text, final boolean isPositive) throws ParsingEx {
 		final String operator = getOperator(isPositive, false);
-		final RollException rollException =
-			new RollException("Roll piece '" + operator + text + "' does not make sense");
+		final ParsingEx rollException =
+			new ParsingEx("Roll piece '" + operator + text + "' does not make sense");
 
 		// if it has letters other than D, stop
 		if (!StringUtils.isNumeric(text)) {

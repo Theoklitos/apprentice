@@ -1,28 +1,24 @@
 package com.apprentice.rpg.parsing;
 
 import java.util.Collection;
-import java.util.StringTokenizer;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.PlayerCharacter;
-import com.apprentice.rpg.model.PlayerLevels;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
-import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
-import com.apprentice.rpg.parsing.gson.TypeDeserializer;
-import com.apprentice.rpg.parsing.gson.TypeSerializer;
-import com.apprentice.rpg.parsing.gson.WeaponDeserializer;
+import com.apprentice.rpg.parsing.gson.BonusSequenceDeserializer;
+import com.apprentice.rpg.parsing.gson.BonusSequenceSerializer;
+import com.apprentice.rpg.parsing.gson.RollDeserializer;
+import com.apprentice.rpg.parsing.gson.RollSerializer;
+import com.apprentice.rpg.random.dice.Roll;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
@@ -35,26 +31,25 @@ import com.google.inject.Inject;
  */
 public final class JsonParser implements ApprenticeParser {
 
+	/**
+	 * creates a {@link Gson} instance
+	 */
+	public static Gson createFreshGson() {
+		final GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Roll.class, new RollSerializer());
+		gsonBuilder.registerTypeAdapter(Roll.class, new RollDeserializer());
+		gsonBuilder.registerTypeAdapter(Roll.class, new BonusSequenceSerializer());
+		gsonBuilder.registerTypeAdapter(Roll.class, new BonusSequenceDeserializer());
+		return gsonBuilder.setPrettyPrinting().create();
+	}
+
 	private final Gson gson;
-	private final GsonBuilder gsonBuilder;
-	private final TypeDeserializer typeDeserializer;
-	private final WeaponDeserializer weaponDeserializer;
+	private final SerializersWithVault serializersWithVault;
 
 	@Inject
 	public JsonParser() {
-		typeDeserializer = new TypeDeserializer();
-		weaponDeserializer = new WeaponDeserializer();
-		gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(Type.class, new TypeSerializer());
-		gsonBuilder.registerTypeAdapter(IType.class, typeDeserializer);
-		gsonBuilder.registerTypeAdapter(Weapon.class, weaponDeserializer);		
-		gson = gsonBuilder.setPrettyPrinting().create();
-	}
-
-	private void emptynessCheck(final String text) {
-		if (StringUtils.isEmpty(text)) {
-			throw new ParsingEx("Nothing to parse!");
-		}
+		serializersWithVault = new SerializersWithVault();
+		gson = serializersWithVault.getGson();
 	}
 
 	@Override
@@ -71,35 +66,11 @@ public final class JsonParser implements ApprenticeParser {
 	}
 
 	@Override
-	public String getAsJsonString(final BodyPart bodyPart) {
-		return gson.toJson(bodyPart);
-	}
-
-	@Override
-	public String getAsJsonString(final IPlayerCharacter playerCharacter) {
-		try {
-			return gson.toJson(playerCharacter);
-		} catch (final JsonParseException e) {
-			throw new ParsingEx(e);
-		}
-	}
-
-	@Override
-	public String getAsJsonString(final IType type) throws ParsingEx {
-		if (!type.getClass().isAssignableFrom(Type.class)) {
-			throw new ParsingEx("Cannot convert " + type.getClass().getSimpleName() + " to json!");
-		}
-		final Type typeImpl = (Type) type;
-		return gson.toJson(typeImpl);
-	}
-
-	@Override
-	public String getAsJsonString(final Weapon weapon) {
-		try {
-			return gson.toJson(weapon);
-		} catch (final JsonParseException e) {
-			throw new ParsingEx(e);
-		}
+	public String getAsJsonString(final Object object) {
+		serializersWithVault.setNameLookupForType(object.getClass(), true, false);
+		final String result = gson.toJson(object);
+		serializersWithVault.setNameLookupForType(object.getClass(), true, true);
+		return result;
 	}
 
 	/**
@@ -133,9 +104,19 @@ public final class JsonParser implements ApprenticeParser {
 	}
 
 	@Override
-	public BodyPart parseBodyPart(final String json) throws ParsingEx {
+	public <T> T parse(final String jsonString, final Class<T> classToParseInto) throws ParsingEx {
+		return parse(jsonString, null, classToParseInto);
+	}
+
+	@Override
+	public <T> T parse(final String jsonString, final NameableVault simpleVault, final Class<T> classToParseInto)
+			throws ParsingEx {
 		try {
-			return gson.fromJson(json, BodyPart.class);
+			serializersWithVault.setSimpleVault(simpleVault);
+			serializersWithVault.setNameLookupForType(classToParseInto, false, false);
+			final T result = gson.fromJson(jsonString, classToParseInto);
+			serializersWithVault.setNameLookupForType(classToParseInto, false, true);
+			return result;
 		} catch (final JsonSyntaxException e) {
 			throw new ParsingEx(e);
 		}
@@ -156,19 +137,9 @@ public final class JsonParser implements ApprenticeParser {
 	public IPlayerCharacter parsePlayerCharacter(final String playerAsJson, final NameableVault simpleVault)
 			throws ParsingEx {
 		try {
-			typeDeserializer.setNameableVault(simpleVault);
+			serializersWithVault.setSimpleVault(simpleVault);
 			return gson.fromJson(playerAsJson, PlayerCharacter.class);
 		} catch (final Exception e) {
-			throw new ParsingEx(e);
-		}
-	}
-
-	@Override
-	public IType parseType(final String json, final NameableVault simpleVault) throws ParsingEx {
-		try {
-			typeDeserializer.setNameableVault(simpleVault);
-			return gson.fromJson(json, IType.class);
-		} catch (final JsonSyntaxException e) {
 			throw new ParsingEx(e);
 		}
 	}
@@ -177,45 +148,8 @@ public final class JsonParser implements ApprenticeParser {
 	public Collection<IType> parseTypes(final String jsonArrayString, final NameableVault simpleVault) throws ParsingEx {
 		final java.lang.reflect.Type typeType = new TypeToken<Collection<IType>>() {
 		}.getType();
-		typeDeserializer.setNameableVault(simpleVault);
+		serializersWithVault.setSimpleVault(simpleVault);
 		return gson.fromJson(jsonArrayString, typeType);
-	}
-
-	@Override
-	public PlayerLevels parseWithoutExperience(final String text) throws ParsingEx {
-		emptynessCheck(text);
-		final String rawText = text.toLowerCase().trim();
-		final PlayerLevels result = new PlayerLevels();
-		final StringTokenizer tokenizer = new StringTokenizer(rawText, "/");
-		try {
-			while (tokenizer.hasMoreElements()) {
-				String className;
-				int level;
-				final String withLevels = tokenizer.nextElement().toString();
-				if (withLevels.length() > 3 && StringUtils.isNumeric(withLevels.substring(withLevels.length() - 3))) {
-					// level too big
-					throw new ParsingEx("Levels up to 99 supported only.");
-				} else if (withLevels.length() > 2
-					&& StringUtils.isNumeric(withLevels.substring(withLevels.length() - 2))) {
-					// 2 digit levels
-					className = withLevels.substring(0, withLevels.length() - 2);
-					level = Integer.valueOf(withLevels.substring(withLevels.length() - 2));
-				} else if (withLevels.length() > 1
-					&& StringUtils.isNumeric(withLevels.substring(withLevels.length() - 1))) {
-					// 1 digit
-					className = withLevels.substring(0, withLevels.length() - 1);
-					level = Integer.valueOf(withLevels.substring(withLevels.length() - 1));
-				} else {
-					// no level
-					throw new ParsingEx("No level was given for class \"" + withLevels + "\"");
-				}
-				result.addLevels(className, level);
-			}
-
-		} catch (final NumberFormatException e) {
-			throw new ParsingEx("Could not understand level number: " + e.getMessage());
-		}
-		return result;
 	}
 
 }

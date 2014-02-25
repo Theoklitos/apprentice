@@ -7,6 +7,7 @@ import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.rules.Ruleset;
 import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.Checker;
+import com.google.common.base.Objects;
 
 /**
  * item with name and description, and a durability that can be changed (like hit points) that affects the
@@ -15,22 +16,23 @@ import com.apprentice.rpg.util.Checker;
  * @author theoklitos
  * 
  */
-public class DurableItemInstance implements IDurableItemInstance {
+public class DurableItemInstance<T extends DurableItem> implements IDurableItemInstance<T> {
 
 	private static Logger LOG = Logger.getLogger(DurableItemInstance.class);
 
-	private final DurableItem prototype;
+	private final T prototype;
 	private final CurrentMaximumPair hitPoints;
 	private Roll originalRoll;
 	private Roll currentRoll;
-	private Ruleset ruleset;
+
+	private transient Ruleset ruleset;
 
 	/**
 	 * @param deteriorationIncrement
 	 *            every 1/deteriorationIncrement of the total health loss, the baseRoll will deteriorate by
 	 *            one cateogry
 	 */
-	public DurableItemInstance(final DurableItem prototype) {
+	public DurableItemInstance(final T prototype) {
 		Checker.checkNonNull("No prototype defined for durable iten instance", true, prototype);
 		this.prototype = prototype;
 		this.hitPoints = new CurrentMaximumPair(prototype.getMaximumDurability());
@@ -49,6 +51,18 @@ public class DurableItemInstance implements IDurableItemInstance {
 	private void adjustDurabilities() {
 		if (prototype.getMaximumDurability() != hitPoints.getMaximum()) {
 			hitPoints.setMaximum(prototype.getMaximumDurability());
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof DurableItemInstance) {
+			final DurableItemInstance otherDurableItem = (DurableItemInstance) other;
+			return Objects.equal(otherDurableItem.getDurability(), getDurability())
+				&& Objects.equal(otherDurableItem.getCurrentRoll(), getCurrentRoll());
+		} else {
+			return false;
 		}
 	}
 
@@ -75,7 +89,7 @@ public class DurableItemInstance implements IDurableItemInstance {
 				return -1;
 			}
 			final int increment =
-				hitPoints.getMaximum() / getRuleset().getContent().getDeteriorationIncrementForType(getClass());
+				hitPoints.getMaximum() / getRuleset().getContent().getDeteriorationIncrementForType(this);
 			final int difference = hitPoints.getMaximum() - hitPoints.getCurrent();
 			final int stepsBelowOptimal = difference / increment;
 			return stepsBelowOptimal;
@@ -100,6 +114,16 @@ public class DurableItemInstance implements IDurableItemInstance {
 		return hitPoints;
 	}
 
+	@Override
+	public String getName() {
+		return getPrototype().getName();
+	}
+
+	@Override
+	public T getPrototype() {
+		return prototype;
+	}
+
 	/**
 	 * returns a box with a {@link Ruleset} if one is defined
 	 */
@@ -109,6 +133,11 @@ public class DurableItemInstance implements IDurableItemInstance {
 		} else {
 			return Box.with(ruleset);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getDurability(), getCurrentRoll());
 	}
 
 	@Override
@@ -176,5 +205,4 @@ public class DurableItemInstance implements IDurableItemInstance {
 			}
 		}
 	}
-
 }

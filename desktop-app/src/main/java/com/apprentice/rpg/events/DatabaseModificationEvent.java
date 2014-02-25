@@ -1,5 +1,7 @@
 package com.apprentice.rpg.events;
 
+import com.apprentice.rpg.model.Nameable;
+
 /**
  * fired when the database is changed
  * 
@@ -22,5 +24,14 @@ public class DatabaseModificationEvent<T> {
 	 */
 	public T getPayload() {
 		return object;
+	}
+
+	@Override
+	public String toString() {
+		String payloadDescription = getPayload().getClass().getSimpleName();
+		if (Nameable.class.isAssignableFrom(getPayload().getClass())) {
+			payloadDescription = ((Nameable) getPayload()).getName();
+		}
+		return getClass().getSimpleName() + " for " + payloadDescription;
 	}
 }

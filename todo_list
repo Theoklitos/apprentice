@@ -1,21 +1,14 @@
-Version 3!
-weapons
-when exporting weapons, refactor exporter table control
-fix controls, injector smarter idea
-move level parsing to individual objects, not in parser
-export all necessary parts per type
-armor
-spells
+=== Version 3, weapons + armor!
 export whole database
+when exporting weapons, refactor exporter table control
+check new player frame with > 1 types
 
-Version 4!
-* Player Frame :)
+=== Version 4, strikes, simple strike engine!
+
 
 
 
 #################### Testing Backlog
-* unit test simple vault
-* unit test the LogFrameControl
 * unit tests for DatabaseImportExport
 * unit tests for ExportConfigObject
 

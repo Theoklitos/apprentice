@@ -19,6 +19,8 @@ public final class TestStrikeType {
 	@Test
 	public void equality() {
 		assertEquals(type, new StrikeType("Fire"));
+		type.setDescription("new description");
+		assertFalse(type.equals(new StrikeType("fire")));
 		assertFalse(type.equals(new StrikeType("ice")));
 	}
 

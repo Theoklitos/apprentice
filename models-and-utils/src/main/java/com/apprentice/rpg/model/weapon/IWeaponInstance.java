@@ -3,6 +3,8 @@ package com.apprentice.rpg.model.weapon;
 import java.util.Collection;
 import java.util.List;
 
+import com.apprentice.rpg.model.damage.Damage;
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.durable.IDurableItemInstance;
 import com.apprentice.rpg.random.ApprenticeRandom;
 
@@ -12,7 +14,7 @@ import com.apprentice.rpg.random.ApprenticeRandom;
  * @author theoklitos
  * 
  */
-public interface IWeaponInstance extends IDurableItemInstance {
+public interface IWeaponInstance extends IDurableItemInstance<Weapon> {
 
 	/**
 	 * The current nase damage of the weapon. Might be less than original due to deterioration

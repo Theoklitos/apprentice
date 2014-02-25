@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model.weapon;
+package com.apprentice.rpg.model.damage;
 
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.strike.StrikeType;

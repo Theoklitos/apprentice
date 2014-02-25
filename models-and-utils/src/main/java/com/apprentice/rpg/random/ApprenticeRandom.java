@@ -1,7 +1,7 @@
 package com.apprentice.rpg.random;
 
-import com.apprentice.rpg.model.weapon.Damage;
-import com.apprentice.rpg.model.weapon.DamageRoll;
+import com.apprentice.rpg.model.damage.Damage;
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.strike.StrikeType;
 

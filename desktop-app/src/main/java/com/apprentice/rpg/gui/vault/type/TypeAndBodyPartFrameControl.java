@@ -11,10 +11,10 @@ import com.apprentice.rpg.dao.time.ModificationTimeVault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.BodyPartDeletionEvent;
 import com.apprentice.rpg.events.BodyPartUpdateEvent;
-import com.apprentice.rpg.events.DatabaseDeletionEvent;
-import com.apprentice.rpg.events.DatabaseUpdateEvent;
+import com.apprentice.rpg.events.DatabaseModificationEvent;
 import com.apprentice.rpg.events.TypeDeletionEvent;
 import com.apprentice.rpg.events.TypeUpdateEvent;
+import com.apprentice.rpg.gui.AbstractControlForView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
@@ -32,7 +32,7 @@ import com.google.inject.Inject;
  * @author theoklitos
  * 
  */
-public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl {
+public class TypeAndBodyPartFrameControl extends AbstractControlForView implements ITypeAndBodyPartFrameControl {
 
 	private static Logger LOG = Logger.getLogger(TypeAndBodyPartFrameControl.class);
 
@@ -48,6 +48,7 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 	@Inject
 	public TypeAndBodyPartFrameControl(final Vault vault, final ApprenticeEventBus eventBus,
 			final IDatabaseImporterExporter dbImporterExporter) {
+		super(vault, eventBus);
 		this.vault = vault;
 		this.eventBus = eventBus;
 		this.dbImporterExporter = dbImporterExporter;
@@ -64,7 +65,7 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 	@Override
 	public void createOrUpdate(final Nameable item, final ItemType type) throws NameAlreadyExistsEx {
 		final String message = vault.exists(item) ? "Updated " : "Created ";
-		DatabaseUpdateEvent<?> event = null;
+		DatabaseModificationEvent<?> event = null;
 		switch (type) {
 		case BODY_PART:
 			event = new BodyPartUpdateEvent((BodyPart) item);
@@ -72,17 +73,19 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 		case TYPE:
 			event = new TypeUpdateEvent((IType) item);
 			break;
+		default:
+			return;
 		}
 		vault.update(item);
 		isBufferUpdated = false;
-		LOG.info(message + type + " " + item.getName() + "\".");
+		LOG.info(message + type + " " + item.getName() + ".");
 		eventBus.postEvent(event);
 		view.refreshFromModel();
 	}
 
 	@Override
 	public void deleteByName(final String name, final ItemType type) throws ItemNotFoundEx {
-		DatabaseDeletionEvent<?> event = null;
+		DatabaseModificationEvent<?> event = null;		
 		Nameable item = null;
 		switch (type) {
 		case BODY_PART:
@@ -93,6 +96,8 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 			item = getTypeForName(name);
 			event = new TypeDeletionEvent((IType) item);
 			break;
+		default:
+			return;
 		}
 		if (vault.delete(item)) {
 			isBufferUpdated = false;
@@ -161,6 +166,8 @@ public class TypeAndBodyPartFrameControl implements ITypeAndBodyPartFrameControl
 			return getBodyPartForName(name);
 		case TYPE:
 			return getTypeForName(name);
+		default:
+			// nothing, exception will be thrown
 		}
 		throw new ItemNotFoundEx();
 	}

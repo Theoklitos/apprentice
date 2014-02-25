@@ -39,7 +39,7 @@ public class PublishSubscribeEventBus implements ApprenticeEventBus {
 	}
 
 	private void postEventInternal(final DatabaseModificationEvent<?> event) {
-		LOG.debug("Posted " + event.getClass().getSimpleName() + event);
+		LOG.debug("Posted [" + event + "]");
 		eventBus.post(event);
 	}
 

@@ -30,8 +30,7 @@ public class ItemForExportChooserTable extends ApprenticeTable {
 			@Override
 			public void valueChanged(final ListSelectionEvent event) {
 				final Set<String> selectedNames = getSelectedNames();				
-				config.setNamesForExport(type, selectedNames);
-				System.out.println("Config changed: " + config);
+				config.setNamesForExport(type, selectedNames);		
 			}
 		});
 		this.repaint();

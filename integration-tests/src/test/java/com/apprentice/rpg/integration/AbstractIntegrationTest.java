@@ -11,8 +11,7 @@ import org.junit.Before;
 
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.model.guice.GuiceConfigBackend;
 import com.apprentice.rpg.parsing.ApprenticeParser;
@@ -67,6 +66,9 @@ public abstract class AbstractIntegrationTest {
 			vault.delete(object);
 		}
 		database.commit();
+		for(final Object remaining : vault.getAll(Object.class)) {
+			System.out.println(remaining.getClass() + ":" + remaining.toString());
+		}
 		assertEquals(0, vault.getAll(Object.class).size());
 	}
 
@@ -74,11 +76,8 @@ public abstract class AbstractIntegrationTest {
 	 * will store everything in the {@link DataFactory} inside the {@link Vault}
 	 */
 	public void saveAllFactoryDataToDatbase() {
-		for (final IType type : factory.getTypes()) {
-			vault.create(type);
-		}
-		for (final BodyPart part : factory.getBodyParts()) {
-			vault.update(part);
-		}
+		for(final Nameable nameable: factory.getAllNameables()) {
+			vault.update(nameable);
+		}		
 	}
 }

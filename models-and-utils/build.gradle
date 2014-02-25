@@ -5,6 +5,7 @@ dependencies {
 	compile group: 'com.google.inject', name: 'guice', version: '3.0'	
 	compile group: 'org.json', name: 'json', version: '20131018'
 	compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
+	compile group: 'org.reflections', name: 'reflections', version: '0.9.8'
 	
 	compile group: 'com.googlecode.soundlibs', name: 'tritonus-share', version: '0.3.7-2'
 	compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'

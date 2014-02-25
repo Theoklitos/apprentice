@@ -4,8 +4,8 @@ import java.awt.EventQueue;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
+import com.apprentice.rpg.gui.ControlForDescriptionInView;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.util.Box;
@@ -20,16 +20,21 @@ public class DescriptionPanel extends ModifiableTextFieldPanel {
 
 	private static Logger LOG = Logger.getLogger(DescriptionPanel.class);
 
-	private static final String TITLE = "Description";
+	private static final String DEFAULT_TITLE = "Description";
 	private static final long serialVersionUID = 1L;
 	private final IWindowUtils windowUtils;
 	private Nameable object;
 	private final ApprenticeEventBus eventBus;
 
-	public DescriptionPanel(final Vault vault, final IWindowUtils windowUtils, final ApprenticeEventBus eventBus) {
-		super(TITLE, TextFieldPanelType.LABEL, vault);
+	public DescriptionPanel(final ControlForDescriptionInView control, final IWindowUtils windowUtils) {
+		this(control, windowUtils, DEFAULT_TITLE);
+	}
+
+	public DescriptionPanel(final ControlForDescriptionInView control, final IWindowUtils windowUtils,
+			final String borderTitle) {
+		super(borderTitle, TextFieldPanelType.LABEL, control.getVault());
 		this.windowUtils = windowUtils;
-		this.eventBus = eventBus;
+		this.eventBus = control.getEventBus();
 	}
 
 	@Override
@@ -48,7 +53,7 @@ public class DescriptionPanel extends ModifiableTextFieldPanel {
 						object.setDescription(description);
 						getVault().update(object);
 						eventBus.postUpdateEvent(object);
-						LOG.info("Updated " + TITLE + " for " + object.getName());
+						LOG.info("Updated " + DEFAULT_TITLE + " for " + object.getName());
 					}
 				} else {
 					windowUtils

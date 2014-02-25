@@ -3,8 +3,8 @@ package com.apprentice.rpg.random;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.model.weapon.Damage;
-import com.apprentice.rpg.model.weapon.DamageRoll;
+import com.apprentice.rpg.model.damage.Damage;
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.random.dice.Roll;
 
 /**

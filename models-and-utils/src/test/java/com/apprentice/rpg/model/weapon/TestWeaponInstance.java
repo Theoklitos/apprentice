@@ -12,11 +12,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.apprentice.rpg.model.damage.Damage;
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.random.ApprenticeRandom;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.rules.Ruleset;
-import com.apprentice.rpg.strike.StrikeType;
 import com.google.common.collect.Lists;
 
 /**
@@ -51,9 +52,9 @@ public final class TestWeaponInstance {
 		final Collection<Damage> result = instance.rollDamage(random);
 		
 		assertEquals(3,result.size());
-		assertTrue(result.contains(new Damage(5, new StrikeType("Slashing"))));
-		assertTrue(result.contains(new Damage(3, new StrikeType("Cold"))));
-		assertTrue(result.contains(new Damage(2, new StrikeType("Fire"))));
+		assertTrue(result.contains(new Damage(5, factory.getStrikeTypes().get(1))));
+		assertTrue(result.contains(new Damage(3, factory.getStrikeTypes().get(4))));
+		assertTrue(result.contains(new Damage(2, factory.getStrikeTypes().get(3))));		
 	}
 
 	@Test
@@ -97,7 +98,7 @@ public final class TestWeaponInstance {
 		prototype = factory.getWeapons().get(0);
 		mockery.checking(new Expectations() {
 			{
-				allowing(ruleset).getDeteriorationIncrementForType(WeaponInstance.class);
+				allowing(ruleset).getDeteriorationIncrementForType(with(any(WeaponInstance.class)));
 				will(returnValue(3));
 			}
 		});

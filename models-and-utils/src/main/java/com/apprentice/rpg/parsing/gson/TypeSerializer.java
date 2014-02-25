@@ -17,12 +17,16 @@ import com.google.gson.JsonSerializer;
  * @author theoklitos
  * 
  */
-public class TypeSerializer implements JsonSerializer<IType> {
+public class TypeSerializer extends ApprenticeParsingComponent implements JsonSerializer<IType> {
+
+	public TypeSerializer() {
+		super(IType.class);
+	}
 
 	@Override
 	public JsonElement serialize(final IType src, final java.lang.reflect.Type typeOfSrc,
 			final JsonSerializationContext context) {
-		final JsonObject result = new JsonObject();
+		final JsonObject result = new JsonObject();		
 		result.addProperty("name", src.getName());
 		result.addProperty("description", src.getDescription());
 		final JsonObject parts = new JsonObject();

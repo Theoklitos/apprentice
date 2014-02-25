@@ -9,7 +9,7 @@ import com.apprentice.rpg.model.body.Type;
  * @author theoklitos
  * 
  */
-public class TypeDeletionEvent extends DatabaseDeletionEvent<IType> {
+public final class TypeDeletionEvent extends TypeModificationEvent {
 
 	public TypeDeletionEvent(final IType deletedType) {
 		super(deletedType);

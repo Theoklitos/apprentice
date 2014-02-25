@@ -34,7 +34,7 @@ import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ApprenticeTable;
 import com.apprentice.rpg.gui.description.DescriptionPanel;
-import com.apprentice.rpg.gui.vault.GenericVaultFrame;
+import com.apprentice.rpg.gui.vault.AbstractVaultFrame;
 import com.apprentice.rpg.gui.vault.VaultFrameTableModel;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.Nameable;
@@ -53,7 +53,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 /**
- * A kind of {@link GenericVaultFrame} which is meant to update {@link Types} and {@link BodyPart}s
+ * A kind of {@link AbstractVaultFrame} which is meant to update {@link Types} and {@link BodyPart}s
  * 
  * @author theoklitos
  * 
@@ -73,12 +73,11 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 	private ApprenticeTable bodyPartTable;
 	private VaultFrameTableModel bodyPartVaultTableModel;
 	private ApprenticeTable bodyPartVaultTable;
+	private DescriptionPanel descriptionPanel;
 
 	private final TypeAndBodyPartFrameState state;
 
 	private final ITypeAndBodyPartFrameControl control;
-
-	private DescriptionPanel descriptionPanel;
 
 	public TypeAndBodyPartFrame(final IGlobalWindowState globalWindowState, final ITypeAndBodyPartFrameControl control) {
 		super(globalWindowState, "Types and Body Parts");
@@ -131,6 +130,21 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+
+	/**
+	 * adds the body parts (if not already added) per type
+	 */
+	private void addNeededBodyPartsForTypes(final ExportConfigurationObject config) {
+		for (final String typeName : config.getNamesForType(ItemType.TYPE)) {
+			try {
+				for (final BodyPart part : control.getTypeForName(typeName).getParts()) {
+					config.addNameForExport(ItemType.BODY_PART, part.getName());
+				}
+			} catch (final ItemNotFoundEx e) {
+				// weird error, do nothing here, will be handled later on
+			}
+		}
 	}
 
 	/**
@@ -223,6 +237,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 			final int result = fileChooser.showDialog(null, null);
 			if (result == JFileChooser.APPROVE_OPTION) {
 				config.setFileLocation(fileChooser.getSelectedFile().getAbsolutePath());
+				addNeededBodyPartsForTypes(config);
 				control.exportForConfiguration(config);
 			}
 		}
@@ -405,7 +420,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		});
 		scrollPaneBodyPartsVault.setViewportView(bodyPartVaultTable);
 
-		descriptionPanel = new DescriptionPanel(control.getVault(), getWindowUtils(), control.getEventBus());
+		descriptionPanel = new DescriptionPanel(control, getWindowUtils());
 		descriptionPanel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Description",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		getContentPane().add(descriptionPanel, "2, 6, 7, 1, fill, fill");
@@ -570,20 +585,16 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		if (oldName.equals(newName)) {
 			return;
 		}
-		if (!control.doesTypeNameExist(newName)) {
-			// change is only a temp name
-			try {
-				state.changeTypeName(oldName, newName);
-			} catch (final NameAlreadyExistsEx e) {
-				getWindowUtils().showErrorMessage("A type with name \"" + newName + "\" already exists!");
-			}
-			updateBodyPartsTableForActiveType();
-			return;
-		} else {
-			// change is in the repo
+		try {
+			state.changeTypeName(oldName, newName);
+		} catch (final NameAlreadyExistsEx e) {
+			getWindowUtils().showErrorMessage("A type with name \"" + newName + "\" already exists!");
+		}
+		if (control.doesTypeNameExist(oldName)) {
+			// change is also a repo name
 			tryToChangeItemName(oldName, ItemType.TYPE, table, model);
 		}
-
+		updateBodyPartsTableForActiveType();
 	}
 
 	/**

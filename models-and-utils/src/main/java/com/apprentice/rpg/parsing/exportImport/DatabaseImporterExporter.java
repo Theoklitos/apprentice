@@ -17,11 +17,17 @@ import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.dao.simple.SimpleVault;
 import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.PlayerCharacter;
+import com.apprentice.rpg.model.armor.ArmorPiecePrototype;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.body.Type;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
+import com.apprentice.rpg.util.ApprenticeStringUtils;
+import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
@@ -45,7 +51,10 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	 */
 	public enum ItemType {
 		BODY_PART(BodyPart.class, "bodyParts"),
-		TYPE(IType.class, "types");
+		TYPE(Type.class, "types"),
+		WEAPON(WeaponPrototype.class, "weapons"),
+		ARMOR_PIECE(ArmorPiecePrototype.class, "armorPieces"),
+		PLAYER_CHARACTER(PlayerCharacter.class, "playerCharacters");
 
 		/**
 		 * the actual class that this type represents
@@ -64,17 +73,23 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 
 		@Override
 		public String toString() {
-			if (name().equals(ItemType.TYPE.name())) {
-				return "type";
-			} else if (name().equals(ItemType.BODY_PART.name())) {
-				return "body part";
-			} else {
-				return "Unimplemented";
-			}
+			return ApprenticeStringUtils.getReadableEnum(this);
 		}
 	}
 
 	private static Logger LOG = Logger.getLogger(DatabaseImporterExporter.class);
+
+	/**
+	 * returns a box with the {@link ItemType} that corresponds to the given class, if any
+	 */
+	public static Box<ItemType> getTypeForClass(final Nameable nameable) {
+		for (final ItemType type : ItemType.values()) {
+			if (type.type.equals(nameable.getClass())) {
+				return Box.with(type);
+			}
+		}
+		return Box.empty();
+	}
 
 	private final Vault vault;
 	private final ApprenticeParser parser;

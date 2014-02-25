@@ -19,6 +19,8 @@ import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
+import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.util.Box;
 
 public final class MainFrame extends JFrame {
@@ -76,23 +78,32 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showNewCharacterFrame();
+				windowManager.showNewPlayerCharacterFrame();
 
 			}
 		});
 		mnPlayerCharacters.add(mntmNewPlayer);
 		final JMenuItem mntmSummonPlayer = new JMenuItem("Summon Player");
+		mntmSummonPlayer.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				windowManager.showPlayerVaultFrame();
+			}
+		});
 		mnPlayerCharacters.add(mntmSummonPlayer);
 
 		final JMenu mnDice = new JMenu("Dice Roller");
-		menuBar.add(mnDice);		
-		mnDice.addActionListener(new ActionListener() {
+		final JMenuItem mnShowDice = new JMenuItem("Open Dice Roller");
+		mnShowDice.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				windowManager.showDiceRollerFrame();
 			}
 		});
+		mnDice.add(mnShowDice);
+		menuBar.add(mnDice);
 
 		final JMenu mnVaults = new JMenu("Vaults");
 		menuBar.add(mnVaults);
@@ -145,6 +156,19 @@ public final class MainFrame extends JFrame {
 		mnHelp.add(mnLogging);
 		final JMenuItem mntmContact = new JMenuItem("Submit Bug Report or Feature Request...");
 		mnHelp.add(mntmContact);
+
+		final JMenuItem test = new JMenuItem("Inject info");
+		test.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final DataFactory data = new DataFactory();
+				for (final Nameable nameable : data.getAllNameables()) {
+					mainControl.getVault().update(nameable);
+				}
+			}
+		});
+		menuBar.add(test);
 	}
 
 	private void setShutdownHook() {
@@ -152,7 +176,7 @@ public final class MainFrame extends JFrame {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent we) {
-				globalState.setWindowState(new WindowStateIdentifier(getClass()), getBounds(), true);
+				globalState.setWindowState(new WindowStateIdentifier(MainFrame.class), getBounds(), true);
 				mainControl.shutdownGracefully();
 				System.exit(0);
 			}

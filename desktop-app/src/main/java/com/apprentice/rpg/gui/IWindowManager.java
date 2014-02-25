@@ -46,7 +46,12 @@ public interface IWindowManager {
 	/**
 	 * Shows the frame used to create a new {@link PlayerCharacter}
 	 */
-	void showNewCharacterFrame();
+	void showNewPlayerCharacterFrame();
+
+	/**
+	 * Shows the 
+	 */
+	void showPlayerVaultFrame();
 
 	/**
 	 * Shows the {@link TypeAndBodyPartFrameP}

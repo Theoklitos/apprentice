@@ -2,6 +2,7 @@ package com.apprentice.rpg.model.weapon;
 
 import java.util.Collection;
 
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.durable.DurableItem;
 
 /**

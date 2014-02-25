@@ -1,5 +1,7 @@
 package com.apprentice.rpg.rules;
 
+import com.apprentice.rpg.model.body.Size;
+import com.apprentice.rpg.model.durable.DurableItem;
 import com.apprentice.rpg.model.durable.IDurableItemInstance;
 import com.apprentice.rpg.random.dice.Roll;
 
@@ -12,6 +14,11 @@ import com.apprentice.rpg.random.dice.Roll;
 public interface Ruleset {
 
 	/**
+	 * reteurns the target difficuly (usually 1-20) based on size. For example, medium sized beings might be a 10
+	 */
+	int getBaseBlockForSize(Size size);
+
+	/**
 	 * Returns a {@link Roll} decreased by the number of "positions", for example for one position we have
 	 * D10->D8. For two, it is D10->D8->D6. If the given roll has many dices, increases only the first.
 	 */
@@ -20,7 +27,7 @@ public interface Ruleset {
 	/**
 	 * returns a the number that every 1/number of item hit point loss, that item deteriorates
 	 */
-	int getDeteriorationIncrementForType(Class<? extends IDurableItemInstance> item);
+	<T extends DurableItem> int getDeteriorationIncrementForType(final IDurableItemInstance<? extends DurableItem> durableItemInstance);	
 
 	/**
 	 * Returns a {@link Roll} incerased by the number of "positions", for example for one position we have

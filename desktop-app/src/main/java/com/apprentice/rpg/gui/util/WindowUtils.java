@@ -121,7 +121,7 @@ public final class WindowUtils implements IWindowUtils {
 	@Override
 	public Box<String> showBigTextFieldDialog(final String title, final String preExistingContent) {
 		final JScrollPane scrollPane = new JScrollPane();
-		final JTextArea textArea = new JTextArea(10,30);
+		final JTextArea textArea = new JTextArea(10, 30);
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		textArea.setMargin(new Insets(5, 5, 5, 5));
@@ -168,6 +168,11 @@ public final class WindowUtils implements IWindowUtils {
 	}
 
 	@Override
+	public void showInformationMessage(final String infoMessage, final String title) {
+		JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);		
+	}
+
+	@Override
 	public Box<String> showInputDialog(final String message, final String title) {
 		final String result = JOptionPane.showInputDialog(null, message, title, JOptionPane.NO_OPTION);
 		if (StringUtils.isBlank(result)) {
@@ -185,15 +190,14 @@ public final class WindowUtils implements IWindowUtils {
 
 	@Override
 	public boolean showTypeAndBodyPartNameSelection(final ExportConfigurationObject config, final Vault vault) {
-		final JPanel mainPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+		final JPanel mainPanel = new JPanel(new GridLayout(2, 1, 5, 5));
 		final ItemForExportChooserTable typeTable = new ItemForExportChooserTable(ItemType.TYPE, config, vault);
 		final JPanel typePanel = new JPanel();
 		typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.Y_AXIS));
 		typePanel.add(new JLabel("Types"));
 		typePanel.add(typeTable);
 		final JScrollPane typeScrollPane = new JScrollPane();
-		typeScrollPane.setViewportView(typePanel);
-		mainPanel.add(typeScrollPane);
+		typeScrollPane.setViewportView(typePanel);		
 
 		final ItemForExportChooserTable bodyPartTable =
 			new ItemForExportChooserTable(ItemType.BODY_PART, config, vault);
@@ -203,11 +207,22 @@ public final class WindowUtils implements IWindowUtils {
 		bodyPartPanel.add(bodyPartTable);
 		final JScrollPane bodyPartScrollPane = new JScrollPane();
 		bodyPartScrollPane.setViewportView(bodyPartPanel);
-		mainPanel.add(bodyPartScrollPane);
+		
+		final JLabel infoLabel = new JLabel("Note: Every type will be exported along with its required body parts.");
+		
+		final JPanel topPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+		topPanel.add(typeScrollPane);
+		topPanel.add(bodyPartScrollPane);
+		
+		mainPanel.add(topPanel);
+		mainPanel.add(infoLabel);
 
-		final int option =
+		int option =
 			JOptionPane.showConfirmDialog(null, mainPanel, "Choose Items to Export", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE);
+		if (config.size() == 0) {
+			option = JOptionPane.CANCEL_OPTION;
+		}
 		return option == JOptionPane.YES_OPTION;
 	}
 

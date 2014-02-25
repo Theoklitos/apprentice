@@ -1,9 +1,12 @@
 package com.apprentice.rpg.gui;
 
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import com.apprentice.rpg.config.IApprenticeConfiguration;
-import com.apprentice.rpg.database.DatabaseConnection;
+import org.apache.log4j.Logger;
+
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.database.IDataSynchronizer;
 import com.apprentice.rpg.gui.character.player.creation.INewPlayerCharacterFrameControl;
@@ -19,12 +22,15 @@ import com.apprentice.rpg.gui.log.LogFrame;
 import com.apprentice.rpg.gui.main.IEventBarControl;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainFrame;
+import com.apprentice.rpg.gui.util.IWindowUtils;
+import com.apprentice.rpg.gui.vault.IVaultFrameControl;
+import com.apprentice.rpg.gui.vault.player.PlayerVaultFrame;
 import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.parsing.ApprenticeParser;
+import com.apprentice.rpg.model.body.IType;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -36,37 +42,28 @@ import com.google.inject.Injector;
  */
 public final class WindowManager implements IWindowManager {
 
+	private static Logger LOG = Logger.getLogger(WindowManager.class);
+
 	private ApprenticeDesktop desktop;
 	private final IMainControl mainControl;
 	private final IApprenticeDesktopControl desktopControl;
 	private final IEventBarControl eventBarControl;
-	private final ILogFrameControl logFrameControl;
-	private final IDatabaseSettingsFrameControl databaseSettingsFrameControl;
-	private final INewPlayerCharacterFrameControl newPlayerCharacterFrameControl;
-	private final ITypeAndBodyPartFrameControl typeAndBodyPartFrameControl;
-
-	private final IApprenticeConfiguration configuration;
 	private final IGlobalWindowState globalWindowState;
-	private final ApprenticeParser parser;
-	private final DatabaseConnection database;
+	private final IWindowUtils windowUtils;
+	private final Vault vault;
 	private final Injector injector;
 	private final ApprenticeEventBus eventBus;
 
 	@Inject
 	public WindowManager(final Injector injector) {
 		this.injector = injector;
-		database = injector.getInstance(DatabaseConnection.class);
-		configuration = injector.getInstance(IApprenticeConfiguration.class);
+		vault = injector.getInstance(Vault.class);
+		windowUtils = injector.getInstance(IWindowUtils.class);
 		globalWindowState = injector.getInstance(IGlobalWindowState.class);
-		parser = injector.getInstance(ApprenticeParser.class);
 		eventBus = injector.getInstance(ApprenticeEventBus.class);
 		mainControl = injector.getInstance(IMainControl.class);
 		desktopControl = injector.getInstance(IApprenticeDesktopControl.class);
 		eventBarControl = injector.getInstance(IEventBarControl.class);
-		logFrameControl = injector.getInstance(ILogFrameControl.class);
-		databaseSettingsFrameControl = injector.getInstance(IDatabaseSettingsFrameControl.class);
-		newPlayerCharacterFrameControl = injector.getInstance(INewPlayerCharacterFrameControl.class);
-		typeAndBodyPartFrameControl = injector.getInstance(ITypeAndBodyPartFrameControl.class);
 		registerEventHandlers();
 	}
 
@@ -105,16 +102,22 @@ public final class WindowManager implements IWindowManager {
 	@Override
 	public void openFrame(final WindowStateIdentifier openFrameIdentifier) {
 		final Class<?> internalFrame = openFrameIdentifier.getWindowClass();
-		if (internalFrame.isAssignableFrom(DatabaseSettingsFrame.class)) {
-			showDatabaseSettingsFrame();
-		} else if (internalFrame.isAssignableFrom(LogFrame.class)) {
-			showLogFrame();
-		} else if (internalFrame.isAssignableFrom(NewPlayerCharacterFrame.class)) {
-			showNewCharacterFrame();
-		} else if (internalFrame.isAssignableFrom(TypeAndBodyPartFrame.class)) {
-			showTypeAndBodyPartFrame();
-		} else {
-			throw new ApprenticeEx("Frame of type " + internalFrame.getClass() + " could not be restored.");
+		final String methodName = "show" + internalFrame.getSimpleName();
+		Method openFrameMethod;
+		try {
+			LOG.debug("Calling method " + methodName + "()");
+			openFrameMethod = getClass().getMethod(methodName);
+			openFrameMethod.invoke(this);
+		} catch (final IllegalAccessException e) {
+			throw new ApprenticeEx(e);
+		} catch (final IllegalArgumentException e) {
+			throw new ApprenticeEx(e);
+		} catch (final InvocationTargetException e) {
+			throw new ApprenticeEx(e);
+		} catch (final SecurityException e) {
+			throw new ApprenticeEx(e);
+		} catch (final NoSuchMethodException e) {
+			throw new ApprenticeEx(e);
 		}
 	}
 
@@ -122,9 +125,6 @@ public final class WindowManager implements IWindowManager {
 	 * registers handlers on the {@link ApprenticeEventBus}
 	 */
 	private void registerEventHandlers() {
-		eventBus.register(databaseSettingsFrameControl);
-		eventBus.register(newPlayerCharacterFrameControl);
-		eventBus.register(typeAndBodyPartFrameControl);
 		eventBus.register(injector.getInstance(IDataSynchronizer.class));
 	}
 
@@ -144,9 +144,9 @@ public final class WindowManager implements IWindowManager {
 
 			@Override
 			public void run() {
-				final DatabaseSettingsFrame databaseFrame =
-					new DatabaseSettingsFrame(globalWindowState, databaseSettingsFrameControl);
-				databaseSettingsFrameControl.setView(databaseFrame);
+				final IDatabaseSettingsFrameControl control = injector.getInstance(IDatabaseSettingsFrameControl.class);
+				final DatabaseSettingsFrame databaseFrame = new DatabaseSettingsFrame(globalWindowState, control);
+				control.setView(databaseFrame);
 				desktop.add(databaseFrame);
 			}
 		});
@@ -173,25 +173,52 @@ public final class WindowManager implements IWindowManager {
 
 			@Override
 			public void run() {
+				final ILogFrameControl control = injector.getInstance(ILogFrameControl.class);
 				final LogFrame logFrame = new LogFrame(globalWindowState);
-				logFrameControl.setView(logFrame);
+				control.setView(logFrame);
 				desktop.add(logFrame);
 			}
 		});
 	}
 
 	@Override
-	public void showNewCharacterFrame() {
+	public void showNewPlayerCharacterFrame() {
 		EventQueue.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				final NewPlayerCharacterFrame newPCFrame =
-					new NewPlayerCharacterFrame(globalWindowState, newPlayerCharacterFrameControl, parser);
-				newPlayerCharacterFrameControl.setView(newPCFrame);
-				desktop.add(newPCFrame);
+				if (vault.getAll(IType.class).size() == 0) {
+					if (windowUtils
+							.showWarningQuestionMessage(
+									"There are no character types in the database.\nYou need to create at least one before proceeding.\nOpen the type creation window now?",
+									"No Types Found")) {
+						showTypeAndBodyPartFrame();
+					}
+				} else {
+					final INewPlayerCharacterFrameControl control =
+						injector.getInstance(INewPlayerCharacterFrameControl.class);
+					final NewPlayerCharacterFrame newPCFrame =
+						new NewPlayerCharacterFrame(globalWindowState, control, getReferenceToSelf());
+					control.setView(newPCFrame);
+					desktop.add(newPCFrame);
+				}
 			}
 		});
+	}
+
+	@Override
+	public void showPlayerVaultFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
+				final PlayerVaultFrame pvFrame = new PlayerVaultFrame(globalWindowState, control);
+				control.setView(pvFrame);
+				desktop.add(pvFrame);
+			}
+		});
+
 	}
 
 	@Override
@@ -200,9 +227,9 @@ public final class WindowManager implements IWindowManager {
 
 			@Override
 			public void run() {
-				final TypeAndBodyPartFrame tbpFrame =
-					new TypeAndBodyPartFrame(globalWindowState, typeAndBodyPartFrameControl);
-				typeAndBodyPartFrameControl.setView(tbpFrame);
+				final ITypeAndBodyPartFrameControl control = injector.getInstance(ITypeAndBodyPartFrameControl.class);
+				final TypeAndBodyPartFrame tbpFrame = new TypeAndBodyPartFrame(globalWindowState, control);
+				control.setView(tbpFrame);
 				desktop.add(tbpFrame);
 			}
 		});

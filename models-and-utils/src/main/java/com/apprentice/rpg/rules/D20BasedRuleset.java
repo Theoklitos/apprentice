@@ -1,6 +1,9 @@
 package com.apprentice.rpg.rules;
 
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.armor.ArmorPieceInstance;
+import com.apprentice.rpg.model.body.Size;
+import com.apprentice.rpg.model.durable.DurableItem;
 import com.apprentice.rpg.model.durable.IDurableItemInstance;
 import com.apprentice.rpg.model.weapon.WeaponInstance;
 import com.apprentice.rpg.random.dice.DiceModificator;
@@ -22,6 +25,28 @@ public class D20BasedRuleset implements Ruleset {
 	}
 
 	@Override
+	public int getBaseBlockForSize(final Size size) {
+		switch (size) {
+		case DIMUNITIVE:
+			return 16;
+		case TINY:
+			return 14;
+		case SMALL:
+			return 12;
+		case MEDIUM:
+			return 10;
+		case LARGE:
+			return 8;
+		case HUGE:
+			return 6;
+		case GARGANTUAN:
+			return 4;
+		default:
+			throw new ApprenticeEx("Size \"" + size + "\" not supported!");
+		}
+	}
+
+	@Override
 	public Roll getDecreasedRoll(final Roll roll, final int positions) {
 		try {
 			final Roll copiedRoll = new Roll(roll);
@@ -36,10 +61,11 @@ public class D20BasedRuleset implements Ruleset {
 	}
 
 	@Override
-	public int getDeteriorationIncrementForType(final Class<? extends IDurableItemInstance> item) {
-		if (item.isAssignableFrom(WeaponInstance.class)) {
+	public <T extends DurableItem> int getDeteriorationIncrementForType(
+			final IDurableItemInstance<? extends DurableItem> durableItemInstance) {
+		if (durableItemInstance.getClass().isAssignableFrom(WeaponInstance.class)) {
 			return 3;
-		} else if (item.isAssignableFrom(ArmorPieceInstance.class)) {
+		} else if (durableItemInstance.getClass().isAssignableFrom(ArmorPieceInstance.class)) {
 			return 3;
 		} else {
 			return 1;

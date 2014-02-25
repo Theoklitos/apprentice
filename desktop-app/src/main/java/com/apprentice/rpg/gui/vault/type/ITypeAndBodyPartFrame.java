@@ -1,11 +1,11 @@
 package com.apprentice.rpg.gui.vault.type;
 
 import com.apprentice.rpg.gui.ControllableView;
-import com.apprentice.rpg.gui.vault.GenericVaultFrame;
+import com.apprentice.rpg.gui.vault.AbstractVaultFrame;
 import com.apprentice.rpg.model.body.BodyPart;
 
 /**
- * A kind of {@link GenericVaultFrame} which is meant to update {@link Types} and {@link BodyPart}s
+ * A kind of {@link AbstractVaultFrame} which is meant to update {@link Types} and {@link BodyPart}s
  * 
  * @author theoklitos
  * 

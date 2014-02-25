@@ -7,8 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import com.apprentice.rpg.random.dice.Roll;
-import com.apprentice.rpg.random.dice.RollException;
+import com.apprentice.rpg.model.ApprenticeEx;
 
 public final class TestRoll {
 
@@ -131,7 +130,7 @@ public final class TestRoll {
 		LOG.info("Roll string '" + rollString3 + "' is parsed to: " + roll3.toString());
 	}
 
-	@Test(expected = RollException.class)
+	@Test(expected = ApprenticeEx.class)
 	public void testWrongLetter() throws RollException {
 		final Roll roll = new Roll("D6+DZ1+1");
 		roll.toString();

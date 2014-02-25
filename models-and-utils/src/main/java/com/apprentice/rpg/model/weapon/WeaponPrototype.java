@@ -3,8 +3,11 @@ package com.apprentice.rpg.model.weapon;
 import java.util.Collection;
 import java.util.HashSet;
 
+import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.durable.DurableItemPrototype;
+import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /**
  * A weapon a PC uses in order to inflict damage
@@ -32,6 +35,18 @@ public class WeaponPrototype extends DurableItemPrototype implements Weapon {
 	}
 
 	@Override
+	public boolean equals(final Object other) {
+		if (other instanceof WeaponPrototype) {
+			final WeaponPrototype otherWeapon = (WeaponPrototype) other;
+			return super.equals(otherWeapon)
+				&& Objects.equal(getOriginalBaseDamage(), otherWeapon.getOriginalBaseDamage())
+				&& ApprenticeCollectionUtils.areAllElementsEqual(getExtraDamages(), otherWeapon.getExtraDamages());
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public Collection<DamageRoll> getExtraDamages() {
 		return extraDamages;
 	}
@@ -42,11 +57,16 @@ public class WeaponPrototype extends DurableItemPrototype implements Weapon {
 	}
 
 	@Override
+	public int hashCode() {
+		return super.hashCode() + Objects.hashCode(baseDamage, extraDamages);
+	}
+
+	@Override
 	public String toString() {
 		String appendix = "";
 		if (extraDamages.size() > 0) {
 			appendix = ", extra dmgs: " + Joiner.on(",").join(extraDamages);
-		}		
+		}
 		return getName() + ", base dmg: " + baseDamage.getRoll() + appendix + ". Max dur.: " + getMaximumDurability();
 	}
 

@@ -15,19 +15,21 @@ import com.apprentice.rpg.model.factories.DataFactory;
 
 public final class TestPlayerCharacter {
 
+	private static final int MOVEMENT_FT = 30;
 	private static final String NAME = "cripple";
 	private PlayerCharacter pc;
+	private SavingThrows saves;
 	private StatBundle stats;
 	private CharacterType characterType;
 	private DataFactory factory;
-		
+
 	@Test
 	public void equality() {
 		final IPlayerCharacter pc2 = factory.getPlayerCharacter();
 		final IPlayerCharacter pc1 = factory.getPlayerCharacter();
 		assertEquals(pc2, pc1);
 	}
-	
+
 	@Test
 	public void isCorrectlyInitialized() {
 		assertEquals(NAME, pc.getName());
@@ -47,14 +49,14 @@ public final class TestPlayerCharacter {
 	@Before
 	public void setup() {
 		factory = new DataFactory();
-		stats = new StatBundle(16, 12, 10, 18, 12, 4);		
+		stats = new StatBundle(16, 12, 10, 18, 12, 4);
 		characterType = new CharacterType(factory.getTypes().get(0), Size.MEDIUM);
-		pc = new PlayerCharacter(NAME, 10, stats, characterType);
+		pc = new PlayerCharacter(NAME, 10, stats, characterType, MOVEMENT_FT, saves);
 	}
 
 	@Test(expected = ApprenticeEx.class)
 	public void throwsExOnErroneousInitialization() {
-		pc = new PlayerCharacter(NAME, 10, null, characterType);
+		pc = new PlayerCharacter(NAME, 10, null, characterType, MOVEMENT_FT, saves);
 	}
 
 }

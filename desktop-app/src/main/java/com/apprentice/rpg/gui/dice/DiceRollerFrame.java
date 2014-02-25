@@ -21,8 +21,6 @@ import org.joda.time.format.DateTimeFormat;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.log.LogFrameControl;
-import com.apprentice.rpg.gui.util.WindowUtils;
-import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.util.Box;
@@ -57,7 +55,7 @@ public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRol
 	private final JTextArea history;
 
 	public DiceRollerFrame(final IGlobalWindowState globalWindowState, final IDiceRollerFrameControl control) {
-		super(new GlobalWindowState(new WindowUtils()), "Dice Roller");
+		super(globalWindowState, "Dice Roller");
 		this.control = control;
 		setResizable(false);
 

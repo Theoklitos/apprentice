@@ -70,12 +70,17 @@ public interface IWindowUtils {
 	 * Displays a simple error message
 	 */
 	void showErrorMessage(String errorMessage, String title);
-
+	
 	/**
 	 * presents a file chooser and returns a box with the file URL the user chose. Emtpy box if user pressed
 	 * on the cancel/X button etc
 	 */
 	Box<String> showFileChooser(String title, String buttonText);
+
+	/**
+	 * Displays a simple information message with only an OK button
+	 */
+	void showInformationMessage(String infoMessage, String title);
 
 	/**
 	 * show a JInputDialog with a jtextfield and returns a box with anything the user inputed. Emtpy box if he

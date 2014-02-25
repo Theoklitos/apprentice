@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model.weapon;
+package com.apprentice.rpg.model.damage;
 
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.random.dice.RollException;

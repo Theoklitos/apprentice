@@ -1,5 +1,6 @@
 package com.apprentice.rpg.model.body;
 
+import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Objects;
 
@@ -9,7 +10,7 @@ import com.google.common.base.Objects;
  * @author theoklitos
  * 
  */
-public abstract class BaseApprenticeObject {
+public abstract class BaseApprenticeObject implements Nameable {
 
 	private String name;
 	private String description;
@@ -35,10 +36,12 @@ public abstract class BaseApprenticeObject {
 		}
 	}
 
+	@Override
 	public final String getDescription() {
 		return description;
 	}
 
+	@Override
 	public final String getName() {
 		return name;
 	}
@@ -48,10 +51,12 @@ public abstract class BaseApprenticeObject {
 		return Objects.hashCode(getName(), getDescription());
 	}
 
+	@Override
 	public void setDescription(final String description) {
 		this.description = description;
 	}
 
+	@Override
 	public void setName(final String name) {
 		this.name = name;
 	}

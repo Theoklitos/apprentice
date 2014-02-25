@@ -1,6 +1,7 @@
 package com.apprentice.rpg.model;
 
 import com.apprentice.rpg.model.body.CharacterType;
+import com.apprentice.rpg.model.combat.CombatCapabilities;
 
 
 /**
@@ -20,10 +21,15 @@ public interface IPlayerCharacter extends Nameable {
 	CharacterType getCharacterType();
 
 	/**
+	 * returns the character's skill with various weapons
+	 */
+	CombatCapabilities getCombatCapabilities();
+
+	/**
 	 * Returns this character's {@link HitPoints}
 	 */
 	HitPoints getHitPoints();
-
+	
 	/**
 	 * returns the information regarding this character's levels and XP
 	 */

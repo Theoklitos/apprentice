@@ -7,7 +7,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.apprentice.rpg.model.PlayerLevels;
-import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
 
 /**
@@ -20,7 +19,7 @@ public final class PlayerLevelsTextfield extends JTextField {
 
 	private static final long serialVersionUID = 1L;
 
-	public PlayerLevelsTextfield(final ApprenticeParser parser) {
+	public PlayerLevelsTextfield() {
 
 		getDocument().addDocumentListener(new DocumentListener() {
 
@@ -50,7 +49,7 @@ public final class PlayerLevelsTextfield extends JTextField {
 					return;
 				}
 				try {
-					parser.parseWithoutExperience(getText());
+					new PlayerLevels(getText().trim());
 					setForeground(Color.black);
 				} catch (final ParsingEx e) {
 					setForeground(Color.red);
