@@ -8,5 +8,5 @@ package com.apprentice.rpg.events.database;
  * 
  */
 public interface IDataSynchronizer {
-
+	// nothing yet, WIP
 }

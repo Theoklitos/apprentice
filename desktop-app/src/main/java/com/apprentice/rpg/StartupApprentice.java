@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.config.TextConfigFileManager;
+import com.apprentice.rpg.gui.FrameAlreadyOpenEx;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.util.WindowUtils;
@@ -119,6 +120,10 @@ public final class StartupApprentice {
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(final Thread thread, final Throwable e) {
+				if (e.getClass().equals(FrameAlreadyOpenEx.class)) {
+					// this is "expected", do nothing
+					return;
+				}
 				if (StringUtils.isNotBlank(e.getMessage())) {
 					windowUtils.showErrorMessage(e.getMessage());
 				}

@@ -9,7 +9,7 @@ import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.events.DatabaseModificationEvent;
+import com.apprentice.rpg.events.type.DatabaseModificationEvent;
 import com.apprentice.rpg.gui.IWindowManager;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.IPlayerCharacter;
@@ -58,7 +58,7 @@ public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFram
 	protected void changeDatabaseLocationUnsafe(final String databaseLocation) throws ApprenticeDatabaseEx {
 		databaseConnection.setDatabase(databaseLocation);
 		textfileManager.writeDatabaseLocation(databaseLocation);
-		windowManager.closeAllFrames();
+		windowManager.closeAllFrames(false);
 		windowManager.openFrame(new WindowStateIdentifier(view.getClass()));
 		LOG.info("Using new database " + databaseLocation);
 	}

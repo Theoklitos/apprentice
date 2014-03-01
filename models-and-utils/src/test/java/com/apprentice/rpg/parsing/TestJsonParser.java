@@ -9,15 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.apprentice.rpg.model.IPlayerCharacter;
-import com.apprentice.rpg.model.armor.ArmorPiece;
-import com.apprentice.rpg.model.armor.ArmorPieceInstance;
-import com.apprentice.rpg.model.armor.IArmorPieceInstance;
+import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.combat.CombatCapabilities;
 import com.apprentice.rpg.model.factories.DataFactory;
-import com.apprentice.rpg.model.weapon.IWeaponInstance;
 import com.apprentice.rpg.model.weapon.Weapon;
-import com.apprentice.rpg.model.weapon.WeaponInstance;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.apprentice.rpg.strike.StrikeType;
 
 public final class TestJsonParser {
@@ -30,20 +28,10 @@ public final class TestJsonParser {
 
 	@Test
 	public void canParseArmorPiece() {
-		final ArmorPiece piece = factory.getArmorPieces().get(0);
+		final IArmorPiece piece = factory.getArmorPieces().get(0);
 		final String json = parser.getAsJsonString(piece);
 		LOG.info("Converted armor piece to:\n" + json);
-		final ArmorPiece parsed = parser.parse(json, ArmorPiece.class);
-		assertEquals(piece, parsed);
-		LOG.info("Parsed back: " + parsed + ". Success.");
-	}
-
-	@Test
-	public void canParseArmorPieceInstance() {
-		final IArmorPieceInstance piece = new ArmorPieceInstance(factory.getArmorPieces().get(0));
-		final String json = parser.getAsJsonString(piece);
-		LOG.info("Converted armor piece instance to:\n" + json);
-		final IArmorPieceInstance parsed = parser.parse(json, factory, IArmorPieceInstance.class);
+		final IArmorPiece parsed = parser.parse(json, factory, IArmorPiece.class);
 		assertEquals(piece, parsed);
 		LOG.info("Parsed back: " + parsed + ". Success.");
 	}
@@ -56,6 +44,16 @@ public final class TestJsonParser {
 		LOG.info("Converted body part to:\n" + json);
 		final BodyPart parsed = parser.parse(json, BodyPart.class);
 		assertEquals(part, parsed);
+		LOG.info("Parsed back: " + parsed + ". Success.");
+	}
+
+	@Test
+	public void canParseCombatCapabilities() {
+		final CombatCapabilities cap = factory.getPlayerCharacter().getCombatCapabilities();
+		final String json = parser.getAsJsonString(cap);
+		LOG.info("Converted capabilities type to:\n" + json);
+		final CombatCapabilities parsed = parser.parse(json, factory, CombatCapabilities.class);
+		assertEquals(cap, parsed);
 		LOG.info("Parsed back: " + parsed + ". Success.");
 	}
 
@@ -93,23 +91,12 @@ public final class TestJsonParser {
 	}
 
 	@Test
-	public void canParseWeaponInstance() {
-		final IWeaponInstance weaponInstance = new WeaponInstance(factory.getWeapons().get(1));
-		weaponInstance.removeHitPoints(10);
-		final String json = parser.getAsJsonString(weaponInstance);
-		LOG.info("Converted weapon instance to:\n" + json);
-		final IWeaponInstance parsed = parser.parse(json, factory, IWeaponInstance.class);
-		assertEquals(weaponInstance, parsed);
-		LOG.info("Parsed back: " + parsed + ". Success.");
-	}
-
-	@Test
 	public void canParseWeaponPrototype() {
-		final Weapon weaponPrototype = factory.getWeapons().get(1);
-		final String json = parser.getAsJsonString(weaponPrototype);
+		final Weapon weapon = factory.getWeapons().get(1);
+		final String json = parser.getAsJsonString(weapon);
 		LOG.info("Converted weapon prototype to:\n" + json);
-		final Weapon parsed = parser.parse(json, factory, Weapon.class);
-		assertEquals(weaponPrototype, parsed);
+		final WeaponPrototype parsed = parser.parse(json, factory, WeaponPrototype.class);
+		assertEquals(weapon, parsed);
 		LOG.info("Parsed back: " + parsed + ". Success.");
 	}
 

@@ -2,29 +2,29 @@ package com.apprentice.rpg.parsing.gson;
 
 import java.lang.reflect.Type;
 
-import com.apprentice.rpg.model.armor.ArmorPieceInstance;
-import com.apprentice.rpg.model.armor.IArmorPieceInstance;
+import com.apprentice.rpg.model.armor.IArmorPiece;
+import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 /**
- * Helps with {@link IArmorPieceInstance} json conversion
+ * Helps with {@link IArmorPiece} json conversion
  * 
  * @author theoklitos
  * 
  */
-public class ArmorPieceInstanceDeserializer extends ApprenticeParsingComponent implements JsonDeserializer<IArmorPieceInstance> {
+public class ArmorPieceInstanceDeserializer extends ApprenticeParsingComponent implements JsonDeserializer<IArmorPiece> {
 
 	public ArmorPieceInstanceDeserializer() {
-		super(IArmorPieceInstance.class);
+		super(IArmorPiece.class);
 	}
 
 	@Override
-	public IArmorPieceInstance deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
+	public IArmorPiece deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
 			throws JsonParseException {		
-		return context.deserialize(json, ArmorPieceInstance.class);
+		return context.deserialize(json, IArmorPiece.class);
 	}
 
 }

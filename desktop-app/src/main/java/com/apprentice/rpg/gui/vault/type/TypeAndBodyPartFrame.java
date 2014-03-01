@@ -291,7 +291,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 					state.setSelectedTypeName(selectedName);
 					updateBodyPartsTableForActiveType();
 					try {
-						descriptionPanel.setElement(control.getTypeForName(selectedName));
+						descriptionPanel.setNameable(control.getTypeForName(selectedName));
 					} catch (final ItemNotFoundEx e) {
 						// type is not fully formed, do nothing
 					}
@@ -413,7 +413,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				if (bodyPartVaultTable.getSelectedName().hasContent()) {
 					final String selectedName = bodyPartVaultTable.getSelectedName().getContent();
 					state.setSelectedBodyPartName(selectedName);
-					descriptionPanel.setElement(control.getBodyPartForName(selectedName));
+					descriptionPanel.setNameable(control.getBodyPartForName(selectedName));
 					typeTable.clearSelection();
 				}
 			}

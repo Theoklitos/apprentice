@@ -53,7 +53,11 @@ public final class ApprenticeDesktop extends JDesktopPane implements Controllabl
 
 	public void closeAllFrames() {
 		for (final ApprenticeInternalFrame internalFrame : internalFrames) {
-			internalFrame.setVisible(false);
+			try {
+				internalFrame.setClosed(true);
+			} catch (final PropertyVetoException e) {
+				internalFrame.setVisible(false);
+			}
 		}
 		internalFrames.clear();
 	}

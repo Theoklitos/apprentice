@@ -69,7 +69,7 @@ public class CurrentMaximumPair {
 
 	@Override
 	public String toString() {
-		return getMaximum() + "/" + getCurrent();
+		return getCurrent() + "/" + getMaximum();
 	}
 
 }

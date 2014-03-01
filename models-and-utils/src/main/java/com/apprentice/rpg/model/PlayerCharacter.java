@@ -65,14 +65,14 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 		if (other instanceof PlayerCharacter) {
 			final PlayerCharacter otherPC = (PlayerCharacter) other;
 
-			LOG.debug("Name equals: " + getName().equals(otherPC.getName()));
-			LOG.debug("HP equals: " + getHitPoints().equals(otherPC.getHitPoints()));
-			LOG.debug("Character type equals: " + getCharacterType().equals(otherPC.getCharacterType()));
-			LOG.debug("Stats equals: " + statBundle.equals(otherPC.statBundle));
-			LOG.debug("Levels: " + getLevels().equals(otherPC.getLevels()));
-			LOG.debug("Combat Capabilities: " + combatCapabilities.equals(otherPC.combatCapabilities));
-			LOG.debug("Effects: "
-				+ ApprenticeCollectionUtils.areAllElementsEqual(appliedEffects, otherPC.appliedEffects));
+//			LOG.debug("Name equals: " + getName().equals(otherPC.getName()));
+//			LOG.debug("HP equals: " + getHitPoints().equals(otherPC.getHitPoints()));
+//			LOG.debug("Character type equals: " + getCharacterType().equals(otherPC.getCharacterType()));
+//			LOG.debug("Stats equals: " + statBundle.equals(otherPC.statBundle));
+//			LOG.debug("Levels: " + getLevels().equals(otherPC.getLevels()));
+//			LOG.debug("Combat Capabilities: " + combatCapabilities.equals(otherPC.combatCapabilities));
+//			LOG.debug("Effects: "
+//				+ ApprenticeCollectionUtils.areAllElementsEqual(appliedEffects, otherPC.appliedEffects));
 
 			return super.equals(otherPC) && Objects.equal(getName(), otherPC.getName())
 				&& Objects.equal(getHitPoints(), otherPC.getHitPoints())

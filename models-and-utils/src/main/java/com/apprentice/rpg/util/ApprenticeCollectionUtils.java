@@ -24,7 +24,7 @@ public final class ApprenticeCollectionUtils {
 	public static boolean areAllElementsEqual(final Collection<?> expected, final Collection<?> target) {
 		if (expected.size() != target.size()) {
 			return false;
-		}
+		}		
 		final Collection<?> expectedCopy = Lists.newArrayList(expected);
 		final Collection<?> targetCopy = Lists.newArrayList(target);
 		final Iterator<?> expectedIterator = expectedCopy.iterator();
@@ -91,7 +91,7 @@ public final class ApprenticeCollectionUtils {
 	 * returns a collection with all the intersecting elements from these two collections
 	 */
 	public static Collection<? extends Nameable> getIntersectingNameableElements(
-			final Collection<? extends Nameable> col1, final Collection<? extends Nameable> col2) {
+			final Collection<? extends Nameable> col1, final Collection<? extends Nameable> col2) {		
 		final Collection<Nameable> result = Sets.newHashSet();
 		for (final Nameable item1 : col1) {
 			for (final Nameable item2 : col2) {

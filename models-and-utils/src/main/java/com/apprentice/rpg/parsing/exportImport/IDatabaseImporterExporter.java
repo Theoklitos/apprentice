@@ -1,7 +1,7 @@
 package com.apprentice.rpg.parsing.exportImport;
 
 import com.apprentice.rpg.dao.ItemNotFoundEx;
-import com.apprentice.rpg.dao.simple.NameableVault;
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
 
@@ -26,8 +26,8 @@ public interface IDatabaseImporterExporter {
 	void export(ExportConfigurationObject config) throws ItemNotFoundEx, ParsingEx;
 
 	/**
-	 * reads the file at the given location and parses the data into an {@link NameableVault}
+	 * reads the file at the given location and stores the data into the {@link Vault}
 	 */
-	NameableVault importFrom(final String fileLocation);
+	void importFrom(final String fileLocation);
 
 }

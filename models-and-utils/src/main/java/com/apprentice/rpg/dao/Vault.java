@@ -29,6 +29,11 @@ public interface Vault extends NameableVault, ModificationTimeVault {
 	public void create(final Object item) throws ItemAlreadyExistsEx;
 
 	/**
+	 * will deelte all the objects inside the given {@link NameableVault} that exist in this vault
+	 */
+	void delete(final NameableVault vault);
+	
+	/**
 	 * deletes the given object, if it existed and deletion was sucesful, returns true.
 	 */
 	boolean delete(Object item);
@@ -57,7 +62,7 @@ public interface Vault extends NameableVault, ModificationTimeVault {
 	 * @throws NameAlreadyExistsEx
 	 *             if the update changed the name (in case of a {@link Nameable}) to an existing one
 	 */
-	public void update(final NameableVault simpleVault) throws NameAlreadyExistsEx;
+	public void update(final NameableVault vault) throws NameAlreadyExistsEx;
 
 	/**
 	 * creates or updates(overwritea) the given object

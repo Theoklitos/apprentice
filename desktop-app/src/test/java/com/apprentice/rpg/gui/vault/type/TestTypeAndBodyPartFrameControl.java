@@ -12,10 +12,10 @@ import org.junit.Test;
 
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.events.BodyPartDeletionEvent;
-import com.apprentice.rpg.events.BodyPartUpdateEvent;
-import com.apprentice.rpg.events.TypeDeletionEvent;
-import com.apprentice.rpg.events.TypeUpdateEvent;
+import com.apprentice.rpg.events.type.BodyPartDeletionEvent;
+import com.apprentice.rpg.events.type.BodyPartUpdateEvent;
+import com.apprentice.rpg.events.type.TypeDeletionEvent;
+import com.apprentice.rpg.events.type.TypeUpdateEvent;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;

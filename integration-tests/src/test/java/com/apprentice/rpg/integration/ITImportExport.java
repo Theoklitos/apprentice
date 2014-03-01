@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter;
@@ -55,6 +54,15 @@ public final class ITImportExport extends AbstractIntegrationTest {
 			+ FileUtils.readFileToString(TMP_EXPORT_IMPORT_FILE));
 
 		emptyDatabase();
+
+		ie.importFrom(config.getFileLocation());
+
+		setExessiveLogging(false);
+
+		logVaultInfo(factory); // TODO
+		logVaultInfo(vault);
+
+		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(factory.getAllNameables(), vault.getAllNameables()));
 	}
 
 	@Test
@@ -75,16 +83,19 @@ public final class ITImportExport extends AbstractIntegrationTest {
 
 		LOG.info("Exported all type and body part data to " + config.getFileLocation() + ":\n"
 			+ FileUtils.readFileToString(TMP_EXPORT_IMPORT_FILE));
-
+		
 		emptyDatabase();
 
-		final NameableVault simpleVault = ie.importFrom(TMP_EXPORT_IMPORT_FILE.getAbsolutePath());
-		vault.update(simpleVault);
-
+		ie.importFrom(TMP_EXPORT_IMPORT_FILE.getAbsolutePath());
+		
 		final List<IType> expectedTypes = factory.getTypes();
 		final List<BodyPart> expectedBodyParts = factory.getBodyParts();
 		final Collection<IType> importedTypes = vault.getAllNameables(IType.class);
 		final Collection<BodyPart> importedBodyParts = vault.getAllNameables(BodyPart.class);
+
+		logVaultInfo(factory);
+		setExessiveLogging(false); // TODO
+		logVaultInfo(vault);
 
 		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(expectedTypes, importedTypes));
 		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(expectedBodyParts, importedBodyParts));

@@ -25,24 +25,38 @@ public final class TestD20BasedRuleset {
 	@Test
 	public void testDiceDecrease() {
 		final Roll originalRoll = new Roll("D9+15");
-		assertEquals(new Roll("D8+15"), rules.getDecreasedRoll(originalRoll, 1));
-		assertEquals(new Roll("D6+15"), rules.getDecreasedRoll(originalRoll, 2));
-		assertEquals(new Roll("D4+15"), rules.getDecreasedRoll(originalRoll, 3));
-		assertEquals(new Roll("D3+15"), rules.getDecreasedRoll(originalRoll, 4));
-		assertEquals(new Roll("D2+15"), rules.getDecreasedRoll(originalRoll, 5));
-		assertEquals(new Roll("D1+15"), rules.getDecreasedRoll(originalRoll, 6));
-		assertEquals(new Roll("D0+15"), rules.getDecreasedRoll(originalRoll, 1000));
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D8+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D6+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D4+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D3+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D2+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D1+15"), originalRoll);
+		rules.decreaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D0+15"), originalRoll);
 	}
 
 	@Test
 	public void testDiceIncrease() {
 		final Roll originalRoll = new Roll("D0+2");
-		assertEquals(new Roll("D1+2"), rules.getIncreasedRoll(originalRoll, 1));
-		assertEquals(new Roll("D2+2"), rules.getIncreasedRoll(originalRoll, 2));
-		assertEquals(new Roll("D3+2"), rules.getIncreasedRoll(originalRoll, 3));
-		assertEquals(new Roll("D4+2"), rules.getIncreasedRoll(originalRoll, 4));
-		assertEquals(new Roll("D6+2"), rules.getIncreasedRoll(originalRoll, 5));
-		assertEquals(new Roll("D8+2"), rules.getIncreasedRoll(originalRoll, 6));
-		assertEquals(new Roll("D10+2"), rules.getIncreasedRoll(originalRoll, 7));
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D1+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D2+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D3+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D4+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D6+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D8+2"), originalRoll);
+		rules.increaseRoll(originalRoll, 1);
+		assertEquals(new Roll("D10+2"), originalRoll);
 	}
 }

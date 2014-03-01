@@ -9,11 +9,8 @@ import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.dao.time.ModificationTimeVault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.events.BodyPartDeletionEvent;
-import com.apprentice.rpg.events.BodyPartUpdateEvent;
-import com.apprentice.rpg.events.DatabaseModificationEvent;
-import com.apprentice.rpg.events.TypeDeletionEvent;
-import com.apprentice.rpg.events.TypeUpdateEvent;
+import com.apprentice.rpg.events.PublishSubscribeEventBus.EventType;
+import com.apprentice.rpg.events.type.BodyPartDeletionEvent;
 import com.apprentice.rpg.gui.AbstractControlForView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
@@ -64,45 +61,28 @@ public class TypeAndBodyPartFrameControl extends AbstractControlForView implemen
 
 	@Override
 	public void createOrUpdate(final Nameable item, final ItemType type) throws NameAlreadyExistsEx {
-		final String message = vault.exists(item) ? "Updated " : "Created ";
-		DatabaseModificationEvent<?> event = null;
-		switch (type) {
-		case BODY_PART:
-			event = new BodyPartUpdateEvent((BodyPart) item);
-			break;
-		case TYPE:
-			event = new TypeUpdateEvent((IType) item);
-			break;
-		default:
-			return;
+		final boolean exists = vault.exists(item);
+		final String message = exists ? "Updated " : "Created ";
+		EventType eventType = null;
+		if (exists) {
+			eventType = EventType.UPDATE;
+		} else {
+			eventType = EventType.CREATE;
 		}
 		vault.update(item);
 		isBufferUpdated = false;
 		LOG.info(message + type + " " + item.getName() + ".");
-		eventBus.postEvent(event);
+		eventBus.postEvent(item, eventType);
 		view.refreshFromModel();
 	}
 
 	@Override
 	public void deleteByName(final String name, final ItemType type) throws ItemNotFoundEx {
-		DatabaseModificationEvent<?> event = null;		
-		Nameable item = null;
-		switch (type) {
-		case BODY_PART:
-			item = getBodyPartForName(name);
-			event = new BodyPartDeletionEvent((BodyPart) item);
-			break;
-		case TYPE:
-			item = getTypeForName(name);
-			event = new TypeDeletionEvent((IType) item);
-			break;
-		default:
-			return;
-		}
-		if (vault.delete(item)) {
+		final Nameable toBeDeleted = vault.getUniqueNamedResult(name, type.type);
+		if (vault.delete(toBeDeleted)) {
 			isBufferUpdated = false;
-			LOG.info("Deleted " + type + " " + item.getName());
-			eventBus.postEvent(event);
+			LOG.info("Deleted " + type + " " + toBeDeleted.getName());
+			eventBus.postEvent(toBeDeleted, EventType.DELETE);
 			view.refreshFromModel();
 		}
 	}

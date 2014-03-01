@@ -1,11 +1,10 @@
 package com.apprentice.rpg.rules;
 
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.armor.ArmorPieceInstance;
+import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.Size;
-import com.apprentice.rpg.model.durable.DurableItem;
-import com.apprentice.rpg.model.durable.IDurableItemInstance;
-import com.apprentice.rpg.model.weapon.WeaponInstance;
+import com.apprentice.rpg.model.durable.IDurableItem;
+import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.random.dice.DiceModificator;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.random.dice.RollException;
@@ -22,6 +21,23 @@ public class D20BasedRuleset implements Ruleset {
 
 	public D20BasedRuleset() {
 		diceModificator = new DiceModificator();
+	}
+
+	@Override
+	public void decreaseRoll(final Roll roll, final int positions) {
+		try {
+			for (int i = 0; i < positions; i++) {
+				diceModificator.decreaseFirstDiceOfRoll(roll);
+			}
+		} catch (final ArrayIndexOutOfBoundsException e) {
+			// bug in the dicemodificator
+			diceModificator.decreaseFirstDiceOfRollToZero(roll);
+		}
+	}
+
+	@Override
+	public void decreaseRollToZero(final Roll roll) {
+		diceModificator.decreaseFirstDiceOfRollToZero(roll);
 	}
 
 	@Override
@@ -47,25 +63,10 @@ public class D20BasedRuleset implements Ruleset {
 	}
 
 	@Override
-	public Roll getDecreasedRoll(final Roll roll, final int positions) {
-		try {
-			final Roll copiedRoll = new Roll(roll);
-			for (int i = 0; i < positions; i++) {
-				diceModificator.decreaseFirstDiceOfRoll(copiedRoll);
-			}
-			return copiedRoll;
-		} catch (final ArrayIndexOutOfBoundsException e) {
-			// bug in the dicemodificator
-			return new Roll(Roll.getCreateZeroRoll().toString() + roll.getModifierAsString());
-		}
-	}
-
-	@Override
-	public <T extends DurableItem> int getDeteriorationIncrementForType(
-			final IDurableItemInstance<? extends DurableItem> durableItemInstance) {
-		if (durableItemInstance.getClass().isAssignableFrom(WeaponInstance.class)) {
+	public int getDeteriorationIncrementForType(final IDurableItem durableItemInstance) {
+		if (durableItemInstance.getClass().isAssignableFrom(Weapon.class)) {
 			return 3;
-		} else if (durableItemInstance.getClass().isAssignableFrom(ArmorPieceInstance.class)) {
+		} else if (durableItemInstance.getClass().isAssignableFrom(IArmorPiece.class)) {
 			return 3;
 		} else {
 			return 1;
@@ -73,13 +74,11 @@ public class D20BasedRuleset implements Ruleset {
 	}
 
 	@Override
-	public Roll getIncreasedRoll(final Roll roll, final int positions) {
+	public void increaseRoll(final Roll roll, final int positions) {
 		try {
-			final Roll copiedRoll = new Roll(roll);
 			for (int i = 0; i < positions; i++) {
-				diceModificator.increaseFirstDiceOfRoll(copiedRoll);
+				diceModificator.increaseFirstDiceOfRoll(roll);
 			}
-			return copiedRoll;
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			throw new RollException("Dice cannot be increased so much (steps: " + positions + ")");
 		}
@@ -89,4 +88,5 @@ public class D20BasedRuleset implements Ruleset {
 	public String toString() {
 		return "D20 and D&D 3.9 based default ruleset";
 	}
+
 }

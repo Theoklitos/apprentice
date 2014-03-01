@@ -1,30 +1,20 @@
 package com.apprentice.rpg.events;
 
+import com.apprentice.rpg.events.PublishSubscribeEventBus.EventType;
+import com.apprentice.rpg.events.type.DatabaseModificationEvent;
 import com.apprentice.rpg.model.Nameable;
-import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
 
 public interface ApprenticeEventBus {
 
 	/**
-	 * should be fired when a {@link BodyPart} is deleted
+	 * will fire an "create" event type for the given object
 	 */
-	void postDeleteEvent(BodyPart bodyPart);
+	void postCreationEvent(Nameable nameable);
 
 	/**
-	 * should be fired when a {@link IType} is deleted
+	 * will fire a "delete" event type for the given object
 	 */
-	void postDeleteEvent(IType type);
-
-	/**
-	 * should be fired when a new {@link BodyPart} is created or modified
-	 */
-	void postUpdateEvent(BodyPart updatedBodyPart);
-
-	/**
-	 * should be fired when a new {@link Type} is created or modified
-	 */
-	void postUpdateEvent(IType updatedType);
+	void postDeleteEvent(Nameable itemAtHand);
 
 	/**
 	 * fires the given event
@@ -32,9 +22,14 @@ public interface ApprenticeEventBus {
 	void postEvent(DatabaseModificationEvent<?> event);
 
 	/**
-	 * posts the correct {@link DatabaseUpdateEvent} based on the concrete class of this object
+	 * will fire the specificed {@link EventType} for the given object
 	 */
-	void postUpdateEvent(Nameable object);
+	void postEvent(Nameable nameable, EventType eventType);
+
+	/**
+	 * will fire an "update" event type for the given object
+	 */
+	void postUpdateEvent(Nameable itemAtHand);
 
 	/**
 	 * Registes a class which will listen to events via the @Subscribe annotation

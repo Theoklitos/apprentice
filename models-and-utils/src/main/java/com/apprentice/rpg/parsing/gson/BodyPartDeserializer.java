@@ -17,7 +17,7 @@ public class BodyPartDeserializer extends ApprenticeParsingComponent implements 
 
 	@Override
 	public BodyPart deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
-			throws JsonParseException {
+			throws JsonParseException {		
 		if (isNameLookupEnabled()) {			
 			return getNameableVault().getUniqueNamedResult(json.getAsString(), BodyPart.class);
 		} else {

@@ -112,8 +112,22 @@ public final class MainFrame extends JFrame {
 		final JMenu mntmItems = new JMenu("Items");
 		mnVaults.add(mntmItems);
 		final JMenuItem submntmWeapons = new JMenuItem("Weapons");
+		submntmWeapons.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent event) {
+				windowManager.showWeaponVaultFrame();
+			}
+		});
 		mntmItems.add(submntmWeapons);
 		final JMenuItem submntmArmors = new JMenuItem("Armors");
+		submntmArmors.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent event) {
+				windowManager.showArmorPieceVaultFrame();
+			}
+		});
 		mntmItems.add(submntmArmors);
 		final JMenuItem submntmSpells = new JMenuItem("Spells");
 		mntmItems.add(submntmSpells);
@@ -165,7 +179,7 @@ public final class MainFrame extends JFrame {
 				final DataFactory data = new DataFactory();
 				for (final Nameable nameable : data.getAllNameables()) {
 					mainControl.getVault().update(nameable);
-				}
+				}				
 			}
 		});
 		menuBar.add(test);
@@ -177,6 +191,7 @@ public final class MainFrame extends JFrame {
 			@Override
 			public void windowClosing(final WindowEvent we) {
 				globalState.setWindowState(new WindowStateIdentifier(MainFrame.class), getBounds(), true);
+				windowManager.closeAllFrames(true);				
 				mainControl.shutdownGracefully();
 				System.exit(0);
 			}

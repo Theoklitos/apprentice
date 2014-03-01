@@ -42,6 +42,11 @@ public interface DatabaseConnection {
 	void openDB() throws ApprenticeDatabaseEx;
 
 	/**
+	 * saves the item, but does not commit
+	 */
+	void save(Object item);
+
+	/**
 	 * Overwrites (or creates, if it does not exist) the given object. Also commits the database.
 	 * 
 	 * @throws ApprenticeDatabaseEx

@@ -6,10 +6,20 @@ import java.awt.Image;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 
 import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.gui.ControlWithVault;
+import com.apprentice.rpg.gui.dice.LoadedRoll;
+import com.apprentice.rpg.gui.vault.IVaultFrameControl;
+import com.apprentice.rpg.gui.weapon.AmmunitionTypeWithRange;
 import com.apprentice.rpg.model.ApprenticeEx;
+import com.apprentice.rpg.model.damage.DamageRoll;
+import com.apprentice.rpg.model.weapon.AmmunitionType;
+import com.apprentice.rpg.model.weapon.Range;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
+import com.apprentice.rpg.random.dice.Roll;
+import com.apprentice.rpg.strike.StrikeType;
 import com.apprentice.rpg.util.Box;
 
 /**
@@ -46,9 +56,27 @@ public interface IWindowUtils {
 	void setDefaultIcon(JFrame frame);
 
 	/**
+	 * will display the dice rolling GIF in this Jlabel
+	 */
+	void setDiceRollingImage(JLabel jlabel);
+
+	/**
 	 * will set this frame's icon to the "information" one, which is a small open book
 	 */
 	void setInformationIcon(JInternalFrame frame);
+
+	/**
+	 * Shows a dialog where one chooses an existing {@link AmmunitionType} and its corresponding {@link Range}
+	 */
+	Box<AmmunitionTypeWithRange> showAmmunitionTypeAndRangeDialog(ControlWithVault control);
+
+	/**
+	 * Popups a dialog where the user can create/edit a an {@link AmmunitionType}
+	 * 
+	 * @param empty
+	 *            defaults
+	 */
+	Box<AmmunitionType> showAmmunitionTypeDialog(IVaultFrameControl control, Box<AmmunitionType> existingType);
 
 	/**
 	 * Shows an option pane with a bigger textfield and returns the text the user inputed in a box, if any.
@@ -62,6 +90,11 @@ public interface IWindowUtils {
 	boolean showConfigrmationDialog(String question, String title);
 
 	/**
+	 * will popup a small window from which the user can select {@link StrikeType} + {@link Roll}
+	 */
+	Box<DamageRoll> showDamageRollDialog(final String mesasge, final ControlWithVault control);
+
+	/**
 	 * Displays a simple error message
 	 */
 	void showErrorMessage(String errorMessage);
@@ -70,7 +103,7 @@ public interface IWindowUtils {
 	 * Displays a simple error message
 	 */
 	void showErrorMessage(String errorMessage, String title);
-	
+
 	/**
 	 * presents a file chooser and returns a box with the file URL the user chose. Emtpy box if user pressed
 	 * on the cancel/X button etc
@@ -87,6 +120,11 @@ public interface IWindowUtils {
 	 * pressed "cancel"
 	 */
 	Box<String> showInputDialog(String message, String title);
+
+	/**
+	 * Shows an interface where a fake roll can be created
+	 */
+	Box<LoadedRoll> showLoadedRollDialog();
 
 	/**
 	 * Shows a question message which displays the given options. Return number if the array position # of the

@@ -6,7 +6,7 @@ import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.gui.ControlForDescriptionInView;
+import com.apprentice.rpg.gui.ControlWithVault;
 import com.apprentice.rpg.gui.ControlForView;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
@@ -21,7 +21,7 @@ import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
  * @author theoklitos
  * 
  */
-public interface ITypeAndBodyPartFrameControl extends ControlForView<ITypeAndBodyPartFrame>, ControlForDescriptionInView {
+public interface ITypeAndBodyPartFrameControl extends ControlForView<ITypeAndBodyPartFrame>, ControlWithVault {
 
 	/**
 	 * used to update an existing body part or a type

@@ -1,20 +1,29 @@
 package com.apprentice.rpg.integration;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 
+import com.apprentice.rpg.dao.DataAccessObjectForAll;
 import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.dao.simple.NameableVault;
+import com.apprentice.rpg.dao.time.TimeToNameableMapper;
 import com.apprentice.rpg.database.DatabaseConnection;
+import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.armor.IArmorPiece;
+import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.model.guice.GuiceConfigBackend;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.apprentice.rpg.parsing.ApprenticeParser;
+import com.apprentice.rpg.strike.StrikeType;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -62,22 +71,67 @@ public abstract class AbstractIntegrationTest {
 	 * Deletes everything in the database
 	 */
 	public void emptyDatabase() {
-		for (final Object object : vault.getAll(Object.class)) {
-			vault.delete(object);
-		}
+		setExessiveLogging(false);
+
+		vault.delete(factory);
 		database.commit();
-		for(final Object remaining : vault.getAll(Object.class)) {
-			System.out.println(remaining.getClass() + ":" + remaining.toString());
+		// System.out.println(vault.getAll(IPlayerCharacter.class));
+		// System.out.println(vault.getAll(BodyPart.class));
+		// System.out.println(vault.getAll(StrikeType.class));
+		// System.out.println(vault.getAll(IType.class));
+		// System.out.println(vault.getAll(Weapon.class));
+		// System.out.println(vault.getAll(ArmorPiece.class)); TODO
+		// for (final Object object : vault.getAll(Object.class)) {
+		// vault.delete(object);
+		// }
+		// database.commit();
+
+		// assertEquals(0, vault.getAll(Object.class).size());
+		setExessiveLogging(true);
+	}
+
+	/**
+	 * uses the Logger to print some debug lines about what Nameables exist in the given vault
+	 */
+	public void logVaultInfo(final NameableVault vault) {
+		LOG.debug("=====================" + vault.getClass().getSimpleName() + "=====================");
+		LOG.debug("Size: " + vault.getAllNameables().size());
+		LOG.debug("BodyPart: " + vault.getAllNameables(BodyPart.class).size());
+		for (final BodyPart part : vault.getAllNameables(BodyPart.class)) {
+			LOG.debug("Name: " + part.getName() + ", hash: " + part.hashCode());
 		}
-		assertEquals(0, vault.getAll(Object.class).size());
+		//LOG.debug("BodyPart List: " + vault.getAllNameables(BodyPart.class));
+		LOG.debug("StrikeType: " + vault.getAllNameables(StrikeType.class).size());
+		LOG.debug("Type: " + vault.getAllNameables(IType.class).size());
+		LOG.debug("Weapons: " + vault.getAllNameables(WeaponPrototype.class).size());
+		LOG.debug("ArmorPiece: " + vault.getAllNameables(IArmorPiece.class).size());
+		LOG.debug("PlayerCharacter: " + vault.getAllNameables(IPlayerCharacter.class).size());
+		LOG.debug("==========================================================================");
 	}
 
 	/**
 	 * will store everything in the {@link DataFactory} inside the {@link Vault}
 	 */
 	public void saveAllFactoryDataToDatbase() {
-		for(final Nameable nameable: factory.getAllNameables()) {
+		setExessiveLogging(false);
+		for (final Nameable nameable : factory.getAllNameables()) {
 			vault.update(nameable);
-		}		
+		}
+		setExessiveLogging(true);
 	}
+
+	/**
+	 * sets several annoying loggers to OFF or ALL
+	 */
+	public void setExessiveLogging(final boolean enable) {
+		Level level;
+		if (enable) {
+			level = Level.ALL;
+		} else {
+			level = Level.OFF;
+		}
+		Logger.getLogger(TimeToNameableMapper.class).setLevel(level);
+		Logger.getLogger(DataAccessObjectForAll.class).setLevel(level);
+	}
+
 }

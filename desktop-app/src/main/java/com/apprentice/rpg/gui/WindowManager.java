@@ -1,11 +1,11 @@
 package com.apprentice.rpg.gui;
 
 import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.database.IDataSynchronizer;
@@ -24,13 +24,21 @@ import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainFrame;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.vault.IVaultFrameControl;
+import com.apprentice.rpg.gui.vault.armor.ArmorVaultFrame;
 import com.apprentice.rpg.gui.vault.player.PlayerVaultFrame;
 import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
+import com.apprentice.rpg.gui.vault.weapon.WeaponVaultFrame;
+import com.apprentice.rpg.gui.weapon.IWeaponFrameControl;
+import com.apprentice.rpg.gui.weapon.WeaponFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
-import com.apprentice.rpg.model.ApprenticeEx;
+import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.strike.StrikeType;
+import com.apprentice.rpg.util.ApprenticeReflectionUtils;
+import com.apprentice.rpg.util.Box;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -42,6 +50,7 @@ import com.google.inject.Injector;
  */
 public final class WindowManager implements IWindowManager {
 
+	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(WindowManager.class);
 
 	private ApprenticeDesktop desktop;
@@ -68,10 +77,27 @@ public final class WindowManager implements IWindowManager {
 	}
 
 	@Override
-	public void closeAllFrames() {
+	public void closeAllFrames(final boolean openState) {
 		desktop.closeAllFrames();
 		for (final WindowStateIdentifier indentifier : globalWindowState.getAllFrameIdentifiers()) {
-			globalWindowState.setWindowOpen(indentifier, false);
+			globalWindowState.setWindowOpen(indentifier, openState);
+		}
+	}
+
+	/**
+	 * loads the requested nameable from the vault and throws appropriate exception if not found. If no name
+	 * is given, will return empty box.
+	 */
+	private <T extends Nameable> Box<T> getNameableFromVault(final String name, final Class<T> type)
+			throws ItemNotFoundEx {
+		try {
+			if (StringUtils.isBlank(name)) {
+				return Box.empty();
+			} else {
+				return Box.with(vault.getUniqueNamedResult(name, type));
+			}
+		} catch (final Exception e) {
+			throw new ItemNotFoundEx();
 		}
 	}
 
@@ -103,22 +129,11 @@ public final class WindowManager implements IWindowManager {
 	public void openFrame(final WindowStateIdentifier openFrameIdentifier) {
 		final Class<?> internalFrame = openFrameIdentifier.getWindowClass();
 		final String methodName = "show" + internalFrame.getSimpleName();
-		Method openFrameMethod;
-		try {
-			LOG.debug("Calling method " + methodName + "()");
-			openFrameMethod = getClass().getMethod(methodName);
-			openFrameMethod.invoke(this);
-		} catch (final IllegalAccessException e) {
-			throw new ApprenticeEx(e);
-		} catch (final IllegalArgumentException e) {
-			throw new ApprenticeEx(e);
-		} catch (final InvocationTargetException e) {
-			throw new ApprenticeEx(e);
-		} catch (final SecurityException e) {
-			throw new ApprenticeEx(e);
-		} catch (final NoSuchMethodException e) {
-			throw new ApprenticeEx(e);
+		String parameter = null;
+		if (openFrameIdentifier.getParameter().hasContent()) {
+			parameter = openFrameIdentifier.getParameter().getContent();
 		}
+		ApprenticeReflectionUtils.callMethodOnObject(methodName, this, parameter);
 	}
 
 	/**
@@ -136,6 +151,21 @@ public final class WindowManager implements IWindowManager {
 			globalWindowState.setWindowOpen(openFrameIdentifier, false);
 			openFrame(openFrameIdentifier);
 		}
+	}
+
+	@Override
+	public void showArmorPieceVaultFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
+				final ArmorVaultFrame wvFrame =
+					new ArmorVaultFrame(globalWindowState, control, getReferenceToSelf());
+				control.setView(wvFrame);
+				desktop.add(wvFrame);
+			}
+		});
 	}
 
 	@Override
@@ -194,14 +224,14 @@ public final class WindowManager implements IWindowManager {
 									"No Types Found")) {
 						showTypeAndBodyPartFrame();
 					}
-				} else {
-					final INewPlayerCharacterFrameControl control =
-						injector.getInstance(INewPlayerCharacterFrameControl.class);
-					final NewPlayerCharacterFrame newPCFrame =
-						new NewPlayerCharacterFrame(globalWindowState, control, getReferenceToSelf());
-					control.setView(newPCFrame);
-					desktop.add(newPCFrame);
 				}
+				// else { TODO
+				final INewPlayerCharacterFrameControl control =
+					injector.getInstance(INewPlayerCharacterFrameControl.class);
+				final NewPlayerCharacterFrame newPCFrame =
+					new NewPlayerCharacterFrame(globalWindowState, control, getReferenceToSelf());
+				control.setView(newPCFrame);
+				desktop.add(newPCFrame);
 			}
 		});
 	}
@@ -213,12 +243,18 @@ public final class WindowManager implements IWindowManager {
 			@Override
 			public void run() {
 				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
-				final PlayerVaultFrame pvFrame = new PlayerVaultFrame(globalWindowState, control);
+				final PlayerVaultFrame pvFrame = new PlayerVaultFrame(globalWindowState, control, getReferenceToSelf());
 				control.setView(pvFrame);
 				desktop.add(pvFrame);
 			}
 		});
+	}
 
+	/**
+	 * TODO
+	 */
+	public void showStrikeFrame() {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -234,5 +270,52 @@ public final class WindowManager implements IWindowManager {
 			}
 		});
 
+	}
+
+	/**
+	 * used to facilitate the call to the showWeaponFrame() method without a parameter
+	 */
+	public void showWeaponFrame() {
+		showWeaponFrame(null);
+	}
+
+	@Override
+	public void showWeaponFrame(final String weaponName) {
+		final Box<WeaponPrototype> weapon = getNameableFromVault(weaponName, WeaponPrototype.class);
+		if (weapon.isEmpty()) {
+			if (vault.getAll(StrikeType.class).size() == 0) {
+				if (windowUtils
+						.showWarningQuestionMessage(
+								"There are no strike types in the database.\nYou need to create at least one before proceeding.\nOpen the strike window now?",
+								"No Strike Types Found")) {
+					showStrikeFrame();
+				}
+				// return; // TODO
+			}
+		}
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final IWeaponFrameControl control = injector.getInstance(IWeaponFrameControl.class);
+				final WeaponFrame weaponFrame = new WeaponFrame(globalWindowState, control, weapon);
+				control.setView(weaponFrame);
+				desktop.add(weaponFrame);
+			}
+		});
+	}
+
+	@Override
+	public void showWeaponVaultFrame() {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
+				final WeaponVaultFrame wvFrame = new WeaponVaultFrame(globalWindowState, control, getReferenceToSelf());
+				control.setView(wvFrame);
+				desktop.add(wvFrame);
+			}
+		});
 	}
 }

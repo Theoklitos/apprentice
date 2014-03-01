@@ -41,6 +41,7 @@ public final class TestBonusSequence {
 	public void correctParsing() {
 		assertEquals(new BonusSequence(7), new BonusSequence("+7/+2"));
 		assertEquals(new BonusSequence(11), new BonusSequence("11/6/1"));
+		assertEquals(new BonusSequence(20), new BonusSequence("20,15,10,5"));
 		assertEquals(new BonusSequence(-8), new BonusSequence("-8"));
 		assertEquals(new BonusSequence(0), new BonusSequence("0"));
 	}

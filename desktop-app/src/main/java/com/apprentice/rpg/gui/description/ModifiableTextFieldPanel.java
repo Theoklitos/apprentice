@@ -27,6 +27,14 @@ import com.apprentice.rpg.dao.Vault;
 public abstract class ModifiableTextFieldPanel extends JPanel {
 
 	/**
+	 * used to communicate what type this textfield will be
+	 */
+	public enum DescriptionPanelType {
+		TEXTFIELD,
+		LABEL;
+	}
+
+	/**
 	 * when its a label and the user right clicks, this is shown
 	 * 
 	 */
@@ -47,33 +55,36 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 		}
 	}
 
-	/**
-	 * used to communicate what type this textfield will be
-	 */
-	protected enum TextFieldPanelType {
-		TEXTFIELD,
-		LABEL;
-	}
-
 	private static final long serialVersionUID = 1L;
 
 	private JTextArea content;
 	private final Vault vault;
 	private final String title;
-	private final TextFieldPanelType type;
+	private DescriptionPanelType type;
 
-	public ModifiableTextFieldPanel(final String title, final TextFieldPanelType type, final Vault vault) {
+	public ModifiableTextFieldPanel(final String title, final DescriptionPanelType type, final Vault vault) {
 		this.type = type;
 		this.vault = vault;
 		this.title = title;
 		initComponents();
 	}
 
+	/**
+	 * Returns the text in the central text component
+	 */
+	public String getText() {
+		return content.getText();
+	}
+
+	protected DescriptionPanelType getType() {
+		return type;
+	}
+
 	protected Vault getVault() {
 		return vault;
 	}
 
-	private void initComponents() {
+	protected void initComponents() {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), title, TitledBorder.LEADING,
 				TitledBorder.TOP, null, null));
@@ -82,7 +93,7 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 		content.setBackground(new Color(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue()));
 		content.setLineWrap(true);
 		content.setWrapStyleWord(true);
-		if (type.equals(TextFieldPanelType.LABEL)) {
+		if (type.equals(DescriptionPanelType.LABEL)) {
 			content.setOpaque(false);
 			content.setEditable(false);
 			content.setCursor(null);
@@ -97,7 +108,7 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 					}
 				}
 			});
-		} else if (type.equals(TextFieldPanelType.TEXTFIELD)) {
+		} else if (type.equals(DescriptionPanelType.TEXTFIELD)) {
 			content = new JTextArea();
 		}
 		final JScrollPane scrollPane = new JScrollPane(content);
@@ -114,6 +125,10 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 	 */
 	public final void setText(final String text) {
 		content.setText(text);
+	}
+
+	protected void setType(final DescriptionPanelType type) {
+		this.type = type;
 	}
 
 }

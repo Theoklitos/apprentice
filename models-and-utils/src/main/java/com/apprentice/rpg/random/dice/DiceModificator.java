@@ -140,6 +140,15 @@ public final class DiceModificator {
 	}
 
 	/**
+	 * Decreases the given roll all the way to D0.
+	 */
+	public void decreaseFirstDiceOfRollToZero(final Roll roll) {		
+		while (!roll.isZeroRoll()) {
+			decreaseElement(0, roll);
+		}
+	}
+
+	/**
 	 * Increases the chosen (by number) "element" of the given roll.
 	 */
 	protected void increaseElement(final int elementNumber, final Roll from) {

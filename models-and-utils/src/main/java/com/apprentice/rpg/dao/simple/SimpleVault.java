@@ -9,7 +9,6 @@ import com.apprentice.rpg.dao.TooManyResultsEx;
 import com.apprentice.rpg.model.Nameable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Basically a simpler Vault that exists in memory. Stores only {@link Nameable}s
@@ -64,16 +63,19 @@ public class SimpleVault implements NameableVault {
 		return all;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T extends Nameable> Collection<T> getAllNameables(final Class<T> nameableType) {
-		final Collection<T> result = data.get(nameableType);
-		if (result == null) {
-			return Sets.newHashSet();
-		} else {
-			return data.get(nameableType);
+		final Collection<T> result = Lists.newArrayList();
+		for (final Class clazz : data.keySet()) {
+			if (nameableType.isAssignableFrom(clazz)) {
+				final Collection nameablesForType = data.get(clazz);
+				if (nameablesForType != null) {
+					result.addAll(nameablesForType);
+				}
+			}
 		}
-
+		return result;
 	}
 
 	@Override

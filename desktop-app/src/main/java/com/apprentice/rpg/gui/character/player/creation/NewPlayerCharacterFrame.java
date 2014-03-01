@@ -27,10 +27,11 @@ import org.apache.log4j.Logger;
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
+import com.apprentice.rpg.gui.GuiItemCreationEx;
 import com.apprentice.rpg.gui.IWindowManager;
 import com.apprentice.rpg.gui.NumericTextfield;
-import com.apprentice.rpg.gui.PlayerLevelsTextfield;
 import com.apprentice.rpg.gui.SavingThrowTextField;
+import com.apprentice.rpg.gui.TextfieldWithColorWarning;
 import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
@@ -68,7 +69,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 
 	private final INewPlayerCharacterFrameControl control;
 	private final IWindowManager windowManager;
-	
+
 	private JTextField txtfldName;
 	private JTextField txtfldHitpoints;
 	private NumericTextfield txtfldExperience;
@@ -82,12 +83,12 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 	private JComboBox<Stat> cmbIntelligence;
 	private JComboBox<Stat> cmbWisdom;
 	private JComboBox<Stat> cmbCharisma;
-	private PlayerLevelsTextfield txtfldLevels;
+	private TextfieldWithColorWarning txtfldLevels;
 	private JTextField txtfldRace;
 	private JComboBox<Size> cmbSize;
 	private NumericTextfield txtfldMovement;
 	private JTextArea txtareaDescription;
-	private JComboBox<IType> cmbType;	
+	private JComboBox<IType> cmbType;
 
 	public NewPlayerCharacterFrame(final IGlobalWindowState globalWindowState,
 			final INewPlayerCharacterFrameControl control, final IWindowManager windowManager) {
@@ -134,7 +135,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 	 */
 	private final void createNewPlayer(final INewPlayerCharacterFrameControl control) {
 		try {
-			validateAllFieldsAttributes();
+			validateAllFields();
 			final PlayerCharacter newPlayer = assemblePlayerCharater();
 			try {
 				control.createCharacter(newPlayer);
@@ -151,7 +152,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 				throw new ApprenticeEx(e);
 			}
 
-		} catch (final NewCharacterCreationEx e) {
+		} catch (final GuiItemCreationEx e) {
 			getWindowUtils().showErrorMessage(e.getMessage(), "Wrong or Missing Value");
 		}
 	}
@@ -209,8 +210,8 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		populateGenericInformationPanel();
 
 		final JPanel descriptionPanel = new JPanel();
-		descriptionPanel.setBorder(new TitledBorder(null, PLAYER_DESCRIPTION_PANEL_TITLE,
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		descriptionPanel.setBorder(new TitledBorder(null, PLAYER_DESCRIPTION_PANEL_TITLE, TitledBorder.LEADING,
+				TitledBorder.TOP, null, null));
 		getContentPane().add(descriptionPanel, "2, 3, fill, fill");
 		descriptionPanel.setLayout(new BorderLayout());
 
@@ -243,7 +244,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JLabel lblLevels = new JLabel("Level(s):");
 		genericCharacterInformation.add(lblLevels, "2, 4, right, default");
 
-		txtfldLevels = new PlayerLevelsTextfield();
+		txtfldLevels = new TextfieldWithColorWarning(PlayerLevels.class);
 		genericCharacterInformation.add(txtfldLevels, "5, 4, fill, default");
 		txtfldLevels.setColumns(10);
 
@@ -369,36 +370,35 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 	/**
 	 * Verifies all inputs and shows appropriate error messages
 	 */
-	protected void validateAllFieldsAttributes() {
+	protected void validateAllFields() {
 		if (StringUtils.isBlank(txtfldName.getText())) {
-			throw new NewCharacterCreationEx("A name is needed.");
+			throw new GuiItemCreationEx("A name is needed.");
 		}
 		if (txtfldMovement.getTextAsInteger() <= 0) {
-			throw new NewCharacterCreationEx("Please enter a movement speed (other than 0ft).");
+			throw new GuiItemCreationEx("Please enter a movement speed (other than 0ft).");
 		}
 		try {
 			if (StringUtils.isNotBlank(txtfldHitpoints.getText())) {
 				Integer.valueOf(txtfldHitpoints.getText());
 			}
 			if (StringUtils.isBlank(txtfldHitpoints.getText()) || Integer.valueOf(txtfldHitpoints.getText()) < 1) {
-				throw new NewCharacterCreationEx("You need at least one hit point.");
+				throw new GuiItemCreationEx("You need at least one hit point.");
 			}
 		} catch (final NumberFormatException e) {
-			throw new NewCharacterCreationEx("Hit point value \"" + txtfldHitpoints.getText() + "\" is not a number.");
+			throw new GuiItemCreationEx("Hit point value \"" + txtfldHitpoints.getText() + "\" is not a number.");
 		}
 		if (StringUtils.isBlank(txtfldLevels.getText())) {
-			throw new NewCharacterCreationEx(
-					"You are not a commoner, are you? Enter some levels, ex. Fighter10/Wizard10");
+			throw new GuiItemCreationEx("You are not a commoner, are you? Enter some levels, ex. Fighter10/Wizard10");
 		}
 		try {
 			new PlayerLevels(txtfldLevels.getText());
 		} catch (final ParsingEx e) {
-			throw new NewCharacterCreationEx(e.getMessage());
+			throw new GuiItemCreationEx(e.getMessage());
 		}
 		try {
 			getSavingThrows();
 		} catch (final ParsingEx e) {
-			throw new NewCharacterCreationEx("You did not input correct saving throws correctly (or at all).");
+			throw new GuiItemCreationEx("You did not input correct saving throws correctly (or at all).");
 		}
 	}
 }

@@ -53,23 +53,10 @@ public final class BonusSequence implements RuleBased {
 	public BonusSequence(final String sequence) throws ParsingEx {
 		Checker.checkNonNull("BonusSequence needs some text to parse", true, sequence);
 		bonuses = Lists.newArrayList();
-		Integer firstBonus = null;
 		try {
-			final StringTokenizer tokenizer = new StringTokenizer(sequence, BONUS_SEPARATOR);
-			while (tokenizer.hasMoreElements()) {
-				final String bonus = StringUtils.remove(tokenizer.nextToken(), "+");
-				final int number = Integer.valueOf(bonus);
-				if (firstBonus == null) {
-					firstBonus = number;
-				}
-				bonuses.add(number);
-			}
-		} catch (final IllegalArgumentException e) {
-			throw new ParsingEx("Sequence \"" + sequence + "\" was not understood.");
-		}
-		final BonusSequence expected = new BonusSequence(firstBonus);
-		if (!expected.equals(this)) {
-			throw new ParsingEx("Sequence \"" + sequence + "\" has a wrong step somewhere.");
+			tryParseWithSeparator(sequence, BONUS_SEPARATOR);
+		} catch (final ParsingEx e) {
+			tryParseWithSeparator(sequence, ",");
 		}
 	}
 
@@ -163,5 +150,27 @@ public final class BonusSequence implements RuleBased {
 			result.append(integerAsString);
 		}
 		return pruneLastSeparator(result);
+	}
+
+	private void tryParseWithSeparator(final String sequence, final String separator) throws ParsingEx {
+		bonuses.clear();
+		Integer firstBonus = null;
+		try {
+			final StringTokenizer tokenizer = new StringTokenizer(sequence, separator);
+			while (tokenizer.hasMoreElements()) {
+				final String bonus = StringUtils.remove(tokenizer.nextToken(), "+");
+				final int number = Integer.valueOf(bonus);
+				if (firstBonus == null) {
+					firstBonus = number;
+				}
+				bonuses.add(number);
+			}
+		} catch (final IllegalArgumentException e) {
+			throw new ParsingEx("Sequence \"" + sequence + "\" was not understood.");
+		}
+		final BonusSequence expected = new BonusSequence(firstBonus);
+		if (!expected.equals(this)) {
+			throw new ParsingEx("Sequence \"" + sequence + "\" has a wrong step somewhere.");
+		}
 	}
 }

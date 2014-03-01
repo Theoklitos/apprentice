@@ -8,7 +8,7 @@ import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.events.TypeModificationEvent;
+import com.apprentice.rpg.events.type.TypeCreationEvent;
 import com.apprentice.rpg.gui.AbstractControlForView;
 import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.PlayerCharacter;
@@ -57,7 +57,7 @@ public final class NewPlayerCharacterFrameControl extends AbstractControlForView
 	}
 
 	@Subscribe
-	public void someTypeHasChanged(final TypeModificationEvent typeEvent) {		
+	public void someTypeHasChanged(final TypeCreationEvent typeEvent) {		
 		view.refreshTypeDropdown();
 	}	
 }

@@ -38,7 +38,7 @@ public class TypeDeserializer extends ApprenticeParsingComponent implements Json
 			final Entry<String, JsonElement> entry = iterator.next();
 			final IntegerRange range = new IntegerRange(entry.getKey());
 			final String bodyPartName = entry.getValue().getAsString();
-			final BodyPart part = getNameableVault().getUniqueNamedResult(bodyPartName, BodyPart.class);
+			final BodyPart part = getNameableVault().getUniqueNamedResult(bodyPartName, BodyPart.class);						
 			mapping.setPartForRange(range, part);
 		}
 		final Type result = new Type(topLevelObject.get("name").getAsString(), mapping);

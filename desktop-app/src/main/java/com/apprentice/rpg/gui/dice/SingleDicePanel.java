@@ -38,25 +38,26 @@ public class SingleDicePanel extends JPanel {
 		button = new JRadioButton(roll.toString());
 		button.setFont(button.getFont().deriveFont(Font.BOLD));
 		group.add(button);
-		final JPanel radioButtonPanel = new JPanel();		
-		radioButtonPanel.add(button);
-		radioButtonPanel.setPreferredSize(new Dimension(57, 35));
-		add(radioButtonPanel);
-
+		final JPanel radioButtonPanel = new JPanel();
+		radioButtonPanel.setPreferredSize(new Dimension(70, 30));
+		radioButtonPanel.add(button);		
+		add(radioButtonPanel);		
+		
 		final JPanel controlPanel = new JPanel();
 
 		final JLabel title = new JLabel("#:");
 		controlPanel.add(title);
 		number = new NumericTextfield(1, 2);
+		number.addFocusListener(new ButtonSelectionFocusListener(button));
 		controlPanel.add(number);
 
 		final JLabel modifierTitle = new JLabel("Modifier:");
 		controlPanel.add(modifierTitle);
 		modifier = new JTextField(3);
+		modifier.addFocusListener(new ButtonSelectionFocusListener(button));
 		controlPanel.add(modifier);
 
 		add(controlPanel);
-		// setBorder(new LineBorder(Color.BLACK));
 	}
 	
 	/**

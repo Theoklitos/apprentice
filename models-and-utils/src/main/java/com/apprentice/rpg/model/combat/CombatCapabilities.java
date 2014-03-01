@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.weapon.IWeaponInstance;
+import com.apprentice.rpg.model.weapon.WeaponInstance;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 public final class CombatCapabilities {
 
 	private int modifier;
-	private final Map<IWeaponInstance, BonusSequence> weaponSkills;
+	private final Map<WeaponInstance, BonusSequence> weaponSkills;
 
 	public CombatCapabilities() {
 		weaponSkills = Maps.newHashMap();
@@ -52,7 +52,7 @@ public final class CombatCapabilities {
 	 * @throws ApprenticeEx
 	 *             if the given weapon does not exist
 	 */
-	public BonusSequence getBonusSequenceForWeapon(final IWeaponInstance weaponInstance) {
+	public BonusSequence getBonusSequenceForWeapon(final WeaponInstance weaponInstance) {
 		final BonusSequence result = weaponSkills.get(weaponInstance);
 		if (result == null) {
 			throw new ApprenticeEx("No skill with weapon \"" + weaponInstance.getName() + "\"");
@@ -71,9 +71,9 @@ public final class CombatCapabilities {
 	}
 
 	/**
-	 * returns a modifiable referrence to the {@link IWeaponInstance}s
+	 * returns a modifiable referrence to the {@link WeaponInstance}s
 	 */
-	public Set<IWeaponInstance> getWeapons() {
+	public Set<WeaponInstance> getWeapons() {
 		return weaponSkills.keySet();
 	}
 
@@ -83,22 +83,22 @@ public final class CombatCapabilities {
 	}
 
 	/**
-	 * sets or replaces the {@link BonusSequence} for the given {@link IWeaponInstance}
+	 * sets or replaces the {@link BonusSequence} for the given {@link WeaponInstance}
 	 */
-	public void setWeaponForSequence(final IWeaponInstance weaponInstance, final BonusSequence sequence) {
+	public void setWeaponForSequence(final WeaponInstance weaponInstance, final BonusSequence sequence) {
 		weaponSkills.put(weaponInstance, sequence);
 	}
 
 	@Override
 	public String toString() {
 		final StringBuffer result = new StringBuffer();
-		final Iterator<Entry<IWeaponInstance, BonusSequence>> iterator = weaponSkills.entrySet().iterator();
+		final Iterator<Entry<WeaponInstance, BonusSequence>> iterator = weaponSkills.entrySet().iterator();
 		while (iterator.hasNext()) {
-			final Entry<IWeaponInstance, BonusSequence> entry = iterator.next();
-			result.append(entry.getKey().getName() + ":" + entry.getValue());
-			if (iterator.hasNext()) {
-				result.append("\n");
-			}
+			final Entry<WeaponInstance, BonusSequence> entry = iterator.next();
+			result.append("[" + entry.getKey().getName() + ":" + entry.getValue() + "]");
+			// if (iterator.hasNext()) {
+			// result.append("\n");
+			// }
 		}
 		return result.toString();
 	}

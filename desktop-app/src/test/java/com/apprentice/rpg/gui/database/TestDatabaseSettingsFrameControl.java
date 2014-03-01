@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.events.DatabaseModificationEvent;
+import com.apprentice.rpg.events.type.DatabaseModificationEvent;
 import com.apprentice.rpg.gui.IWindowManager;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.IPlayerCharacter;
@@ -41,7 +41,7 @@ public final class TestDatabaseSettingsFrameControl {
 			{
 				oneOf(database).setDatabase(databaseLocation);
 				oneOf(textfileManager).writeDatabaseLocation(databaseLocation);
-				oneOf(windowManager).closeAllFrames();
+				oneOf(windowManager).closeAllFrames(false);
 				oneOf(windowManager).openFrame(new WindowStateIdentifier(view.getClass()));
 			}
 		});

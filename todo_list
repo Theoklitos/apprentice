@@ -1,16 +1,54 @@
+============ BACKLOG - EXTRA TASKS
+* Events
+* weapon toString etc
+* Roll validates a "2D" string. why?
+* make option panes go in center of component, not screen
+* Exception hanlder ingnors null pointers
+* WeaponFrame resize on thrown text change
+* try to make ammo type selector event-aware
+* make default if image GIF does not load
+* make images use SystemClassloader
+* ponder events
+* TTS - wav files play 
+
+
 === Version 3, weapons + armor!
+
+=== Version 4, Character!
+
+=== Version 5, strikes, simple strike engine!
+?!
+
+=== Version 6, json stuff
+consider architecture
 export whole database
 when exporting weapons, refactor exporter table control
 check new player frame with > 1 types
+unit tests for DatabaseImportExport
+unit tests for ExportConfigObject
 
-=== Version 4, strikes, simple strike engine!
 
+#################### PLANNING
+1 day armor piece
+1 day armor
+2 days PC
+1 day export/import (json stuff)
+1 day initial communicator (email, json export)
+1 day strikes
+1 day strikes integration with PC
+1 day android setup (gradle stuff?)
+2 day NPC functionality
 
+1 week android project?
 
++X? days gradle
+
+13+7 days STARTING FROM 26. TODAY IS :25
+
+4 days until february, mid march working!
 
 #################### Testing Backlog
-* unit tests for DatabaseImportExport
-* unit tests for ExportConfigObject
+
 
 
 #################### Feature Backlog

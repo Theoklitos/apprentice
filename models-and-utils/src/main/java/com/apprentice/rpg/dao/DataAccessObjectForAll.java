@@ -107,6 +107,13 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
+	public void delete(final NameableVault vault) {
+		for (final Nameable nameable : vault.getAllNameables()) {
+			delete(nameable);
+		}		
+	}
+
+	@Override
 	public boolean delete(final Object item) {
 		startTimer();
 		if (exists(item, false)) {
@@ -308,8 +315,8 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public void update(final NameableVault importObject) {
-		for (final Nameable nameable : importObject.getAllNameables()) {
+	public void update(final NameableVault vault) {
+		for (final Nameable nameable : vault.getAllNameables()) {
 			update(nameable);
 		}
 	}
@@ -322,9 +329,9 @@ public class DataAccessObjectForAll implements Vault {
 		} else {
 			word = "Created ";
 		}
-		startTimer();
-		updateModificationTime(item);
+		startTimer();		
 		connection.saveAndCommit(item);
+		updateModificationTime(item);
 		stopTimerAndLog(word + item.getClass().getSimpleName());
 	}
 

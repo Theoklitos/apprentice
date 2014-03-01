@@ -5,7 +5,7 @@ import java.awt.EventQueue;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.gui.ControlForDescriptionInView;
+import com.apprentice.rpg.gui.ControlWithVault;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.util.Box;
@@ -26,13 +26,16 @@ public class DescriptionPanel extends ModifiableTextFieldPanel {
 	private Nameable object;
 	private final ApprenticeEventBus eventBus;
 
-	public DescriptionPanel(final ControlForDescriptionInView control, final IWindowUtils windowUtils) {
-		this(control, windowUtils, DEFAULT_TITLE);
+	/**
+	 * will use LABEL type and a default title
+	 */
+	public DescriptionPanel(final ControlWithVault control, final IWindowUtils windowUtils) {
+		this(control, windowUtils, DEFAULT_TITLE, DescriptionPanelType.LABEL);
 	}
 
-	public DescriptionPanel(final ControlForDescriptionInView control, final IWindowUtils windowUtils,
-			final String borderTitle) {
-		super(borderTitle, TextFieldPanelType.LABEL, control.getVault());
+	public DescriptionPanel(final ControlWithVault control, final IWindowUtils windowUtils,
+			final String borderTitle, final DescriptionPanelType type) {
+		super(borderTitle, type, control.getVault());
 		this.windowUtils = windowUtils;
 		this.eventBus = control.getEventBus();
 	}
@@ -57,16 +60,23 @@ public class DescriptionPanel extends ModifiableTextFieldPanel {
 					}
 				} else {
 					windowUtils
-							.showErrorMessage("Either you have not selected an element or your Type is not yet consistent.");
+							.showErrorMessage("Either you have not selected an element or your element is not yet consistent.");
 				}
 			}
 		});
 
 	}
 
-	public void setElement(final Nameable object) {
-		this.object = object;
-		setText(object.getDescription());
+	/**
+	 * set the {@link Nameable} item that this panel will manage
+	 */
+	public void setNameable(final Nameable item) {
+		if (getType().equals(DescriptionPanelType.TEXTFIELD)) {
+			setType(DescriptionPanelType.LABEL);
+			initComponents();
+		}
+		this.object = item;
+		setText(item.getDescription());
 	}
 
 }

@@ -3,6 +3,7 @@ package com.apprentice.rpg.parsing.exportImport;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -18,17 +19,19 @@ import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.dao.simple.SimpleVault;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.PlayerCharacter;
-import com.apprentice.rpg.model.armor.ArmorPiecePrototype;
+import com.apprentice.rpg.model.armor.ArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.model.weapon.AmmunitionType;
+import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
+import com.apprentice.rpg.strike.StrikeType;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -51,9 +54,11 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	 */
 	public enum ItemType {
 		BODY_PART(BodyPart.class, "bodyParts"),
+		STRIKE_TYPE(StrikeType.class, "strikes"),
 		TYPE(Type.class, "types"),
-		WEAPON(WeaponPrototype.class, "weapons"),
-		ARMOR_PIECE(ArmorPiecePrototype.class, "armorPieces"),
+		WEAPON(Weapon.class, "weapons"),
+		AMMUNITION(AmmunitionType.class, "ammunitions"),
+		ARMOR_PIECE(ArmorPiece.class, "armorPieces"),
 		PLAYER_CHARACTER(PlayerCharacter.class, "playerCharacters");
 
 		/**
@@ -101,44 +106,13 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	}
 
 	/**
-	 * appends the parsed {@link BodyPart}s (as a json array) to the parent {@link JsonObject}
-	 * 
-	 * @throws ParsingEx
-	 */
-	private void addBodyPartsToParentJson(final NameableVault vault, final JSONObject parent) throws ParsingEx {
-		if (parent.has(ItemType.BODY_PART.jsonArrayName)) {
-			final JSONArray bodyPartObject = parent.getJSONArray(ItemType.BODY_PART.jsonArrayName);
-			final Collection<BodyPart> parts = parser.parseBodyParts(bodyPartObject.toString());
-			final Collection<BodyPart> vaultParts = vault.getAllNameables(BodyPart.class);
-			checkForConflictingElements(parts, vaultParts);
-			parts.addAll(vaultParts);
-			vault.addAll(parts);
-		}
-	}
-
-	/**
 	 * adds the specified {@link ItemType} of the database to the parent {@link JsonObject}
 	 */
 	private void addForType(final JsonObject parent, final ItemType type, final ExportConfigurationObject config) {
-		final JsonArray jsonArray = parser.getAsJsonArray(getTypesForNames(config.getNamesForType(type), type), type);
+		final JsonArray jsonArray =
+			parser.getAsJsonArrayTest(getTypesForNames(config.getNamesForType(type), type), type.type);
 		if (jsonArray.size() > 0) {
 			parent.add(type.jsonArrayName, jsonArray);
-		}
-	}
-
-	/**
-	 * appends the parsed {@link IType}s (as a json array) to the parent {@link JsonObject}
-	 * 
-	 * @throws ParsingEx
-	 */
-	private void addTypesToParentJson(final NameableVault vault, final JSONObject parent) throws ParsingEx {
-		if (parent.has(ItemType.TYPE.jsonArrayName)) {
-			final JSONArray typeObject = parent.getJSONArray(ItemType.TYPE.jsonArrayName);
-			final Collection<IType> types = parser.parseTypes(typeObject.toString(), vault);
-			final Collection<IType> vaultTypes = vault.getAllNameables(IType.class);
-			checkForConflictingElements(types, vaultTypes);
-			types.addAll(vaultTypes);
-			vault.addAll(types);
 		}
 	}
 
@@ -166,8 +140,9 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 		LOG.debug("Exporting for configuration:\n" + config.toString());
 		final File file = new File(config.getFileLocation());
 		final JsonObject parent = new JsonObject();
-		addForType(parent, ItemType.TYPE, config);
-		addForType(parent, ItemType.BODY_PART, config);
+		for (final ItemType type : ItemType.values()) {
+			addForType(parent, type, config);
+		}
 		try {
 			FileUtils.writeStringToFile(file, new JSONObject(parent.toString()).toString(5));
 			LOG.info("Exported data to " + config.getFileLocation());
@@ -189,17 +164,65 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	}
 
 	@Override
-	public NameableVault importFrom(final String fileLocation) {
+	public void importFrom(final String fileLocation) {
 		final NameableVault result = new SimpleVault();
 		try {
 			final JSONObject parent = new JSONObject(FileUtils.readFileToString(new File(fileLocation)));
-			addBodyPartsToParentJson(result, parent);
-			addTypesToParentJson(result, parent);
+			final List<ItemType> sequenceOfParsing =
+				Lists.newArrayList(ItemType.BODY_PART, ItemType.STRIKE_TYPE, ItemType.TYPE, ItemType.WEAPON,
+						ItemType.ARMOR_PIECE, ItemType.PLAYER_CHARACTER);
+			for (final ItemType type : sequenceOfParsing) {
+				parseItemsForType(parent, result, type, type.type);
+			}
+			
+			for (final ItemType type : sequenceOfParsing) {
+				for(final Nameable item : result.getAllNameables(type.type)){
+					vault.update(item);
+				}				
+			}
+			// now actually update, store
+// for (final Nameable nameable : result.getAllNameables()) {
+// if (!vault.exists(nameable)) {
+// vault.update(nameable);
+// }
+// }
+			//vault.update(result);
+			
+
+// for (final ItemType type : sequenceOfParsing) {
+// final Collection<? extends Nameable> parsedItemsForType = result.getAllNameables(type.type);
+// for (final Nameable item : parsedItemsForType) {
+// if (!vault.exists(item)) {
+// System.out.println("Before create, bodyparts : " + vault.getAllNameables(BodyPart.class).size());
+// System.out.println("About to create: " + item.getName());
+// vault.create(item);
+// System.out.println("After update, bodyparts : " + vault.getAllNameables(BodyPart.class).size());
+// } else {
+// System.out.println("Already exsits: " + item.getName());
+// }
+// }
+// LOG.debug("Created/updated " + parsedItemsForType.size() + " items.");
+// }
 		} catch (final JSONException e) {
 			throw new ParsingEx(e);
 		} catch (final IOException e) {
 			throw new ParsingEx(e);
 		}
-		return result;
+	}
+
+	/**
+	 * parses items from a collection for the given type, checks also for conflicts
+	 */
+	private <T extends Nameable> void parseItemsForType(final JSONObject parent, final NameableVault vault,
+			final ItemType type, final Class<T> classType) throws ParsingEx {
+		if (parent.has(type.jsonArrayName)) {
+			final JSONArray jsonArray = parent.getJSONArray(type.jsonArrayName);
+			final Collection<T> parsedItemsForThisType = parser.parseCollection(jsonArray.toString(), vault, type);
+			final Collection<T> itemsParsedSoFar = vault.getAllNameables(classType);
+			checkForConflictingElements(parsedItemsForThisType, itemsParsedSoFar);
+			parsedItemsForThisType.addAll(itemsParsedSoFar);
+			vault.addAll(parsedItemsForThisType);
+			LOG.debug("Parsed " + parsedItemsForThisType.size() + " items of type " + classType.getSimpleName());
+		}
 	}
 }

@@ -16,7 +16,7 @@ public final class CharacterType {
 	private final static String NOT_SPECIFIED_RACE = "Not specified";
 
 	private final IType type;
-	private final Size size;
+	private final String size;
 	private String race;
 
 	/**
@@ -34,7 +34,7 @@ public final class CharacterType {
 		}
 		Checker.checkNonNull("Empty character type and/or size", true, type, size);
 		this.type = type;
-		this.size = size;
+		this.size = size.name();
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public final class CharacterType {
 	}
 
 	public Size getSize() {
-		return size;
+		return Size.valueOf(size);
 	}
 
 	/**

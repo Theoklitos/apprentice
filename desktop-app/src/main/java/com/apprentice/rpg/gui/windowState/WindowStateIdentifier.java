@@ -20,9 +20,8 @@ public class WindowStateIdentifier {
 	/**
 	 * contructor to be used when the frame is not to be parameterized
 	 */
-	public WindowStateIdentifier(final Class<?> frameClass) {
-		this.windowClass = frameClass;
-		this.parameter = null;
+	public WindowStateIdentifier(final Class<?> windowClass) {
+		this(windowClass, null);
 	}
 
 	public WindowStateIdentifier(final Class<?> windowClass, final String parameter) {

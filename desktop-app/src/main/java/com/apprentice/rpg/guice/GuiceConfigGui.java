@@ -31,9 +31,13 @@ import com.apprentice.rpg.gui.vault.IVaultFrameControl;
 import com.apprentice.rpg.gui.vault.VaultFrameControl;
 import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
 import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrameControl;
+import com.apprentice.rpg.gui.weapon.IWeaponFrameControl;
+import com.apprentice.rpg.gui.weapon.WeaponFrameControl;
 import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.ApprenticeEx;
+import com.apprentice.rpg.sound.ISoundManager;
+import com.apprentice.rpg.sound.SoundManager;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -55,7 +59,9 @@ public final class GuiceConfigGui implements Module {
 		binder.bind(IDatabaseSettingsFrameControl.class).to(DatabaseSettingsFrameControl.class);
 		binder.bind(INewPlayerCharacterFrameControl.class).to(NewPlayerCharacterFrameControl.class);
 		binder.bind(ITypeAndBodyPartFrameControl.class).to(TypeAndBodyPartFrameControl.class);
-		binder.bind(IVaultFrameControl.class).to(VaultFrameControl.class);
+		binder.bind(IVaultFrameControl.class).to(VaultFrameControl.class);		
+		binder.bind(IWeaponFrameControl.class).to(WeaponFrameControl.class);
+		binder.bind(ISoundManager.class).to(SoundManager.class);
 
 		binder.bind(ILogFrameControl.class)
 				.toInstance((LogFrameControl) Logger.getRootLogger().getAppender("logFrame"));

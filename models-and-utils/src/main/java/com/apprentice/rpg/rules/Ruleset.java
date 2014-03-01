@@ -1,8 +1,7 @@
 package com.apprentice.rpg.rules;
 
 import com.apprentice.rpg.model.body.Size;
-import com.apprentice.rpg.model.durable.DurableItem;
-import com.apprentice.rpg.model.durable.IDurableItemInstance;
+import com.apprentice.rpg.model.durable.IDurableItem;
 import com.apprentice.rpg.random.dice.Roll;
 
 /**
@@ -14,25 +13,31 @@ import com.apprentice.rpg.random.dice.Roll;
 public interface Ruleset {
 
 	/**
-	 * reteurns the target difficuly (usually 1-20) based on size. For example, medium sized beings might be a 10
+	 * Decreases this {@link Roll} by the number of "positions" given, for example for one position we have
+	 * D10->D8. For two, it is D10->D8->D6. If the given roll has many dices, increases only the first.
+	 */
+	void decreaseRoll(Roll roll, int positions);
+
+	/**
+	 * Decreases the first dice of this {@link Roll} to D0. Modifiers are not affected.
+	 */
+	void decreaseRollToZero(Roll roll);
+
+	/**
+	 * reteurns the target difficuly (usually 1-20) based on size. For example, medium sized beings might be a
+	 * 10
 	 */
 	int getBaseBlockForSize(Size size);
 
 	/**
-	 * Returns a {@link Roll} decreased by the number of "positions", for example for one position we have
-	 * D10->D8. For two, it is D10->D8->D6. If the given roll has many dices, increases only the first.
-	 */
-	Roll getDecreasedRoll(Roll roll, int positions);
-
-	/**
 	 * returns a the number that every 1/number of item hit point loss, that item deteriorates
 	 */
-	<T extends DurableItem> int getDeteriorationIncrementForType(final IDurableItemInstance<? extends DurableItem> durableItemInstance);	
+	int getDeteriorationIncrementForType(final IDurableItem durableItemInstance);
 
 	/**
-	 * Returns a {@link Roll} incerased by the number of "positions", for example for one position we have
-	 * D6->D8. For two, it is D6->D8->D10. If the given roll has many dices, increases only the first.
+	 * Increases this {@link Roll} incerased by the number of "positions" given, for example for one position
+	 * we have D6->D8. For two, it is D6->D8->D10. If the given roll has many dices, increases only the first.
 	 */
-	Roll getIncreasedRoll(Roll roll, int positions);
+	void increaseRoll(Roll roll, int positions);
 
 }

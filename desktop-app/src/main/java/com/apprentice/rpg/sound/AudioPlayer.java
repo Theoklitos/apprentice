@@ -1,7 +1,7 @@
 package com.apprentice.rpg.sound;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -10,6 +10,8 @@ import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.apache.log4j.Logger;
 
 /**
  * Courtesy of "oliver"
@@ -20,16 +22,17 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class AudioPlayer {
 
+	private static Logger LOG = Logger.getLogger(SoundManager.class);
+	
 	private AudioFormat getOutFormat(final AudioFormat inFormat) {
 		final int ch = inFormat.getChannels();
 		final float rate = inFormat.getSampleRate();
 		return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
 	}
 
-	public void play(final String filePath) {
-		final File file = new File(filePath);
-
-		try (final AudioInputStream in = AudioSystem.getAudioInputStream(file)) {
+	public void play(final URL fileLocation) {
+		LOG.debug("Playing audio file " + fileLocation);
+		try (final AudioInputStream in = AudioSystem.getAudioInputStream(fileLocation)) {
 
 			final AudioFormat outFormat = getOutFormat(in.getFormat());
 			final Info info = new Info(SourceDataLine.class, outFormat);

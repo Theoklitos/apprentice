@@ -11,7 +11,7 @@ import com.google.common.base.Objects;
  */
 public final class Stat {
 
-	private final StatType statType;
+	private final String statType;
 	private final int originalValue;
 	private int currentValue;
 	private int bonus;
@@ -20,7 +20,7 @@ public final class Stat {
 	 * Requires the name of the stat (ie Strength) and its value (ie 18)
 	 */
 	public Stat(final StatType statType, final int value) {
-		this.statType = statType;
+		this.statType = statType.toString();
 		this.originalValue = value;
 		this.currentValue = this.originalValue;
 		this.bonus = getDetermineBonus(value);

@@ -26,6 +26,7 @@ public class Db4oConnection implements DatabaseConnection {
 	public Db4oConnection(final EmbeddedObjectContainer database, final String databaseLocation) {
 		this.database = database;
 		database.ext().configure().updateDepth(Integer.MAX_VALUE);
+		database.ext().configure().activationDepth(Integer.MAX_VALUE);
 		database.ext().configure().exceptionsOnNotStorable(false);
 		this.databaseLocation = databaseLocation;
 	}
@@ -52,6 +53,7 @@ public class Db4oConnection implements DatabaseConnection {
 	@Override
 	public void delete(final Object object) {
 		database.delete(object);
+		commit();
 	}
 
 	@Override
@@ -76,6 +78,11 @@ public class Db4oConnection implements DatabaseConnection {
 		} else {
 			LOG.warn("Call to open database, but database was already open.");
 		}
+	}
+
+	@Override
+	public void save(final Object item) {
+		database.store(item);
 	}
 
 	@Override

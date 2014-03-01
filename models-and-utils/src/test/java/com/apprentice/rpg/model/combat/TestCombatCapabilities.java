@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.factories.DataFactory;
-import com.apprentice.rpg.model.weapon.IWeaponInstance;
 import com.apprentice.rpg.model.weapon.WeaponInstance;
 
 /**
@@ -20,7 +19,7 @@ public final class TestCombatCapabilities {
 
 	private CombatCapabilities combat;
 	private DataFactory factory;
-	private IWeaponInstance weapon;
+	private WeaponInstance weapon;
 
 	@Test(expected = ApprenticeEx.class)
 	public void doesNotHaveWeapon() {
@@ -51,7 +50,7 @@ public final class TestCombatCapabilities {
 	public void setup() {
 		combat = new CombatCapabilities();
 		factory = new DataFactory();
-		weapon = new WeaponInstance(factory.getWeapons().get(0));
+		weapon = factory.getWeapons().get(0);
 	}
 
 }

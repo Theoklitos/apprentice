@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
  * A d&d roll with modifiers and bonuses. Used for attack rolls, weapon damages, etc.
  * 
  */
-public final class Roll {
+public class Roll {
 
 	private final static String DICE_PREFIX = "D";
 	private static final String MINUS_SYMBOL = "-";

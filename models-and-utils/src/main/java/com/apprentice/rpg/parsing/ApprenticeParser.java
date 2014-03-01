@@ -4,8 +4,6 @@ import java.util.Collection;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.Nameable;
-import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.google.gson.JsonArray;
 
@@ -18,11 +16,11 @@ import com.google.gson.JsonArray;
 public interface ApprenticeParser {
 
 	/**
-	 * Converts the list of nameables into a json array (as a string), based on the {@link ItemType} specified
+	 * Converts the list of nameables into a json array (as a string), based on the type specified
 	 * 
 	 * @throws ParsingEx
 	 */
-	JsonArray getAsJsonArray(Collection<? extends Nameable> nameables, ItemType type) throws ParsingEx;
+	<T> JsonArray getAsJsonArrayTest(Collection<? extends Nameable> nameables, Class<T> type) throws ParsingEx;
 
 	/**
 	 * Converts the given object to a json object (in string form)
@@ -48,16 +46,9 @@ public interface ApprenticeParser {
 	<T> T parse(String jsonString, NameableVault simpleVault, Class<T> classToParseInto) throws ParsingEx;
 
 	/**
-	 * parsses the JsonArray string to a list of {@link BodyPart}s
+	 * Tries to parse a collection of the given type from the json
 	 */
-	Collection<BodyPart> parseBodyParts(String jsonArrayString) throws ParsingEx;
-
-	/**
-	 * parsses the JsonArray string to a list of {@link IType}s
-	 * 
-	 * @param simpleVault
-	 *            The types to be created will attempt to get references from the body parts in this vault
-	 */
-	Collection<IType> parseTypes(String jsonArrayString, final NameableVault simpleVault) throws ParsingEx;
+	<T> Collection<T> parseCollection(String jsonArrayString, final NameableVault vault, final ItemType itemType)
+			throws ParsingEx;
 
 }

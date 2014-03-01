@@ -1,5 +1,6 @@
 package com.apprentice.rpg.parsing;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
@@ -7,15 +8,19 @@ import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.PlayerCharacter;
+import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.model.body.Type;
+import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.gson.BonusSequenceDeserializer;
 import com.apprentice.rpg.parsing.gson.BonusSequenceSerializer;
+import com.apprentice.rpg.parsing.gson.RangeDeserializer;
+import com.apprentice.rpg.parsing.gson.RangeSerializer;
 import com.apprentice.rpg.parsing.gson.RollDeserializer;
 import com.apprentice.rpg.parsing.gson.RollSerializer;
 import com.apprentice.rpg.random.dice.Roll;
+import com.apprentice.rpg.strike.StrikeType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -40,6 +45,8 @@ public final class JsonParser implements ApprenticeParser {
 		gsonBuilder.registerTypeAdapter(Roll.class, new RollDeserializer());
 		gsonBuilder.registerTypeAdapter(Roll.class, new BonusSequenceSerializer());
 		gsonBuilder.registerTypeAdapter(Roll.class, new BonusSequenceDeserializer());
+		gsonBuilder.registerTypeAdapter(Roll.class, new RangeSerializer());
+		gsonBuilder.registerTypeAdapter(Roll.class, new RangeDeserializer());
 		return gsonBuilder.setPrettyPrinting().create();
 	}
 
@@ -53,15 +60,17 @@ public final class JsonParser implements ApprenticeParser {
 	}
 
 	@Override
-	public JsonArray getAsJsonArray(final Collection<? extends Nameable> nameables, final ItemType type)
+	public <T> JsonArray getAsJsonArrayTest(final Collection<? extends Nameable> nameables, final Class<T> type)
 			throws ParsingEx {
-		switch (type) {
-		case TYPE:
-			return getTypesAsJsonArray(nameables);
-		case BODY_PART:
-			return getBodyPartsAsJsonArray(nameables);
-		default:
-			throw new ApprenticeEx("Unimplemented item type \"" + type + "\"");
+		try {
+			serializersWithVault.setNameLookupForType(type, true, false);
+			final java.lang.reflect.Type typeType = new TypeToken<Collection<T>>() {
+			}.getType();
+			final JsonArray result = gson.toJsonTree(nameables, typeType).getAsJsonArray();
+			serializersWithVault.setNameLookupForType(type, true, true);
+			return result;
+		} catch (final Exception e) {
+			throw new ParsingEx(e);
 		}
 	}
 
@@ -74,32 +83,30 @@ public final class JsonParser implements ApprenticeParser {
 	}
 
 	/**
-	 * returns this collection of types as a {@link JsonArray}
-	 * 
-	 * @throws ParsingEx
+	 * due to type erasure and the way gson is, we have to map {@link ItemType} to specific {@link Type}s here
 	 */
-	private JsonArray getBodyPartsAsJsonArray(final Collection<? extends Nameable> bodyParts) throws ParsingEx {
-		try {
-			final java.lang.reflect.Type type = new TypeToken<Collection<BodyPart>>() {
+	private Type getCollectionTypeForType(final ItemType itemType) {
+		switch (itemType) {
+		case BODY_PART:
+			return new TypeToken<Collection<BodyPart>>() {
 			}.getType();
-			return gson.toJsonTree(bodyParts, type).getAsJsonArray();
-		} catch (final Exception e) {
-			throw new ParsingEx(e);
-		}
-	}
-
-	/**
-	 * returns this collection of types as a {@link JsonArray}
-	 * 
-	 * @throws ParsingEx
-	 */
-	private JsonArray getTypesAsJsonArray(final Collection<? extends Nameable> types) throws ParsingEx {
-		try {
-			final java.lang.reflect.Type typeType = new TypeToken<Collection<Type>>() {
+		case TYPE:
+			return new TypeToken<Collection<IType>>() {
 			}.getType();
-			return gson.toJsonTree(types, typeType).getAsJsonArray();
-		} catch (final Exception e) {
-			throw new ParsingEx(e);
+		case STRIKE_TYPE:
+			return new TypeToken<Collection<StrikeType>>() {
+			}.getType();
+		case ARMOR_PIECE:
+			return new TypeToken<Collection<IArmorPiece>>() {
+			}.getType();
+		case WEAPON:
+			return new TypeToken<Collection<WeaponPrototype>>() {
+			}.getType();
+		case PLAYER_CHARACTER:
+			return new TypeToken<Collection<PlayerCharacter>>() {
+			}.getType();
+		default:
+			throw new ApprenticeEx("Collection TokenType not implemented for type: " + itemType);
 		}
 	}
 
@@ -123,10 +130,18 @@ public final class JsonParser implements ApprenticeParser {
 	}
 
 	@Override
-	public Collection<BodyPart> parseBodyParts(final String jsonArrayString) throws ParsingEx {
-		final java.lang.reflect.Type bodyPartType = new TypeToken<Collection<BodyPart>>() {
-		}.getType();
-		return gson.fromJson(jsonArrayString, bodyPartType);
+	public <T> Collection<T> parseCollection(final String jsonArrayString, final NameableVault vault,
+			final ItemType itemType) throws ParsingEx {
+		try {
+			serializersWithVault.setSimpleVault(vault);
+			serializersWithVault.setNameLookupForType(itemType.type, false, false);
+			final java.lang.reflect.Type collectionType = getCollectionTypeForType(itemType);
+			final Collection<T> result = gson.fromJson(jsonArrayString, collectionType);
+			serializersWithVault.setNameLookupForType(itemType.type, false, true);
+			return result;
+		} catch (final Exception e) {
+			throw new ParsingEx(e);
+		}
 	}
 
 	/**
@@ -142,14 +157,6 @@ public final class JsonParser implements ApprenticeParser {
 		} catch (final Exception e) {
 			throw new ParsingEx(e);
 		}
-	}
-
-	@Override
-	public Collection<IType> parseTypes(final String jsonArrayString, final NameableVault simpleVault) throws ParsingEx {
-		final java.lang.reflect.Type typeType = new TypeToken<Collection<IType>>() {
-		}.getType();
-		serializersWithVault.setSimpleVault(simpleVault);
-		return gson.fromJson(jsonArrayString, typeType);
 	}
 
 }
