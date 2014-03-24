@@ -16,4 +16,8 @@ public class GuiItemCreationEx extends ApprenticeEx {
 		super(reason);
 	}
 
+	public GuiItemCreationEx(final Throwable e) {
+		super(e);
+	}
+
 }

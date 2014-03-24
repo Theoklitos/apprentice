@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.config.ApprenticeConfiguration.DesktopBackgroundType;
+import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.google.inject.Inject;
@@ -26,6 +27,13 @@ public final class ApprenticeDesktopControl implements IApprenticeDesktopControl
 		this.configuration = configuration;
 	}
 
+	@Override
+	public void add(final ApprenticeInternalFrame<?> internalFrame) {
+		if(view != null) {
+			view.add(internalFrame);
+		}
+	}
+	
 	@Override
 	public Rectangle getDesktopBounds() {
 		return view.getBounds();

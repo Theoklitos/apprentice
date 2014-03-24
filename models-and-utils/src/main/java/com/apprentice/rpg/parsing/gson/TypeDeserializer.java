@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.BodyPartToRangeMap;
+import com.apprentice.rpg.model.body.BodyPartToRangeMapping;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
 import com.apprentice.rpg.util.IntegerRange;
@@ -30,7 +30,7 @@ public class TypeDeserializer extends ApprenticeParsingComponent implements Json
 	public Type deserialize(final JsonElement json, final java.lang.reflect.Type typeOfT,
 			final JsonDeserializationContext context) throws JsonParseException {
 		final JsonObject topLevelObject = json.getAsJsonObject();
-		final BodyPartToRangeMap mapping = new BodyPartToRangeMap();
+		final BodyPartToRangeMapping mapping = new BodyPartToRangeMapping();
 		final JsonObject partMapping =
 			topLevelObject.get("parts").getAsJsonObject().get("partMapping").getAsJsonObject();		
 		final Iterator<Entry<String, JsonElement>> iterator = partMapping.entrySet().iterator();

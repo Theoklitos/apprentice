@@ -20,15 +20,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.TextfieldWithColorWarning;
 import com.apprentice.rpg.gui.log.LogFrameControl;
-import com.apprentice.rpg.gui.util.WindowUtils;
-import com.apprentice.rpg.gui.windowState.GlobalWindowState;
-import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.util.Box;
 import com.jgoodies.forms.factories.FormFactory;
@@ -42,7 +40,9 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRollerFrame {
+public class DiceRollerFrame extends ApprenticeInternalFrame<IDiceRollerFrameControl> implements IDiceRollerFrame {
+
+	private static Logger LOG = Logger.getLogger(DiceRollerFrame.class);
 
 	private static final long serialVersionUID = -5791860999612306424L;
 	private final JCheckBox chckbxDiceSound;
@@ -58,17 +58,16 @@ public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRol
 	private final SingleDicePanel d100;
 	private JRadioButton textRadioButton;
 	private TextfieldWithColorWarning diceTextField;
-	private final IDiceRollerFrameControl control;
 	private final JTextArea history;
 	private final JPanel resultPanel;
 	private final JLabel lblResult;
 	private final JScrollPane historyScrollPane;
 	private final JButton btnRoll;
 
-	public DiceRollerFrame(final IGlobalWindowState globalWindowState, final IDiceRollerFrameControl control) {
-		super(new GlobalWindowState(new WindowUtils()), "Dice Roller");
-		this.control = control;
+	public DiceRollerFrame(final IDiceRollerFrameControl control) {
+		super(control, "Dice Roller");
 		setResizable(false);
+		setMaximizable(false);
 
 		getContentPane().setLayout(
 				new FormLayout(
@@ -204,7 +203,7 @@ public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRol
 		final Box<Roll> selectedRollBox = getSelectedRoll();
 		if (selectedRollBox.hasContent()) {
 			final Roll selectedRoll = selectedRollBox.getContent();
-			final int result = control.roll(selectedRoll);
+			final int result = getControl().roll(selectedRoll);
 			showRollResult(Box.with(selectedRoll), result);
 		}
 	}
@@ -264,9 +263,21 @@ public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRol
 
 			@Override
 			public void run() {
-				historyScrollPane.getVerticalScrollBar().setValue(117);
+				historyScrollPane.getVerticalScrollBar()
+						.setValue(historyScrollPane.getVerticalScrollBar().getMaximum());
+				history.append("");
 			}
 		});
+		if (selectedRollBox.hasContent()) {
+			LOG.info("Rolled " + selectedRollBox.getContent() + " and got: " + result);
+		} else {
+			LOG.info("WHAT IS THIS?"); // TODO
+		}
+	}
+
+	@Override
+	public void refreshFromModel() {
+		// nothing
 	}
 
 	/**
@@ -304,15 +315,15 @@ public class DiceRollerFrame extends ApprenticeInternalFrame implements IDiceRol
 					btnRoll.setEnabled(false);
 					lblResult.setText("");
 					getWindowUtils().setDiceRollingImage(lblResult);
-					Thread.sleep(500);
+					if (shouldPlayDiceRollSound()) {
+						getControl().playDiceRollingSound();
+					}
+					// Thread.sleep(200);
 					setDiceRollResultLabel(result);
 					logDiceRollInHistoryPanel(selectedRoll, result);
 					logged = true;
-					if (shouldPlayDiceRollSound()) {
-						control.playDiceRollingSound();
-					}
 					if (shouldNarrateResult()) {
-						control.tts(result);
+						getControl().tts(result);
 					}
 				} catch (final Exception e) {
 					// the finally clause will handle the flow

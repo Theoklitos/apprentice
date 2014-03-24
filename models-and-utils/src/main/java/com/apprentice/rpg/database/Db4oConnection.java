@@ -9,6 +9,7 @@ import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ObjectSet;
 import com.db4o.ext.Db4oException;
 import com.db4o.ext.Db4oIOException;
+import com.db4o.ta.TransparentPersistenceSupport;
 
 /**
  * Implementation for db4o persistence
@@ -19,15 +20,17 @@ import com.db4o.ext.Db4oIOException;
 public class Db4oConnection implements DatabaseConnection {
 
 	private static Logger LOG = Logger.getLogger(Db4oConnection.class);
-
+	
 	private EmbeddedObjectContainer database;
+
 	private String databaseLocation;
 
 	public Db4oConnection(final EmbeddedObjectContainer database, final String databaseLocation) {
-		this.database = database;
-		database.ext().configure().updateDepth(Integer.MAX_VALUE);
-		database.ext().configure().activationDepth(Integer.MAX_VALUE);
-		database.ext().configure().exceptionsOnNotStorable(false);
+		this.database = database;		
+		database.ext().configure().add(new TransparentPersistenceSupport());
+		//database.ext().configure().updateDepth(Integer.MAX_VALUE);
+		//database.ext().configure().activationDepth(Integer.MAX_VALUE);
+		//database.ext().configure().exceptionsOnNotStorable(false);
 		this.databaseLocation = databaseLocation;
 	}
 

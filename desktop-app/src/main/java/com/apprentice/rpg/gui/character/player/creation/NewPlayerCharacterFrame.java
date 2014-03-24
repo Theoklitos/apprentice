@@ -4,9 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyVetoException;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +16,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
@@ -24,21 +25,23 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
+import com.apprentice.rpg.gui.EnumCellRenderer;
 import com.apprentice.rpg.gui.GuiItemCreationEx;
-import com.apprentice.rpg.gui.IWindowManager;
+import com.apprentice.rpg.gui.NameableListCellRenderer;
 import com.apprentice.rpg.gui.NumericTextfield;
 import com.apprentice.rpg.gui.SavingThrowTextField;
 import com.apprentice.rpg.gui.TextfieldWithColorWarning;
-import com.apprentice.rpg.gui.util.WindowUtils;
-import com.apprentice.rpg.gui.windowState.GlobalWindowState;
-import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.gui.skills.SkillPanel;
+import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.PlayerLevels;
 import com.apprentice.rpg.model.SavingThrows;
+import com.apprentice.rpg.model.Skill;
 import com.apprentice.rpg.model.Stat;
 import com.apprentice.rpg.model.StatBundle;
 import com.apprentice.rpg.model.StatBundle.StatType;
@@ -58,7 +61,8 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame implements INewPlayerCharacterFrame {
+public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame<IServiceLayer> implements
+		INewPlayerCharacterFrame {
 
 	public static final String PLAYER_DESCRIPTION_PANEL_TITLE = "Description, Notes or Misc. Information";
 
@@ -66,9 +70,6 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 	private static Logger LOG = Logger.getLogger(NewPlayerCharacterFrame.class);
 
 	private static final long serialVersionUID = 1L;
-
-	private final INewPlayerCharacterFrameControl control;
-	private final IWindowManager windowManager;
 
 	private JTextField txtfldName;
 	private JTextField txtfldHitpoints;
@@ -86,19 +87,17 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 	private TextfieldWithColorWarning txtfldLevels;
 	private JTextField txtfldRace;
 	private JComboBox<Size> cmbSize;
-	private NumericTextfield txtfldMovement;
+	private NumericTextfield txtfldSpeed;
 	private JTextArea txtareaDescription;
 	private JComboBox<IType> cmbType;
+	private SkillPanel skillsPanel;
+	private StatBundle statBundle;
 
-	public NewPlayerCharacterFrame(final IGlobalWindowState globalWindowState,
-			final INewPlayerCharacterFrameControl control, final IWindowManager windowManager) {
-		super(new GlobalWindowState(new WindowUtils()), "New Player Character Creation");
-		this.control = control;
-		this.windowManager = windowManager;
-		initComponents(control);
-		refreshTypeDropdown();
-
-		setVisible(true);
+	public NewPlayerCharacterFrame(final IServiceLayer control) {
+		super(control, "New Player Character Creation");
+		checkDoTypesExist();
+		initComponents();
+		refreshFromModel();
 	}
 
 	/**
@@ -110,16 +109,31 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final CharacterType type =
 			new CharacterType(cmbType.getItemAt(cmbType.getSelectedIndex()), cmbSize.getItemAt(cmbSize
 					.getSelectedIndex()), txtfldRace.getText());
-		final int movementInFeet = txtfldMovement.getTextAsInteger();
+		final int movementInFeet = txtfldSpeed.getTextAsInteger();
 		final PlayerCharacter newGuy =
-			new PlayerCharacter(name, new PlayerLevels(txtfldLevels.getText()), hitPoints, getStatBundle(), type,
+			new PlayerCharacter(name, new PlayerLevels(txtfldLevels.getText()), hitPoints, statBundle, type,
 					movementInFeet, getSavingThrows());
 		newGuy.addExperience(txtfldExperience.getTextAsInteger());
 		newGuy.setDescription(txtareaDescription.getText().trim());
+		for (final Skill skill : skillsPanel.getSkills()) {
+			newGuy.addSkill(skill);
+		}
 		return newGuy;
 	}
 
-	private JComboBox<Stat> createComboBoxForStat(final StatType type) {
+	private void checkDoTypesExist() {
+		if (getControl().getVault().getAll(IType.class).size() == 0) {
+			if (getWindowUtils()
+					.showWarningQuestionMessage(
+							"There are no character types in the database.\nYou need to create at least one before proceeding.\nOpen the type creation window now?",
+							"No Types Found")) {
+				getControl().getEventBus().postShowFrameEvent(TypeAndBodyPartFrame.class);
+			}
+			// close();
+		}
+	}
+
+	private JComboBox<Stat> createComboBoxForStat(final StatType type, final StatBundle statBundle) {
 		final List<Stat> stats = Lists.newArrayList();
 		for (int i = 1; i < 26; i++) {
 			stats.add(new Stat(type, i));
@@ -127,31 +141,37 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JComboBox<Stat> result =
 			new JComboBox<Stat>(new DefaultComboBoxModel<Stat>(stats.toArray(new Stat[stats.size()])));
 		result.setSelectedIndex(9);
+		result.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent event) {
+				if (result.getSelectedIndex() != -1) {
+					final Stat selected = result.getItemAt(result.getSelectedIndex());
+					statBundle.getStat(type).setValue(selected.getValue());
+				}
+			}
+		});
 		return result;
 	}
 
 	/**
 	 * called when the new player button is pressed
 	 */
-	private final void createNewPlayer(final INewPlayerCharacterFrameControl control) {
+	private final void createNewPlayer() {
 		try {
 			validateAllFields();
 			final PlayerCharacter newPlayer = assemblePlayerCharater();
 			try {
-				control.createCharacter(newPlayer);
-				getWindowUtils().showInformationMessage("New player succesfully created,", "New Player");
-				this.setClosed(true);
-				windowManager.showPlayerVaultFrame();
+				getControl().createOrUpdateUniqueName(newPlayer);
+				getWindowUtils().showInformationMessage("Player \"" + newPlayer.getName() + "\" succesfully created!",
+						"New Player");
+				close();
+				throw new ApprenticeEx("Hook me up with events!");
 			} catch (final NameAlreadyExistsEx e) {
 				getWindowUtils().showErrorMessage(
 						"A player with the name \"" + newPlayer.getName() + "\" already exsits! Player not created.");
 			} catch (final ItemAlreadyExistsEx e) {
 				getWindowUtils().showErrorMessage("This player character already exists!");
-			} catch (final PropertyVetoException e) {
-				this.setVisible(false);
-				throw new ApprenticeEx(e);
 			}
-
 		} catch (final GuiItemCreationEx e) {
 			getWindowUtils().showErrorMessage(e.getMessage(), "Wrong or Missing Value");
 		}
@@ -159,7 +179,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 
 	@Override
 	public Dimension getInitialSize() {
-		return new Dimension(520, 490);
+		return new Dimension(520, 500);
 	}
 
 	private SavingThrows getSavingThrows() throws ParsingEx {
@@ -174,45 +194,40 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		}
 	}
 
-	private StatBundle getStatBundle() {
-		return new StatBundle(cmbStrength.getItemAt(cmbStrength.getSelectedIndex()),
-				cmbDexterity.getItemAt(cmbDexterity.getSelectedIndex()), cmbConstitution.getItemAt(cmbConstitution
-						.getSelectedIndex()), cmbIntelligence.getItemAt(cmbIntelligence.getSelectedIndex()),
-				cmbWisdom.getItemAt(cmbWisdom.getSelectedIndex()),
-				cmbCharisma.getItemAt(cmbCharisma.getSelectedIndex()));
-	}
-
-	private void initComponents(final INewPlayerCharacterFrameControl control) {
+	private void initComponents() {
 		getContentPane().setLayout(
-				new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("min:grow"),
-					FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC,
-					RowSpec.decode("fill:min"), RowSpec.decode("fill:pref:grow"), RowSpec.decode("30px"),
-					FormFactory.RELATED_GAP_ROWSPEC, }));
+				new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
+					ColumnSpec.decode("center:min:grow"), FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("pref:grow"), FormFactory.RELATED_GAP_ROWSPEC,
+					RowSpec.decode("fill:pref:grow"), RowSpec.decode("30px"), FormFactory.RELATED_GAP_ROWSPEC, }));
+
+		final JTabbedPane mainTabbedPanel = new JTabbedPane();
+		mainTabbedPanel.setBorder(new LineBorder(Color.black));
 
 		genericCharacterInformation = new JPanel();
-		genericCharacterInformation.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)),
-				"General Information", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		genericCharacterInformation.setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
 			ColumnSpec.decode("right:max(45dlu;default)"), FormFactory.RELATED_GAP_COLSPEC,
 			FormFactory.DEFAULT_COLSPEC, ColumnSpec.decode("pref:grow"), ColumnSpec.decode("8dlu"),
 			ColumnSpec.decode("right:pref"), FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
 			FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("pref:grow"), FormFactory.RELATED_GAP_COLSPEC, },
-				new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
-					FormFactory.DEFAULT_ROWSPEC, RowSpec.decode("8dlu"), FormFactory.DEFAULT_ROWSPEC,
+				new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"),
 					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC,
-					FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
-					FormFactory.DEFAULT_ROWSPEC, }));
+					RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"),
+					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("pref:grow"), FormFactory.RELATED_GAP_ROWSPEC,
+					RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"),
+					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC,
+					RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC, }));
 
-		getContentPane().add(genericCharacterInformation, "2, 2, fill, fill");
+		getContentPane().add(mainTabbedPanel, "2, 2, fill, fill");
+		mainTabbedPanel.add("General Information", genericCharacterInformation);
 
 		populateGenericInformationPanel();
+		populateSkillsPanel(mainTabbedPanel);
 
 		final JPanel descriptionPanel = new JPanel();
 		descriptionPanel.setBorder(new TitledBorder(null, PLAYER_DESCRIPTION_PANEL_TITLE, TitledBorder.LEADING,
 				TitledBorder.TOP, null, null));
-		getContentPane().add(descriptionPanel, "2, 3, fill, fill");
+		getContentPane().add(descriptionPanel, "2, 4, fill, fill");
 		descriptionPanel.setLayout(new BorderLayout());
 
 		txtareaDescription = new JTextArea();
@@ -220,14 +235,14 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		descriptionPanel.add(scrollPane, BorderLayout.CENTER);
 
 		final JPanel southPanel = new JPanel();
-		getContentPane().add(southPanel, "2, 4, fill, top");
+		getContentPane().add(southPanel, "2, 5, fill, top");
 
 		final JButton btnCreate = new JButton("Create");
 		southPanel.add(btnCreate);
 		btnCreate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent action) {
-				createNewPlayer(control);
+				createNewPlayer();
 			}
 
 		});
@@ -272,15 +287,18 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JLabel lblStrength = new JLabel("Strength:");
 		genericCharacterInformation.add(lblStrength, "2, 8, right, default");
 
-		final JPanel movementPanel = new JPanel(new BorderLayout());
-		genericCharacterInformation.add(movementPanel, "11, 10, left, fill");
-		txtfldMovement = new NumericTextfield();
-		movementPanel.add(txtfldMovement);
-		txtfldMovement.setColumns(10);
+		final JPanel speedPanel = new JPanel();
+		genericCharacterInformation.add(speedPanel, "11, 10, left, center");
+		speedPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		txtfldSpeed = new NumericTextfield();
+		txtfldSpeed.setColumns(10);
+		// txtfldSpeed.setPreferredSize(txtfldExperience.getPreferredSize());
+		speedPanel.add(txtfldSpeed);
 		final JLabel lblNewLabel = new JLabel("ft.");
-		movementPanel.add(lblNewLabel, BorderLayout.EAST);
+		speedPanel.add(lblNewLabel);
 
-		cmbStrength = createComboBoxForStat(StatType.STRENGTH);
+		statBundle = new StatBundle(10, 10, 10, 10, 10, 10);
+		cmbStrength = createComboBoxForStat(StatType.STRENGTH, statBundle);
 		genericCharacterInformation.add(cmbStrength, "5, 8");
 
 		final JLabel lblType = new JLabel("Type:");
@@ -293,29 +311,30 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JLabel lblDexterity = new JLabel("Dexterity:");
 		genericCharacterInformation.add(lblDexterity, "2, 10, right, default");
 
-		cmbDexterity = createComboBoxForStat(StatType.DEXTERITY);
+		cmbDexterity = createComboBoxForStat(StatType.DEXTERITY, statBundle);
 		genericCharacterInformation.add(cmbDexterity, "5, 10");
 
-		final JLabel lblMovement = new JLabel("Movement:");
-		genericCharacterInformation.add(lblMovement, "7, 10, right, default");
+		final JLabel lblSpeed = new JLabel("Speed:");
+		genericCharacterInformation.add(lblSpeed, "7, 10, right, default");
 
 		final JLabel lblConstitution = new JLabel("Constitution:");
 		genericCharacterInformation.add(lblConstitution, "2, 12, right, default");
 
-		cmbConstitution = createComboBoxForStat(StatType.CONSTITUTION);
+		cmbConstitution = createComboBoxForStat(StatType.CONSTITUTION, statBundle);
 		genericCharacterInformation.add(cmbConstitution, "5, 12");
 
 		final JLabel lblSize = new JLabel("Size:");
 		genericCharacterInformation.add(lblSize, "7, 12, right, default");
 
 		cmbSize = new JComboBox<Size>(new DefaultComboBoxModel<Size>(Size.values()));
+		cmbSize.setRenderer(new EnumCellRenderer());
 		genericCharacterInformation.add(cmbSize, "11, 12, fill, default");
 		cmbSize.setSelectedIndex(3);
 
 		final JLabel lblIntelligence = new JLabel("Intelligence:");
 		genericCharacterInformation.add(lblIntelligence, "2, 14, right, default");
 
-		cmbIntelligence = createComboBoxForStat(StatType.INTELLIGENCE);
+		cmbIntelligence = createComboBoxForStat(StatType.INTELLIGENCE, statBundle);
 		genericCharacterInformation.add(cmbIntelligence, "5, 14, fill, default");
 
 		final JLabel lblFort = new JLabel("Fortitude:");
@@ -328,7 +347,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JLabel lblWisdom = new JLabel("Wisdom:");
 		genericCharacterInformation.add(lblWisdom, "2, 16, right, default");
 
-		cmbWisdom = createComboBoxForStat(StatType.WISDOM);
+		cmbWisdom = createComboBoxForStat(StatType.WISDOM, statBundle);
 		genericCharacterInformation.add(cmbWisdom, "5, 16, fill, default");
 
 		final JLabel lblRef = new JLabel("Reflex:");
@@ -341,7 +360,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		final JLabel lblCharisma = new JLabel("Charisma:");
 		genericCharacterInformation.add(lblCharisma, "2, 18, right, default");
 
-		cmbCharisma = createComboBoxForStat(StatType.CHARISMA);
+		cmbCharisma = createComboBoxForStat(StatType.CHARISMA, statBundle);
 		genericCharacterInformation.add(cmbCharisma, "5, 18, fill, default");
 
 		final JLabel lblWill = new JLabel("Will:");
@@ -352,14 +371,21 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		txtfldWill.setColumns(10);
 	}
 
+	private void populateSkillsPanel(final JTabbedPane mainTabbedPanel) {
+		skillsPanel = new SkillPanel(statBundle);
+		mainTabbedPanel.add("Skills", skillsPanel);
+		skillsPanel.addSkill(new Skill("Listen", statBundle.getStat(StatType.WISDOM), 0));
+		skillsPanel.addSkill(new Skill("Spot", statBundle.getStat(StatType.WISDOM), 0));
+	}
+
 	@Override
-	public void refreshTypeDropdown() {
+	public void refreshFromModel() {
 		EventQueue.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				cmbType.removeAll();
-				final Collection<IType> types = control.getAllTypes();
+				cmbType.removeAllItems();
+				final Collection<IType> types = getControl().getVault().getAll(IType.class);
 				for (final IType type : types) {
 					cmbType.addItem(type);
 				}
@@ -374,7 +400,7 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		if (StringUtils.isBlank(txtfldName.getText())) {
 			throw new GuiItemCreationEx("A name is needed.");
 		}
-		if (txtfldMovement.getTextAsInteger() <= 0) {
+		if (txtfldSpeed.getTextAsInteger() <= 0) {
 			throw new GuiItemCreationEx("Please enter a movement speed (other than 0ft).");
 		}
 		try {
@@ -400,5 +426,9 @@ public final class NewPlayerCharacterFrame extends ApprenticeInternalFrame imple
 		} catch (final ParsingEx e) {
 			throw new GuiItemCreationEx("You did not input correct saving throws correctly (or at all).");
 		}
+		if (cmbType.getItemCount() == 0) {
+			throw new GuiItemCreationEx("No types exist in the database, new player characters cannot be created.");
+		}
+
 	}
 }

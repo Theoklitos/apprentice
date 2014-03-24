@@ -1,7 +1,5 @@
 package com.apprentice.rpg.model.durable;
 
-import java.util.Collection;
-
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.model.CurrentMaximumPair;
@@ -9,7 +7,6 @@ import com.apprentice.rpg.model.body.BaseApprenticeObject;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.rules.Ruleset;
 import com.apprentice.rpg.util.Box;
-import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 
 /**
@@ -35,7 +32,7 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 	public void addHitPoints(final int hpToAdd) {
 		setHitPoints(hitPoints.getCurrent() + hpToAdd);
 	}
-
+	
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof DurableItem) {
@@ -47,15 +44,11 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 		}
 	}
 
-	/**
-	 * the rolls that can be affected by durability
-	 */
-	public abstract Collection<Roll> getDeterioratableRolls();
 
 	/**
 	 * how many steps is this roll worse off? If the item is destroyed, returns -1
 	 */
-	private int getDeteriorationSteps(final CurrentMaximumPair hitPoints) {
+	public int getDeteriorationSteps(final CurrentMaximumPair hitPoints) {
 		if (getRuleset().isEmpty()) {
 			return 0;
 		} else {
@@ -73,6 +66,22 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 	@Override
 	public CurrentMaximumPair getDurability() {
 		return hitPoints;
+	}
+
+	/**
+	 * looks up the {@link Ruleset} and changes (decreases) the {@link Roll} based on the current item HPs
+	 */
+	public Roll getModifiedRollForDeterioration(final Roll roll) {
+		final Roll copy = new Roll(roll);
+		final int deteriorationSteps = getDeteriorationSteps(getDurability());
+		if (deteriorationSteps == -1) {
+			// fully deteriorate
+			getRuleset().getContent().decreaseRollToZero(copy);
+		} else if (deteriorationSteps != 0) {
+			// partial deteriorate
+			getRuleset().getContent().decreaseRoll(copy, deteriorationSteps);		
+		}
+		return copy;
 	}
 
 	/**
@@ -97,69 +106,14 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 	}
 
 	@Override
-	public void setHitPoints(final int current) {
-		final int deteriorationSteps = getDeteriorationSteps(hitPoints);
-		hitPoints.setCurrent(current);
-		updateState(deteriorationSteps);
+	public void setHitPoints(final int current) {		
+		hitPoints.setCurrent(current);		
 	}
-
+	
 	@Override
 	public void setRuleset(final Ruleset ruleset) {
 		LOG.debug(getName() + " is using ruleset: " + ruleset);
 		this.ruleset = ruleset;
-		updateRollState();
 	}
 
-	/**
-	 * updates the item's current roll, call this when there is no hit point change
-	 */
-	public void updateRollState() {
-		updateState(-2); // so that an update is triggered
-	}
-
-	/**
-	 * updates the item's current roll
-	 * 
-	 * @param deteriorationStepsBeforeUpdate
-	 *            -1 means full deterioration, -2 means no log.
-	 */
-	private void updateState(final int deteriorationStepsBeforeUpdate) {
-		if (getRuleset().isEmpty()) {
-			return; // no roll change
-		} else {
-			final int deteriorationStepsCurrent = getDeteriorationSteps(hitPoints);
-			if (deteriorationStepsCurrent != deteriorationStepsBeforeUpdate) {
-				final Collection<Roll> rollsToModify = getDeterioratableRolls();				
-				for (final Roll roll : rollsToModify) {
-					if (deteriorationStepsCurrent == -1) {
-						// fully deteriorate
-						getRuleset().getContent().decreaseRollToZero(roll);
-					} else if (deteriorationStepsCurrent != 0) {
-						// partial deteriorate
-						getRuleset().getContent().decreaseRoll(roll, deteriorationStepsCurrent);
-					}
-				}
-				// also log a nice message
-				if (deteriorationStepsBeforeUpdate != -2) {
-					String logMessage;
-					if (deteriorationStepsCurrent == -1) {
-						logMessage = getName() + " has fully deteriorated (" + Joiner.on(",").join(rollsToModify) + ")";
-					} else {
-						String stepWord = " steps ";
-						if (deteriorationStepsCurrent == 1) {
-							stepWord = " step ";
-						}
-						if (deteriorationStepsCurrent == 0) {
-							logMessage = getName() + " is in optimal condition.";
-						} else {
-							logMessage =
-								getName() + " is " + deteriorationStepsCurrent + stepWord + "below its optimal state ("
-									+ Joiner.on(",").join(rollsToModify) + ")";
-						}
-					}
-					LOG.info(logMessage);
-				}
-			}
-		}
-	}
 }

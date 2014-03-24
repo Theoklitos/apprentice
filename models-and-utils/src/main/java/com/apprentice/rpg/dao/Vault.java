@@ -29,7 +29,7 @@ public interface Vault extends NameableVault, ModificationTimeVault {
 	public void create(final Object item) throws ItemAlreadyExistsEx;
 
 	/**
-	 * will deelte all the objects inside the given {@link NameableVault} that exist in this vault
+	 * will delete all the objects inside the given {@link NameableVault} that exist in this vault
 	 */
 	void delete(final NameableVault vault);
 	
@@ -58,15 +58,13 @@ public interface Vault extends NameableVault, ModificationTimeVault {
 
 	/**
 	 * will update all the objects inside the given {@link NameableVault}
-	 * 
-	 * @throws NameAlreadyExistsEx
-	 *             if the update changed the name (in case of a {@link Nameable}) to an existing one
 	 */
-	public void update(final NameableVault vault) throws NameAlreadyExistsEx;
-
+	public void update(final NameableVault vault);
+	
 	/**
-	 * creates or updates(overwritea) the given object
+	 * creates or updates(overwrites) the given object
 	 */
 	public void update(final Object item) throws NameAlreadyExistsEx;
+
 
 }

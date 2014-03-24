@@ -10,7 +10,7 @@ import com.apprentice.rpg.gui.ControllableView;
  * @author theoklitos
  *
  */
-public interface IDatabaseSettingsFrame extends ControllableView{
+public interface IDatabaseSettingsFrame extends ControllableView {
 
 	/**
 	 * replaces the contets of the "description" panel with the given strings.Every element is one line.

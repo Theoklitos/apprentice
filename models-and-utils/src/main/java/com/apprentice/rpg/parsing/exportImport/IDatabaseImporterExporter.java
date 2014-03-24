@@ -1,6 +1,5 @@
 package com.apprentice.rpg.parsing.exportImport;
 
-import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.parsing.ParsingEx;
@@ -17,13 +16,11 @@ public interface IDatabaseImporterExporter {
 	/**
 	 * will write the information definde in the {@link ExportConfigurationObject} to a file
 	 * 
-	 * @throws ItemNotFoundEx
-	 *             if some name does not match an item in the vault
 	 * 
 	 * @throws ParsingEx
 	 *             error during parsing
 	 */
-	void export(ExportConfigurationObject config) throws ItemNotFoundEx, ParsingEx;
+	void export(ExportConfigurationObject config) throws ParsingEx;
 
 	/**
 	 * reads the file at the given location and stores the data into the {@link Vault}

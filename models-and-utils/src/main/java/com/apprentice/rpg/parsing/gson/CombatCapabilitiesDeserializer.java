@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 import com.apprentice.rpg.model.combat.BonusSequence;
 import com.apprentice.rpg.model.combat.CombatCapabilities;
-import com.apprentice.rpg.model.weapon.WeaponInstance;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -34,8 +34,8 @@ public final class CombatCapabilitiesDeserializer extends ApprenticeParsingCompo
 		result.addToModifier(modifier);
 		final JsonArray weaponSkills = parent.getAsJsonArray("weaponSkills");
 		for (final JsonElement element : weaponSkills) {
-			final WeaponInstance instance =
-				context.deserialize(element.getAsJsonObject().getAsJsonObject("weapon"), WeaponInstance.class);
+			final IWeapon instance =
+				context.deserialize(element.getAsJsonObject().getAsJsonObject("weapon"), IWeapon.class);
 			final BonusSequence sequence =
 				new BonusSequence(element.getAsJsonObject().getAsJsonPrimitive("sequence").getAsString());
 			result.setWeaponForSequence(instance, sequence);

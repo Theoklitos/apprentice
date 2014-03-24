@@ -15,6 +15,7 @@ import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.util.Box;
 import com.db4o.ext.Db4oException;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 /**
@@ -85,13 +86,38 @@ public class DataAccessObjectForAll implements Vault {
 					continue;
 				}
 				final Nameable nameableObject2 = safelyCastObject(object2).getContent();
-				if (nameableObject.getName().equals(nameableObject2.getName())) {
+				if (nameableObject.getName().equals(nameableObject2.getName())
+					&& nameableObject.isPrototype() == nameableObject2.isPrototype()) {
 					hitCount++;
 					if (hitCount > 1) {
 						throw new TooManyResultsEx("Double with name \"" + nameableObject.getName()
 							+ "\" found for type \"" + nameableObject.getClass().getSimpleName() + "\"");
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * cheks if two items have the same type and the same name and if so, throws exception
+	 * 
+	 * @throws NameAlreadyExistsEx
+	 */
+	private void checkForExistingName(final Nameable item) throws NameAlreadyExistsEx {
+		final NameAlreadyExistsEx exception =
+			new NameAlreadyExistsEx("There already exists one (or more) elements of type "
+				+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
+		startTimer();
+		int count = 0;
+		for (final Nameable nameable : getAll(item.getClass(), false)) {
+			if ((nameable.isPrototype() == item.isPrototype()) && nameable.getName().equals(item.getName())) {
+				count++;
+				if (count > 1) {
+					throw exception;
+				}
+			}
+			if (nameable.getName().equals(item.getName()) && !nameable.equals(item)) {
+				throw exception;
 			}
 		}
 	}
@@ -110,7 +136,7 @@ public class DataAccessObjectForAll implements Vault {
 	public void delete(final NameableVault vault) {
 		for (final Nameable nameable : vault.getAllNameables()) {
 			delete(nameable);
-		}		
+		}
 	}
 
 	@Override
@@ -197,6 +223,17 @@ public class DataAccessObjectForAll implements Vault {
 		return getAll(nameableType, true);
 	}
 
+	@Override
+	public <T extends Nameable> Collection<T> getAllPrototypeNameables(final Class<T> nameableType) {
+		final Collection<T> result = Lists.newArrayList();
+		for (final T nameable : getAllNameables(nameableType)) {
+			if (nameable.isPrototype()) {
+				result.add(nameable);
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * lazy initialization
 	 */
@@ -211,6 +248,20 @@ public class DataAccessObjectForAll implements Vault {
 	@Override
 	public String getPrettyUpdateTime(final Nameable item) {
 		return getModificationTimeVault().getPrettyUpdateTime(item);
+	}
+
+	@Override
+	public <T extends Nameable> T getPrototype(final String name, final Class<T> typeToQueryFor)
+			throws TooManyResultsEx, NoResultsFoundEx {
+		final Collection<T> prototypes = getAllPrototypeNameables(typeToQueryFor);
+		checkDoubles(prototypes);
+		for (final T prototype : prototypes) {
+			if (prototype.getName().equals(name)) {
+				return prototype;
+			}
+		}
+		throw new NoResultsFoundEx("No object of type \"" + typeToQueryFor.getSimpleName() + "\" with name \"" + name
+			+ "\" exists.");
 	}
 
 	@Override
@@ -230,7 +281,8 @@ public class DataAccessObjectForAll implements Vault {
 		try {
 			for (final Object resultObject : result) {
 				if (resultObject instanceof Nameable) {
-					if (((Nameable) resultObject).getName().equals(name)) {
+					final Nameable nameable = (Nameable) resultObject;
+					if (nameable.getName().equals(name)) {
 						if (shouldLog) {
 							stopTimerAndLog("Loaded one object of type \"" + typeToQueryFor.getSimpleName() + "\"");
 						}
@@ -294,23 +346,9 @@ public class DataAccessObjectForAll implements Vault {
 	}
 
 	@Override
-	public void update(final Nameable item) throws NameAlreadyExistsEx {
-		final NameAlreadyExistsEx exception =
-			new NameAlreadyExistsEx("There already exists one (or more) elements of type "
-				+ item.getClass().getSimpleName() + " with name \"" + item.getName() + "\"");
+	public void update(final Nameable item) {
+		checkForExistingName(item);
 		startTimer();
-		int count = 0;
-		for (final Nameable nameable : getAll(item.getClass(), false)) {
-			if (nameable.equals(item)) {
-				count++;
-				if (count > 1) {
-					throw exception;
-				}
-			}
-			if (nameable.getName().equals(item.getName()) && !nameable.equals(item)) {
-				throw exception;
-			}
-		}
 		update((Object) item);
 	}
 
@@ -329,15 +367,15 @@ public class DataAccessObjectForAll implements Vault {
 		} else {
 			word = "Created ";
 		}
-		startTimer();		
+		startTimer();
 		connection.saveAndCommit(item);
 		updateModificationTime(item);
 		stopTimerAndLog(word + item.getClass().getSimpleName());
 	}
 
 	@Override
-	public void updated(final DateTime when, final Nameable item) {
-		getModificationTimeVault().updated(when, item);
+	public void updatedAt(final DateTime when, final Nameable item) {
+		getModificationTimeVault().updatedAt(when, item);
 	}
 
 	/**
@@ -345,7 +383,7 @@ public class DataAccessObjectForAll implements Vault {
 	 */
 	private void updateModificationTime(final Object item) {
 		if (Nameable.class.isAssignableFrom(item.getClass())) {
-			updated(new DateTime(), (Nameable) item);
+			updatedAt(new DateTime(), (Nameable) item);
 			connection.saveAndCommit(modificationTime);
 		}
 	}

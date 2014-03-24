@@ -1,44 +1,20 @@
 package com.apprentice.rpg.gui;
 
 import java.awt.EventQueue;
+import java.lang.reflect.Constructor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.dao.ItemNotFoundEx;
-import com.apprentice.rpg.dao.Vault;
-import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.events.database.IDataSynchronizer;
-import com.apprentice.rpg.gui.character.player.creation.INewPlayerCharacterFrameControl;
-import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrame;
-import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
-import com.apprentice.rpg.gui.database.IDatabaseSettingsFrameControl;
-import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
-import com.apprentice.rpg.gui.desktop.IApprenticeDesktopControl;
-import com.apprentice.rpg.gui.dice.DiceRollerFrame;
-import com.apprentice.rpg.gui.dice.DiceRollerFrameControl;
-import com.apprentice.rpg.gui.log.ILogFrameControl;
-import com.apprentice.rpg.gui.log.LogFrame;
-import com.apprentice.rpg.gui.main.IEventBarControl;
+import com.apprentice.rpg.backend.IServiceLayer;
+import com.apprentice.rpg.events.ShowFrameEvent;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainFrame;
-import com.apprentice.rpg.gui.util.IWindowUtils;
-import com.apprentice.rpg.gui.vault.IVaultFrameControl;
-import com.apprentice.rpg.gui.vault.armor.ArmorVaultFrame;
-import com.apprentice.rpg.gui.vault.player.PlayerVaultFrame;
-import com.apprentice.rpg.gui.vault.type.ITypeAndBodyPartFrameControl;
-import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
-import com.apprentice.rpg.gui.vault.weapon.WeaponVaultFrame;
-import com.apprentice.rpg.gui.weapon.IWeaponFrameControl;
-import com.apprentice.rpg.gui.weapon.WeaponFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.Nameable;
-import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
-import com.apprentice.rpg.strike.StrikeType;
-import com.apprentice.rpg.util.ApprenticeReflectionUtils;
-import com.apprentice.rpg.util.Box;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -53,52 +29,16 @@ public final class WindowManager implements IWindowManager {
 	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(WindowManager.class);
 
-	private ApprenticeDesktop desktop;
-	private final IMainControl mainControl;
-	private final IApprenticeDesktopControl desktopControl;
-	private final IEventBarControl eventBarControl;
-	private final IGlobalWindowState globalWindowState;
-	private final IWindowUtils windowUtils;
-	private final Vault vault;
 	private final Injector injector;
-	private final ApprenticeEventBus eventBus;
+	private final IGlobalWindowState globalWindowState;
+	private final IMainControl mainControl;
 
 	@Inject
 	public WindowManager(final Injector injector) {
 		this.injector = injector;
-		vault = injector.getInstance(Vault.class);
-		windowUtils = injector.getInstance(IWindowUtils.class);
-		globalWindowState = injector.getInstance(IGlobalWindowState.class);
-		eventBus = injector.getInstance(ApprenticeEventBus.class);
-		mainControl = injector.getInstance(IMainControl.class);
-		desktopControl = injector.getInstance(IApprenticeDesktopControl.class);
-		eventBarControl = injector.getInstance(IEventBarControl.class);
-		registerEventHandlers();
-	}
-
-	@Override
-	public void closeAllFrames(final boolean openState) {
-		desktop.closeAllFrames();
-		for (final WindowStateIdentifier indentifier : globalWindowState.getAllFrameIdentifiers()) {
-			globalWindowState.setWindowOpen(indentifier, openState);
-		}
-	}
-
-	/**
-	 * loads the requested nameable from the vault and throws appropriate exception if not found. If no name
-	 * is given, will return empty box.
-	 */
-	private <T extends Nameable> Box<T> getNameableFromVault(final String name, final Class<T> type)
-			throws ItemNotFoundEx {
-		try {
-			if (StringUtils.isBlank(name)) {
-				return Box.empty();
-			} else {
-				return Box.with(vault.getUniqueNamedResult(name, type));
-			}
-		} catch (final Exception e) {
-			throw new ItemNotFoundEx();
-		}
+		this.globalWindowState = injector.getInstance(IGlobalWindowState.class);
+		this.mainControl = injector.getInstance(IMainControl.class);
+		mainControl.getEventBus().register(this);
 	}
 
 	/**
@@ -114,208 +54,60 @@ public final class WindowManager implements IWindowManager {
 
 			@Override
 			public void run() {
-				desktop = new ApprenticeDesktop(desktopControl);
-				desktopControl.setView(desktop);
-				desktopControl.setBackgroundFromConfig();
-				final MainFrame mainFrame =
-					new MainFrame(globalWindowState, getReferenceToSelf(), mainControl, eventBarControl, desktop);
+				final MainFrame mainFrame = new MainFrame(mainControl, getReferenceToSelf(), globalWindowState);
 				mainFrame.setVisible(true);
 				restoreOpenFrames();
 			}
 		});
 	}
 
-	@Override
-	public void openFrame(final WindowStateIdentifier openFrameIdentifier) {
-		final Class<?> internalFrame = openFrameIdentifier.getWindowClass();
-		final String methodName = "show" + internalFrame.getSimpleName();
-		String parameter = null;
-		if (openFrameIdentifier.getParameter().hasContent()) {
-			parameter = openFrameIdentifier.getParameter().getContent();
-		}
-		ApprenticeReflectionUtils.callMethodOnObject(methodName, this, parameter);
-	}
-
-	/**
-	 * registers handlers on the {@link ApprenticeEventBus}
-	 */
-	private void registerEventHandlers() {
-		eventBus.register(injector.getInstance(IDataSynchronizer.class));
-	}
-
 	/**
 	 * re-opens any frames that were previously closed
 	 */
+	@SuppressWarnings("unchecked")
 	protected void restoreOpenFrames() {
 		for (final WindowStateIdentifier openFrameIdentifier : globalWindowState.getOpenInternalFrames()) {
 			globalWindowState.setWindowOpen(openFrameIdentifier, false);
-			openFrame(openFrameIdentifier);
+			final Class<?> frameClass = openFrameIdentifier.getWindowClass();
+			if (ApprenticeInternalFrame.class.isAssignableFrom(frameClass)) {
+				showFrame((Class<? extends ApprenticeInternalFrame<?>>) frameClass, openFrameIdentifier.getParameter());
+			}
+		}
+	}
+
+	@Override
+	public void showFrame(final Class<? extends ApprenticeInternalFrame<?>> frameClass) {
+		showFrame(frameClass, "");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void showFrame(final Class<? extends ApprenticeInternalFrame<?>> frameClass, final String variable) {
+		final Constructor<?> constructor = frameClass.getConstructors()[0];
+		final Class<?>[] parameterTypes = constructor.getParameterTypes();
+		ApprenticeInternalFrame<?> instance = null;		
+		try {
+			final IServiceLayer serviceLayerImpl = (IServiceLayer) injector.getInstance(parameterTypes[0]);
+			if (parameterTypes.length == 1) {
+				instance = (ApprenticeInternalFrame<?>) constructor.newInstance(serviceLayerImpl);
+			}
+			if (ParameterizedControllableView.class.isAssignableFrom(frameClass) && StringUtils.isNotBlank(variable)) {
+				final ParameterizedControllableView<Nameable> parameterizedInstance =
+					(ParameterizedControllableView<Nameable>) instance;
+				final Nameable parameter =
+					mainControl.getVault().getUniqueNamedResult(variable, parameterizedInstance.getType().type);
+				parameterizedInstance.display(parameter);
+			}
+			mainControl.getDesktopControl().add(instance);
+		} catch (final Exception e) {
+			e.printStackTrace();
+			throw new ApprenticeEx(e);
 		}
 	}
 
-	@Override
-	public void showArmorPieceVaultFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
-				final ArmorVaultFrame wvFrame =
-					new ArmorVaultFrame(globalWindowState, control, getReferenceToSelf());
-				control.setView(wvFrame);
-				desktop.add(wvFrame);
-			}
-		});
+	@Subscribe
+	public void showFrameEvent(final ShowFrameEvent event) {
+		showFrame(event.getInternalFrame(), event.getParameter());
 	}
 
-	@Override
-	public void showDatabaseSettingsFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final IDatabaseSettingsFrameControl control = injector.getInstance(IDatabaseSettingsFrameControl.class);
-				final DatabaseSettingsFrame databaseFrame = new DatabaseSettingsFrame(globalWindowState, control);
-				control.setView(databaseFrame);
-				desktop.add(databaseFrame);
-			}
-		});
-	}
-
-	@Override
-	public void showDiceRollerFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final DiceRollerFrameControl control = injector.getInstance(DiceRollerFrameControl.class);
-				final DiceRollerFrame diceFrame = new DiceRollerFrame(globalWindowState, control);
-				control.setView(diceFrame);
-				desktop.add(diceFrame);
-			}
-		});
-
-	}
-
-	@Override
-	public void showLogFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final ILogFrameControl control = injector.getInstance(ILogFrameControl.class);
-				final LogFrame logFrame = new LogFrame(globalWindowState);
-				control.setView(logFrame);
-				desktop.add(logFrame);
-			}
-		});
-	}
-
-	@Override
-	public void showNewPlayerCharacterFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				if (vault.getAll(IType.class).size() == 0) {
-					if (windowUtils
-							.showWarningQuestionMessage(
-									"There are no character types in the database.\nYou need to create at least one before proceeding.\nOpen the type creation window now?",
-									"No Types Found")) {
-						showTypeAndBodyPartFrame();
-					}
-				}
-				// else { TODO
-				final INewPlayerCharacterFrameControl control =
-					injector.getInstance(INewPlayerCharacterFrameControl.class);
-				final NewPlayerCharacterFrame newPCFrame =
-					new NewPlayerCharacterFrame(globalWindowState, control, getReferenceToSelf());
-				control.setView(newPCFrame);
-				desktop.add(newPCFrame);
-			}
-		});
-	}
-
-	@Override
-	public void showPlayerVaultFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
-				final PlayerVaultFrame pvFrame = new PlayerVaultFrame(globalWindowState, control, getReferenceToSelf());
-				control.setView(pvFrame);
-				desktop.add(pvFrame);
-			}
-		});
-	}
-
-	/**
-	 * TODO
-	 */
-	public void showStrikeFrame() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void showTypeAndBodyPartFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final ITypeAndBodyPartFrameControl control = injector.getInstance(ITypeAndBodyPartFrameControl.class);
-				final TypeAndBodyPartFrame tbpFrame = new TypeAndBodyPartFrame(globalWindowState, control);
-				control.setView(tbpFrame);
-				desktop.add(tbpFrame);
-			}
-		});
-
-	}
-
-	/**
-	 * used to facilitate the call to the showWeaponFrame() method without a parameter
-	 */
-	public void showWeaponFrame() {
-		showWeaponFrame(null);
-	}
-
-	@Override
-	public void showWeaponFrame(final String weaponName) {
-		final Box<WeaponPrototype> weapon = getNameableFromVault(weaponName, WeaponPrototype.class);
-		if (weapon.isEmpty()) {
-			if (vault.getAll(StrikeType.class).size() == 0) {
-				if (windowUtils
-						.showWarningQuestionMessage(
-								"There are no strike types in the database.\nYou need to create at least one before proceeding.\nOpen the strike window now?",
-								"No Strike Types Found")) {
-					showStrikeFrame();
-				}
-				// return; // TODO
-			}
-		}
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final IWeaponFrameControl control = injector.getInstance(IWeaponFrameControl.class);
-				final WeaponFrame weaponFrame = new WeaponFrame(globalWindowState, control, weapon);
-				control.setView(weaponFrame);
-				desktop.add(weaponFrame);
-			}
-		});
-	}
-
-	@Override
-	public void showWeaponVaultFrame() {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				final IVaultFrameControl control = injector.getInstance(IVaultFrameControl.class);
-				final WeaponVaultFrame wvFrame = new WeaponVaultFrame(globalWindowState, control, getReferenceToSelf());
-				control.setView(wvFrame);
-				desktop.add(wvFrame);
-			}
-		});
-	}
 }

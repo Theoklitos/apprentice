@@ -1,22 +1,15 @@
 package com.apprentice.rpg.gui.database;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.config.ITextConfigFileManager;
-import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.events.type.DatabaseModificationEvent;
+import com.apprentice.rpg.gui.AbstractControlForView;
 import com.apprentice.rpg.gui.IWindowManager;
-import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
-import com.apprentice.rpg.model.IPlayerCharacter;
-import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.IType;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 /**
@@ -25,31 +18,30 @@ import com.google.inject.Inject;
  * @author theoklitos
  * 
  */
-public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFrameControl {
+public final class DatabaseSettingsFrameControl extends AbstractControlForView<IDatabaseSettingsFrame> implements
+		IDatabaseSettingsFrameControl {
 
 	private static Logger LOG = Logger.getLogger(DatabaseSettingsFrameControl.class);
 
-	private IDatabaseSettingsFrame view;
 	private final IWindowManager windowManager;
 	private final ITextConfigFileManager textfileManager;
 	private final DatabaseConnection databaseConnection;
-	private final Vault vault;
 
 	@Inject
-	public DatabaseSettingsFrameControl(final DatabaseConnection databaseConnection, final Vault vault,
-			final IWindowManager windowManager, final ITextConfigFileManager textfileManager) {
-		this.databaseConnection = databaseConnection;
-		this.vault = vault;
+	public DatabaseSettingsFrameControl(final IServiceLayer serviceLayer, final IWindowManager windowManager,
+			final DatabaseConnection databaseConnection, final ITextConfigFileManager textfileManager) {
+		super(serviceLayer);
 		this.windowManager = windowManager;
-		this.textfileManager = textfileManager;
+		this.databaseConnection = databaseConnection;
+		this.textfileManager = textfileManager;		
 	}
 
 	@Override
 	public void changeDatabaseLocation(final String databaseLocation) throws ApprenticeDatabaseEx {
 		if (!new File(databaseLocation).exists()) {
 			throw new ApprenticeDatabaseEx("File " + databaseLocation + " does not exist.");
-		}
-		changeDatabaseLocationUnsafe(databaseLocation);
+		}		
+		changeDatabaseLocationUnsafe(databaseLocation);		
 	}
 
 	/**
@@ -58,40 +50,14 @@ public final class DatabaseSettingsFrameControl implements IDatabaseSettingsFram
 	protected void changeDatabaseLocationUnsafe(final String databaseLocation) throws ApprenticeDatabaseEx {
 		databaseConnection.setDatabase(databaseLocation);
 		textfileManager.writeDatabaseLocation(databaseLocation);
-		windowManager.closeAllFrames(false);
-		windowManager.openFrame(new WindowStateIdentifier(view.getClass()));
+		getEventBus().postShutdownEvent(false);
+		windowManager.showFrame(DatabaseSettingsFrame.class);
 		LOG.info("Using new database " + databaseLocation);
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Subscribe
-	public void databaseUpdated(final DatabaseModificationEvent event) {
-		updateDatabaseInformationInView();
 	}
 
 	@Override
 	public String getDatabaseLocation() {
 		return databaseConnection.getLocation();
-	}
-
-	@Override
-	public void setView(final IDatabaseSettingsFrame view) {
-		this.view = view;
-	}
-
-	@Override
-	public void updateDatabaseInformationInView() {
-		if (view != null) {
-			final List<String> lines = Lists.newArrayList();
-			// players
-			final int pcSize = vault.getAllNameables(IPlayerCharacter.class).size();
-			final String pcMessage = pcSize != 1 ? pcSize + " player characters." : pcSize + " player character.";
-			lines.add(pcMessage);
-			// types and parts
-			lines.add(vault.getAllNameables(IType.class).size() + " types, comprised of "
-				+ vault.getAllNameables(BodyPart.class).size() + " body parts.");
-			view.setDatabaseDescription(lines);
-		}
 	}
 
 }

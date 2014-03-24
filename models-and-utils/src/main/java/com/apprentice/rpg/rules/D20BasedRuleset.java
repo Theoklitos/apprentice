@@ -22,7 +22,7 @@ public class D20BasedRuleset implements Ruleset {
 	public D20BasedRuleset() {
 		diceModificator = new DiceModificator();
 	}
-
+	
 	@Override
 	public void decreaseRoll(final Roll roll, final int positions) {
 		try {

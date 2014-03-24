@@ -20,7 +20,7 @@ public final class TestType {
 
 	private static final String NAME = "type";
 	private Type type;
-	private BodyPartToRangeMap validParts;
+	private BodyPartToRangeMapping validParts;
 	private BodyPart part1;
 	private BodyPart part2;
 	private IntegerRange range2;
@@ -30,11 +30,11 @@ public final class TestType {
 	public void cannotGivePartOutsideRange() {
 		type.getPartForNumber(101);
 	}
-	
+
 	@Test
 	public void equality() {
 		final IType type2 = new Type(NAME, validParts);
-		assertEquals(type,type2);		
+		assertEquals(type, type2);
 		type.setDescription("different description");
 		assertFalse(type.equals(type2));
 	}
@@ -53,24 +53,31 @@ public final class TestType {
 		part2 = new BodyPart("part2 name");
 		range1 = new IntegerRange(1, 50);
 		range2 = new IntegerRange(51, 100);
-		validParts = new BodyPartToRangeMap();
+		validParts = new BodyPartToRangeMapping();
 		validParts.setPartForRange(range1, part1);
 		validParts.setPartForRange(range2, part2);
 		type = new Type(NAME, validParts);
 	}
 
+	@Test
+	public void initializedAtMoreThan100() {
+		validParts.setPartForRange(new IntegerRange(101, 150), new BodyPart("third part"));
+		final IType newType = new Type(NAME, validParts);
+		assertEquals(150, newType.getMaxRangeValue());
+	}
+
 	@Test(expected = BodyPartMappingEx.class)
 	public void initializedWithNonConsecutive() {
-		final BodyPartToRangeMap wrongMapping = new BodyPartToRangeMap();		
+		final BodyPartToRangeMapping wrongMapping = new BodyPartToRangeMapping();
 		wrongMapping.setPartForRange(1, 50, part1);
 		wrongMapping.setPartForRange(52, 100, part2);
 		new Type(NAME, wrongMapping);
 	}
-	
+
 	@Test(expected = BodyPartMappingEx.class)
 	public void initializedWithWrongParts() {
-		final BodyPartToRangeMap wrongMapping = new BodyPartToRangeMap();
-		wrongMapping.setPartForRange(1, 70, part1);
+		final BodyPartToRangeMapping wrongMapping = new BodyPartToRangeMapping();
+		wrongMapping.setPartForRange(7, 70, part1);
 		new Type(NAME, wrongMapping);
 	}
 

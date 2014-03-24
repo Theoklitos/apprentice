@@ -19,6 +19,13 @@ public interface Nameable {
 	public String getName();
 
 	/**
+	 * Returns true if this object is a prototype object. Prototypes are special instances that contain the
+	 * "definition" of the particular type. If a prototype changes, all the instances of the same class
+	 * change. Prototypes also must have unique names.
+	 */
+	boolean isPrototype();
+
+	/**
 	 * sets the description of this object
 	 */
 	public void setDescription(final String description);
@@ -28,4 +35,11 @@ public interface Nameable {
 	 * that
 	 */
 	public void setName(String newName);
+
+	/**
+	 * Sets whether this object is a prototype or not. Prototypes are special instances that contain the
+	 * "definition" of the particular type. If a prototype changes, all the instances of the same class
+	 * change. Prototypes also must have unique names.
+	 */
+	void setPrototype(boolean isPrototype);
 }

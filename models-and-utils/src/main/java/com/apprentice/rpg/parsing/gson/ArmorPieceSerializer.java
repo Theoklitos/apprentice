@@ -3,14 +3,13 @@ package com.apprentice.rpg.parsing.gson;
 import java.lang.reflect.Type;
 
 import com.apprentice.rpg.model.armor.IArmorPiece;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 /**
- * Helps with {@link WeaponPrototype} json conversion
+ * Helps with {@link IWeaponPrototype} json conversion
  * 
  * @author theoklitos
  * 

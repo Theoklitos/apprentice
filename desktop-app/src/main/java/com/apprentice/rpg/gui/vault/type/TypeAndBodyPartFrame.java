@@ -12,13 +12,11 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -29,21 +27,18 @@ import javax.swing.event.TableModelListener;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
-import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
+import com.apprentice.rpg.dao.NoResultsFoundEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ApprenticeTable;
 import com.apprentice.rpg.gui.description.DescriptionPanel;
 import com.apprentice.rpg.gui.vault.AbstractVaultFrame;
-import com.apprentice.rpg.gui.vault.VaultFrameTableModel;
-import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.gui.vault.VaultTableModel;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.BodyPartToRangeMap;
+import com.apprentice.rpg.model.body.BodyPartToRangeMapping;
 import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.parsing.ParsingEx;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
-import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
 import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.IntegerRange;
 import com.google.inject.util.Types;
@@ -58,7 +53,8 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITypeAndBodyPartFrame {
+public class TypeAndBodyPartFrame extends ApprenticeInternalFrame<ITypeAndBodyPartFrameControl> implements
+		ITypeAndBodyPartFrame {
 
 	private static Logger LOG = Logger.getLogger(TypeAndBodyPartFrame.class);
 
@@ -67,22 +63,19 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 	private JPanel buttonPanel;
 	private JPanel bodyPartsForTypePanel;
 
-	private VaultFrameTableModel typeTableModel;
+	private VaultTableModel typeTableModel;
 	private ApprenticeTable typeTable;
-	private VaultFrameTableModel bodyPartTableModel;
+	private VaultTableModel bodyPartTableModel;
 	private ApprenticeTable bodyPartTable;
-	private VaultFrameTableModel bodyPartVaultTableModel;
+	private VaultTableModel bodyPartVaultTableModel;
 	private ApprenticeTable bodyPartVaultTable;
 	private DescriptionPanel descriptionPanel;
 
-	private final TypeAndBodyPartFrameState state;
+	private final TypeAndBodyPartFrameState state;	
 
-	private final ITypeAndBodyPartFrameControl control;
-
-	public TypeAndBodyPartFrame(final IGlobalWindowState globalWindowState, final ITypeAndBodyPartFrameControl control) {
-		super(globalWindowState, "Types and Body Parts");
-		this.control = control;
-		this.state = new TypeAndBodyPartFrameState();
+	public TypeAndBodyPartFrame(final ITypeAndBodyPartFrameControl control) {
+		super(control, "Types and Body Parts");
+		this.state = getControl().getState();
 
 		getContentPane().setLayout(
 				new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"),
@@ -133,30 +126,17 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 	}
 
 	/**
-	 * adds the body parts (if not already added) per type
-	 */
-	private void addNeededBodyPartsForTypes(final ExportConfigurationObject config) {
-		for (final String typeName : config.getNamesForType(ItemType.TYPE)) {
-			try {
-				for (final BodyPart part : control.getTypeForName(typeName).getParts()) {
-					config.addNameForExport(ItemType.BODY_PART, part.getName());
-				}
-			} catch (final ItemNotFoundEx e) {
-				// weird error, do nothing here, will be handled later on
-			}
-		}
-	}
-
-	/**
 	 * adds any selected vault part to the current type
 	 */
 	private void addPartToType() {
 		if (state.getActiveType().hasContent()) {
 			final String typeName = state.getActiveType().getContent();
 			final String bodyPartName = state.getSelectedBodyPartName().getContent();
-			final Box<IType> newTypeBox = state.addNewPartToType(typeName, control.getBodyPartForName(bodyPartName));
+			final Box<IType> newTypeBox =
+				state.addNewPartToType(typeName,
+						getControl().getVault().getUniqueNamedResult(bodyPartName, BodyPart.class));
 			if (newTypeBox.hasContent()) {
-				control.createOrUpdate(newTypeBox.getContent(), ItemType.TYPE);
+				getControl().createOrUpdate(newTypeBox.getContent());
 			} else {
 				refreshFromModel();
 			}
@@ -182,19 +162,17 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				break;
 			case BODY_PART:
 				try {
-					control.getBodyPartForName(name); // to see if its already there
+					getControl().getVault().getUniqueNamedResult(name, BodyPart.class);
+					// to see if its already there
 					throw new ItemAlreadyExistsEx();
-				} catch (final ItemNotFoundEx e) {
+				} catch (final NoResultsFoundEx e) {
 					state.setSelectedBodyPartName(name);
-					control.createOrUpdate(new BodyPart(name), ItemType.BODY_PART);
+					getControl().createOrUpdate(new BodyPart(name));
 				}
 			default:
 			}
 		} catch (final ItemAlreadyExistsEx e) {
 			getWindowUtils().showErrorMessage("A " + type + " with name \"" + name + "\" already exists!");
-			// call the click again - Deprecated
-			// final int buttonNumber = type.equals(ItemType.TYPE) ? 0 : 1;
-			// ((JMenuItem) popup.getComponent(buttonNumber)).doClick();
 		}
 	}
 
@@ -219,28 +197,10 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 					"Are you sure you want to delete the \"" + name + "\" " + itemType
 						+ "?\nThis will probably have repercussions on Player Characters that use it.",
 					"Confirm Deletion")) {
-				control.deleteByName(name, itemType);
+				getControl().deleteNameable(name, itemType);
 			}
 		}
 
-	}
-
-	/**
-	 * shows the popup where the user chooses what he wants to export
-	 */
-	private void exportItems() throws ItemNotFoundEx, ParsingEx {
-		final ExportConfigurationObject config = new ExportConfigurationObject();
-		if (getGlobalWindowState().getWindowUtils().showTypeAndBodyPartNameSelection(config, control.getVault())) {
-			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setDialogTitle("Select File for Export");
-			fileChooser.setApproveButtonText("Use this File");
-			final int result = fileChooser.showDialog(null, null);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				config.setFileLocation(fileChooser.getSelectedFile().getAbsolutePath());
-				addNeededBodyPartsForTypes(config);
-				control.exportForConfiguration(config);
-			}
-		}
 	}
 
 	@Override
@@ -248,31 +208,8 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		return new Dimension(600, 400);
 	}
 
-	/**
-	 * when the user imports items from a file
-	 */
-	private void importItems() {
-		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle("Select File to Import from");
-		fileChooser.setApproveButtonText("Use this File");
-		final int result = fileChooser.showDialog(null, null);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			SwingUtilities.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					try {
-						control.importFromFile(fileChooser.getSelectedFile().getAbsolutePath());
-					} catch (final Exception e) {
-						getWindowUtils().showErrorMessage(e.getMessage(), "Error during Import");
-					}
-				}
-			});
-		}
-	}
-
 	private void initComponents() {
-		typeTableModel = new VaultFrameTableModel();
+		typeTableModel = new VaultTableModel();
 		typeTable = new ApprenticeTable(typeTableModel);
 		typeTableModel.addTableModelListener(new TableModelListener() {
 
@@ -291,8 +228,9 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 					state.setSelectedTypeName(selectedName);
 					updateBodyPartsTableForActiveType();
 					try {
-						descriptionPanel.setNameable(control.getTypeForName(selectedName));
-					} catch (final ItemNotFoundEx e) {
+						descriptionPanel.setNameable(getControl().getVault().getUniqueNamedResult(selectedName,
+								IType.class));
+					} catch (final NoResultsFoundEx e) {
 						// type is not fully formed, do nothing
 					}
 					bodyPartVaultTable.clearSelection();
@@ -310,10 +248,9 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		bodyPartsForTypePanel.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("default:grow"), },
 				new RowSpec[] { FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
 					RowSpec.decode("default:grow"), }));
-
 		final JScrollPane scrollPaneBodyParts = new JScrollPane();
 		bodyPartsForTypePanel.add(scrollPaneBodyParts, "1, 1, 1, 3, fill, fill");
-		bodyPartTableModel = new VaultFrameTableModel("Body Part", "Strike %", 2);
+		bodyPartTableModel = new VaultTableModel("Body Part", "Strike %", 2);
 		bodyPartTable = new ApprenticeTable(bodyPartTableModel);
 		bodyPartTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -332,7 +269,8 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				try {
 					if (event.getType() == TableModelEvent.UPDATE) {
 						final BodyPart selectedPart =
-							control.getBodyPartForName(bodyPartTable.getSelectedName().getContent());
+							getControl().getVault().getUniqueNamedResult(bodyPartTable.getSelectedName().getContent(),
+									BodyPart.class);
 						try {
 							final IntegerRange newRange =
 								new IntegerRange(bodyPartTableModel.getValueAt(bodyPartTable.getSelectedRow(), 1)
@@ -340,7 +278,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 							final Box<IType> newTypeBox =
 								state.addPartToType(state.getActiveType().getContent(), selectedPart, newRange);
 							if (newTypeBox.hasContent()) {
-								control.createOrUpdate(newTypeBox.getContent(), ItemType.TYPE);
+								getControl().createOrUpdate(newTypeBox.getContent());
 							} else {
 								updateBodyPartsTableForActiveType();
 							}
@@ -395,7 +333,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		final JScrollPane scrollPaneBodyPartsVault = new JScrollPane();
 		getContentPane().add(scrollPaneBodyPartsVault, "8, 4, fill, fill");
 
-		bodyPartVaultTableModel = new VaultFrameTableModel();
+		bodyPartVaultTableModel = new VaultTableModel();
 		bodyPartVaultTable = new ApprenticeTable(bodyPartVaultTableModel);
 		bodyPartVaultTableModel.addTableModelListener(new TableModelListener() {
 
@@ -413,14 +351,15 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				if (bodyPartVaultTable.getSelectedName().hasContent()) {
 					final String selectedName = bodyPartVaultTable.getSelectedName().getContent();
 					state.setSelectedBodyPartName(selectedName);
-					descriptionPanel.setNameable(control.getBodyPartForName(selectedName));
+					descriptionPanel.setNameable(getControl().getVault().getUniqueNamedResult(selectedName,
+							BodyPart.class));
 					typeTable.clearSelection();
 				}
 			}
 		});
 		scrollPaneBodyPartsVault.setViewportView(bodyPartVaultTable);
 
-		descriptionPanel = new DescriptionPanel(control, getWindowUtils());
+		descriptionPanel = new DescriptionPanel(getControl());
 		descriptionPanel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "Description",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		getContentPane().add(descriptionPanel, "2, 6, 7, 1, fill, fill");
@@ -433,17 +372,6 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 
 		addCreationButton(buttonPanel);
 
-		final JButton btnExport = new JButton("Export");
-		btnExport.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent event) {
-				exportItems();
-			}
-
-		});
-		buttonPanel.add(btnExport);
-
 		final JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 
@@ -452,16 +380,6 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				deleteItem();
 			}
 		});
-
-		final JButton btnImport = new JButton("Import");
-		btnImport.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent event) {
-				importItems();
-			}
-		});
-		buttonPanel.add(btnImport);
 		buttonPanel.add(btnDelete);
 	}
 
@@ -471,18 +389,19 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 			@Override
 			public void run() {
 				// update
-				state.setTypes(control.getTypes());
-				state.setBodyParts(control.getBodyParts());
+				state.setTypes(getControl().getVault().getAll(IType.class));
+				state.setBodyParts(getControl().getVault().getAll(BodyPart.class));
 				// set the tables
 				typeTableModel.clearAllRows();
 				for (final String typeName : state.getTypeNames()) {
-					typeTableModel.addRow(new String[] { typeName, control.getLastUpdateTime(typeName, ItemType.TYPE) });
+					typeTableModel.addRow(new String[] { typeName,
+						getControl().getLastUpdateTime(typeName, ItemType.TYPE) });
 				}
 				bodyPartVaultTableModel.clearAllRows();
 				for (final BodyPart part : state.getBodyParts()) {
 					final String bodyPartName = part.getName();
 					bodyPartVaultTableModel.addRow(new String[] { bodyPartName,
-						control.getLastUpdateTime(bodyPartName, ItemType.BODY_PART) });
+						getControl().getLastUpdateTime(bodyPartName, ItemType.BODY_PART) });
 				}
 				final Box<ItemType> selected = state.getLastSelectedItemType();
 				if (selected.hasContent()) {
@@ -512,7 +431,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 			final String bodyPartName = state.getSelectedBodyPartForTypeName(typeName).getContent();
 			final Box<IType> newTypeBox = state.removePartFromType(typeName, new BodyPart(bodyPartName));
 			if (newTypeBox.hasContent()) {
-				control.createOrUpdate(newTypeBox.getContent(), ItemType.TYPE);
+				getControl().createOrUpdate(newTypeBox.getContent());
 			} else {
 				refreshFromModel();
 			}
@@ -544,13 +463,13 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 	 * attemps to change+store a {@link Nameable}'s name.
 	 */
 	private void tryToChangeItemName(final String oldName, final ItemType type, final ApprenticeTable table,
-			final VaultFrameTableModel model) {
+			final VaultTableModel model) {
 		try {
 			final String newName = model.getValueAt(table.getSelectedRow(), 0).toString();
 			if (newName.equals(oldName)) {
 				return;
 			}
-			final Nameable oldItem = control.getTypeOrBodyPartForName(oldName, type);
+			final Nameable oldItem = getControl().getVault().getUniqueNamedResult(oldName, type.type);
 			if (type.equals(ItemType.BODY_PART) && state.shouldProceedWithBodyPartRenamingFlag()) {
 				if (!getWindowUtils()
 						.showConfigrmationDialog(
@@ -564,7 +483,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 			oldItem.setName(newName);
 			try {
 				state.setSelectedItemName(newName, type);
-				control.createOrUpdate(oldItem, type);
+				getControl().createOrUpdate(oldItem);
 			} catch (final NameAlreadyExistsEx e) {
 				getWindowUtils().showErrorMessage("A " + type + " with name \"" + newName + "\" already exists!");
 				state.setSelectedItemName(oldName, type);
@@ -580,7 +499,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 	/**
 	 * attempt to change a {@link IType}s name, whether its already persisted or not
 	 */
-	private void tryToChangeTypeName(final String oldName, final ApprenticeTable table, final VaultFrameTableModel model) {
+	private void tryToChangeTypeName(final String oldName, final ApprenticeTable table, final VaultTableModel model) {
 		final String newName = model.getValueAt(table.getSelectedRow(), 0).toString();
 		if (oldName.equals(newName)) {
 			return;
@@ -590,7 +509,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 		} catch (final NameAlreadyExistsEx e) {
 			getWindowUtils().showErrorMessage("A type with name \"" + newName + "\" already exists!");
 		}
-		if (control.doesTypeNameExist(oldName)) {
+		if (getControl().getVault().doesNameExist(oldName, IType.class)) {
 			// change is also a repo name
 			tryToChangeItemName(oldName, ItemType.TYPE, table, model);
 		}
@@ -608,7 +527,7 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 				final Box<String> activeTypeBox = state.getActiveType();
 				if (activeTypeBox.hasContent()) {
 					final String name = activeTypeBox.getContent();
-					final BodyPartToRangeMap parts = state.getBodyPartsForTypeName(name).getContent();
+					final BodyPartToRangeMapping parts = state.getBodyPartsForTypeName(name).getContent();					
 					final boolean isMappingCorrect = state.isMappingCorrectForTypeName(name).getContent();
 					// set
 					if (isMappingCorrect) {
@@ -637,5 +556,4 @@ public class TypeAndBodyPartFrame extends ApprenticeInternalFrame implements ITy
 			}
 		});
 	}
-
 }

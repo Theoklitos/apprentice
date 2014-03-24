@@ -27,7 +27,7 @@ public class ApprenticePseudoRandom implements ApprenticeRandom {
 	@Override
 	public Damage roll(final DamageRoll damageRoll) {
 		final int result = roll(damageRoll.getRoll());
-		return new Damage(result, damageRoll.getType());
+		return new Damage(result, damageRoll.getPenetration(), damageRoll.getType());
 	}
 
 	@Override

@@ -23,8 +23,10 @@ public final class ShutdownHook implements IShutdownHook {
 		this.globalWindowState = globalWindowState;
 	}
 
-	public void shutdownGracefully() {
+	@Override	
+	public void shutdownGracefully() {		
 		database.saveAndCommit(globalWindowState);
+		LOG.debug("Saved global window state:\n" + globalWindowState);		
 		database.saveAndCommit(config);
 		database.closeDB();
 		LOG.debug("Killing driz'zt...");

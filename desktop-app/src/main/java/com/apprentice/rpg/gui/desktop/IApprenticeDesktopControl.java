@@ -3,9 +3,14 @@ package com.apprentice.rpg.gui.desktop;
 import java.awt.Color;
 import java.awt.Rectangle;
 
-import com.apprentice.rpg.gui.ControlForView;
+import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 
-public interface IApprenticeDesktopControl extends ControlForView<ApprenticeDesktop> {
+public interface IApprenticeDesktopControl {
+
+	/**
+	 * Adds the frame to the visible desktop area
+	 */
+	void add(ApprenticeInternalFrame<?> internalFrame);
 
 	/**
 	 * Gets the {@link Rectangle} bounds of the {@link ApprenticeDesktop}
@@ -26,10 +31,15 @@ public interface IApprenticeDesktopControl extends ControlForView<ApprenticeDesk
 	 * Sets the background as the image in the given filepath
 	 */
 	void setBackgroundImage(String imagePath);
-
+	
 	/**
 	 * Sets the background to the default image
 	 */
 	void setDefaultDesktopBackground();
+
+	/**
+	 * Sets the view, which can only be a {@link ApprenticeDesktop}
+	 */
+	void setView(final ApprenticeDesktop desktop);
 
 }

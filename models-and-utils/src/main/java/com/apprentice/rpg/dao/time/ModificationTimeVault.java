@@ -20,6 +20,6 @@ public interface ModificationTimeVault {
 	/**
 	 * Stores information regarding when a {@link Nameable} was stored/created/updated
 	 */
-	void updated(DateTime when, Nameable item);
+	void updatedAt(DateTime when, Nameable item);
 
 }

@@ -12,7 +12,7 @@ import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.BodyPartMappingEx;
-import com.apprentice.rpg.model.body.BodyPartToRangeMap;
+import com.apprentice.rpg.model.body.BodyPartToRangeMapping;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
  */
 public final class TypeAndBodyPartFrameState {
 
-	private final Map<String, BodyPartToRangeMap> temporaryTypes;
+	private final Map<String, BodyPartToRangeMapping> temporaryTypes;
 	private final List<BodyPart> repositoryBodyParts;
 	private String selectedBodyPartName;
 	private String selectedTypeName;
@@ -49,7 +49,7 @@ public final class TypeAndBodyPartFrameState {
 	 */
 	public Box<IType> addNewPartToType(final String typeName, final BodyPart bodyPart) {
 		if (temporaryTypes.containsKey(typeName)) {
-			final BodyPartToRangeMap mapping = temporaryTypes.get(typeName);
+			final BodyPartToRangeMapping mapping = temporaryTypes.get(typeName);
 			if (mapping.getParts().contains(bodyPart)) {
 				return Box.empty();
 			} else {
@@ -70,7 +70,7 @@ public final class TypeAndBodyPartFrameState {
 	 */
 	public Box<IType> addPartToType(final String typeName, final BodyPart bodyPart, final IntegerRange range) {
 		if (temporaryTypes.containsKey(typeName)) {
-			final BodyPartToRangeMap mapping = temporaryTypes.get(typeName);
+			final BodyPartToRangeMapping mapping = temporaryTypes.get(typeName);
 			if (mapping.getParts().contains(bodyPart)
 				&& mapping.getRangeForBodyPart(bodyPart).getContent().equals(range)) {
 				return Box.empty();
@@ -94,10 +94,10 @@ public final class TypeAndBodyPartFrameState {
 			if (temporaryTypes.containsKey(newName)) {
 				throw new ItemAlreadyExistsEx();
 			} else {
-				final Iterator<Entry<String, BodyPartToRangeMap>> iterator = temporaryTypes.entrySet().iterator();
-				BodyPartToRangeMap mapping = null;
+				final Iterator<Entry<String, BodyPartToRangeMapping>> iterator = temporaryTypes.entrySet().iterator();
+				BodyPartToRangeMapping mapping = null;
 				while (iterator.hasNext()) {
-					final Entry<String, BodyPartToRangeMap> entry = iterator.next();
+					final Entry<String, BodyPartToRangeMapping> entry = iterator.next();
 					if (entry.getKey().equals(oldName)) {
 						mapping = entry.getValue();
 						iterator.remove();
@@ -123,7 +123,7 @@ public final class TypeAndBodyPartFrameState {
 		if (temporaryTypes.containsKey(name)) {
 			throw new ItemAlreadyExistsEx();
 		} else {
-			temporaryTypes.put(name, new BodyPartToRangeMap());
+			temporaryTypes.put(name, new BodyPartToRangeMapping());
 		}
 	}
 
@@ -147,9 +147,9 @@ public final class TypeAndBodyPartFrameState {
 
 	/**
 	 * searches both the temporary and the real (database) {@link IType}s for one with the given name; once
-	 * found, returns its {@link BodyPartToRangeMap}
+	 * found, returns its {@link BodyPartToRangeMapping}
 	 */
-	public Box<BodyPartToRangeMap> getBodyPartsForTypeName(final String name) {
+	public Box<BodyPartToRangeMapping> getBodyPartsForTypeName(final String name) {
 		for (final String tempName : temporaryTypes.keySet()) {
 			if (tempName.equals(name)) {
 				return Box.with(temporaryTypes.get(tempName));
@@ -223,7 +223,7 @@ public final class TypeAndBodyPartFrameState {
 	}
 
 	/**
-	 * returns true if such a type exists AND has a valid {@link BodyPartToRangeMap}
+	 * returns true if such a type exists AND has a valid {@link BodyPartToRangeMapping}
 	 */
 	public Box<Boolean> isMappingCorrectForTypeName(final String name) {
 		for (final String tempName : temporaryTypes.keySet()) {
@@ -243,10 +243,10 @@ public final class TypeAndBodyPartFrameState {
 	 * deletes the given body part from all the temp types
 	 */
 	public void removePartFromAllTypes(final BodyPart deletedBodyPart) {
-		final Iterator<Entry<String, BodyPartToRangeMap>> iterator = temporaryTypes.entrySet().iterator();		
+		final Iterator<Entry<String, BodyPartToRangeMapping>> iterator = temporaryTypes.entrySet().iterator();		
 		while (iterator.hasNext()) {
-			final Entry<String, BodyPartToRangeMap> entry = iterator.next();
-			final BodyPartToRangeMap mapping = entry.getValue();
+			final Entry<String, BodyPartToRangeMapping> entry = iterator.next();
+			final BodyPartToRangeMapping mapping = entry.getValue();
 			mapping.removePart(deletedBodyPart);
 		}		
 	}
@@ -257,7 +257,7 @@ public final class TypeAndBodyPartFrameState {
 	 */
 	public Box<IType> removePartFromType(final String typeName, final BodyPart bodyPart) {
 		if (temporaryTypes.containsKey(typeName)) {
-			final BodyPartToRangeMap mapping = temporaryTypes.get(typeName);
+			final BodyPartToRangeMapping mapping = temporaryTypes.get(typeName);
 			mapping.removePart(bodyPart);
 			try {
 				final IType newType = new Type(typeName, mapping);

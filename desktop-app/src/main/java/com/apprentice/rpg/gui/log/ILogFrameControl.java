@@ -1,5 +1,7 @@
 package com.apprentice.rpg.gui.log;
 
+import java.util.List;
+
 import com.apprentice.rpg.gui.ControlForView;
 
 /**
@@ -9,5 +11,9 @@ import com.apprentice.rpg.gui.ControlForView;
  * 
  */
 public interface ILogFrameControl extends ControlForView<ILogFrame> {
-	// marker
+
+	/**
+	 * returns the received log messages that should be displayed in the view
+	 */
+	List<List<String>> getMessages();
 }

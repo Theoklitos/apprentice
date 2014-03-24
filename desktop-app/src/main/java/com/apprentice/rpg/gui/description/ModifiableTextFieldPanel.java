@@ -16,7 +16,7 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import com.apprentice.rpg.dao.Vault;
+import com.apprentice.rpg.backend.IServiceLayer;
 
 /**
  * bordered panel that can be used to view and set a string variable
@@ -58,15 +58,23 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JTextArea content;
-	private final Vault vault;
 	private final String title;
 	private DescriptionPanelType type;
 
-	public ModifiableTextFieldPanel(final String title, final DescriptionPanelType type, final Vault vault) {
+	private final IServiceLayer control;
+
+	public ModifiableTextFieldPanel(final String title, final DescriptionPanelType type, final IServiceLayer control) {
 		this.type = type;
-		this.vault = vault;
+		this.control = control;
 		this.title = title;
 		initComponents();
+	}
+	
+	/**
+	 * returns the passed {@link IServiceLayer}
+	 */
+	protected IServiceLayer getControl() {
+		return control;
 	}
 
 	/**
@@ -80,11 +88,8 @@ public abstract class ModifiableTextFieldPanel extends JPanel {
 		return type;
 	}
 
-	protected Vault getVault() {
-		return vault;
-	}
-
 	protected void initComponents() {
+		removeAll();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), title, TitledBorder.LEADING,
 				TitledBorder.TOP, null, null));

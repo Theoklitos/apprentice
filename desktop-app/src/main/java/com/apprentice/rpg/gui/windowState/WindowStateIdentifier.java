@@ -41,9 +41,16 @@ public class WindowStateIdentifier {
 	}
 
 	/**
+	 * Returns null or emtpy string if no parameter exists
+	 */
+	public String getParameter() {
+		return parameter;
+	}
+
+	/**
 	 * returns the parameter of the state of an internal frame in a box, if any
 	 */
-	public Box<String> getParameter() {
+	public Box<String> getParameterBox() {
 		if (StringUtils.isBlank(parameter)) {
 			return Box.empty();
 		} else {
@@ -65,8 +72,8 @@ public class WindowStateIdentifier {
 
 	@Override
 	public String toString() {
-		if (getParameter().hasContent()) {
-			return windowClass.getSimpleName() + " with parameter: " + getParameter().getContent();
+		if (getParameterBox().hasContent()) {
+			return windowClass.getSimpleName() + " with parameter: " + getParameterBox().getContent();
 		} else {
 			return windowClass.getSimpleName();
 		}

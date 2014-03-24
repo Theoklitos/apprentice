@@ -12,5 +12,5 @@ jar {
 
 dependencies {    
 	compile project(':models-and-utils')	            
-    compile group: 'com.jgoodies', name: 'forms', version: '1.2.1'    
+    compile group: 'com.jgoodies', name: 'forms', version: '1.2.1'       
 }

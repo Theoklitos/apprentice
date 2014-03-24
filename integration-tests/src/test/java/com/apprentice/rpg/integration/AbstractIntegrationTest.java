@@ -21,7 +21,7 @@ import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.model.guice.GuiceConfigBackend;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.parsing.ApprenticeParser;
 import com.apprentice.rpg.strike.StrikeType;
 import com.google.inject.Guice;
@@ -103,8 +103,8 @@ public abstract class AbstractIntegrationTest {
 		//LOG.debug("BodyPart List: " + vault.getAllNameables(BodyPart.class));
 		LOG.debug("StrikeType: " + vault.getAllNameables(StrikeType.class).size());
 		LOG.debug("Type: " + vault.getAllNameables(IType.class).size());
-		LOG.debug("Weapons: " + vault.getAllNameables(WeaponPrototype.class).size());
-		LOG.debug("ArmorPiece: " + vault.getAllNameables(IArmorPiece.class).size());
+		LOG.debug("Weapons: " + vault.getAllPrototypeNameables(IWeapon.class).size());
+		LOG.debug("ArmorPiece: " + vault.getAllPrototypeNameables(IArmorPiece.class).size());
 		LOG.debug("PlayerCharacter: " + vault.getAllNameables(IPlayerCharacter.class).size());
 		LOG.debug("==========================================================================");
 	}

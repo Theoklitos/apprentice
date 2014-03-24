@@ -24,14 +24,14 @@ public final class TestExportConfigurationObject {
 
 	@Test
 	public void namesAddedFromNamebales() {
-		config.addNames(factory.getWeapons());
+		config.addNames(factory.getWeaponPrototypes());
 		config.addNames(factory.getArmorPieces());
-		assertEquals(4, config.size());
+		assertEquals(13, config.size());
 
 		final Set<String> weaponNames = config.getNamesForType(ItemType.WEAPON);
 		assertEquals(2, weaponNames.size());
-		assertTrue(weaponNames.contains(factory.getWeapons().get(0).getName()));
-		assertTrue(weaponNames.contains(factory.getWeapons().get(1).getName()));
+		assertTrue(weaponNames.contains(factory.getWeaponPrototypes().get(0).getName()));
+		assertTrue(weaponNames.contains(factory.getWeaponPrototypes().get(1).getName()));
 
 		final Set<String> armorNames = config.getNamesForType(ItemType.ARMOR_PIECE);
 		assertEquals(2, armorNames.size());

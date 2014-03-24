@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.damage.DamageRoll;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.strike.StrikeType;
 import com.google.common.collect.Lists;
@@ -81,12 +81,12 @@ public final class TestApprenticeCollectionUtils {
 
 	@Test
 	public void intersectionOfNamebales() {
-		final WeaponPrototype weapon1 = new Weapon("sword1", 1, new DamageRoll("d8", new StrikeType("slashing")));
-		final WeaponPrototype weapon2 = new Weapon("sword2", 1, new DamageRoll("d8", new StrikeType("slashing")));
-		final WeaponPrototype weapon3 = new Weapon("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
-		final WeaponPrototype weapon4 = new Weapon("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
-		final Collection<WeaponPrototype> col1 = Sets.newHashSet(weapon1, weapon2, weapon3, weapon4);
-		final Collection<WeaponPrototype> col2 = Sets.newHashSet(weapon1, weapon3);
+		final IWeapon weapon1 = new Weapon("sword1", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final IWeapon weapon2 = new Weapon("sword2", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final IWeapon weapon3 = new Weapon("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final IWeapon weapon4 = new Weapon("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
+		final Collection<IWeapon> col1 = Sets.newHashSet(weapon1, weapon2, weapon3, weapon4);
+		final Collection<IWeapon> col2 = Sets.newHashSet(weapon1, weapon3);
 
 		final Collection<? extends Nameable> intersection =
 			ApprenticeCollectionUtils.getIntersectingNameableElements(col1, col2);
@@ -108,7 +108,7 @@ public final class TestApprenticeCollectionUtils {
 
 		assertTrue(ApprenticeCollectionUtils.areAllElementsEqual(map1, map2));
 	}
-	
+
 	@Test
 	public void mapsAreNotEqual() {
 		final Map<Integer, String> map1 = Maps.newHashMap();

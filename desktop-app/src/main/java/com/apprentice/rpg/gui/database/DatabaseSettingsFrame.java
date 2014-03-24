@@ -12,10 +12,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.model.IPlayerCharacter;
+import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -27,22 +31,20 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author theoklitos
  * 
  */
-public class DatabaseSettingsFrame extends ApprenticeInternalFrame implements IDatabaseSettingsFrame {
+public class DatabaseSettingsFrame extends ApprenticeInternalFrame<IDatabaseSettingsFrameControl> implements
+		IDatabaseSettingsFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField txtfldDatabaseLocation;
-	private final IDatabaseSettingsFrameControl control;
 	private JLabel databaseContentsDescriptionLabel;
 	private JPanel databaseContentsPanel;
 
-	public DatabaseSettingsFrame(final IGlobalWindowState globalWindowState, final IDatabaseSettingsFrameControl control) {
-		super(globalWindowState, "Database Settings");
-		this.control = control;
-
+	public DatabaseSettingsFrame(final IDatabaseSettingsFrameControl control) {
+		super(control, "Database Settings");
 		initComponents();
 		txtfldDatabaseLocation.setText(control.getDatabaseLocation());
 		control.setView(this);
-		control.updateDatabaseInformationInView();
+		refreshFromModel();
 	}
 
 	@Override
@@ -74,7 +76,7 @@ public class DatabaseSettingsFrame extends ApprenticeInternalFrame implements ID
 				final Box<String> newDbFile = getWindowUtils().showFileChooser("Choose New Database", "Use this File");
 				if (newDbFile.hasContent()) {
 					try {
-						control.changeDatabaseLocation(newDbFile.getContent());
+						getControl().changeDatabaseLocation(newDbFile.getContent());
 					} catch (final Exception e) {
 						getWindowUtils().showErrorMessage(
 								"Could not open database \"" + newDbFile.getContent()
@@ -91,6 +93,20 @@ public class DatabaseSettingsFrame extends ApprenticeInternalFrame implements ID
 		getContentPane().add(databaseContentsPanel, "2, 8, fill, fill");
 		databaseContentsDescriptionLabel = new JLabel("No content");
 		databaseContentsPanel.add(databaseContentsDescriptionLabel);
+	}
+
+	@Override
+	public void refreshFromModel() {
+		final List<String> lines = Lists.newArrayList();
+		final Vault vault = getControl().getVault();
+		// players
+		final int pcSize = vault.getAllNameables(IPlayerCharacter.class).size();
+		final String pcMessage = pcSize != 1 ? pcSize + " player characters." : pcSize + " player character.";
+		lines.add(pcMessage);
+		// types and parts
+		lines.add(vault.getAllNameables(IType.class).size() + " types, comprised of "
+			+ vault.getAllNameables(BodyPart.class).size() + " body parts.");
+		setDatabaseDescription(lines);
 	}
 
 	@Override

@@ -1,8 +1,11 @@
 package com.apprentice.rpg.model.armor;
 
 import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.random.dice.Roll;
+import com.apprentice.rpg.model.durable.IDurableItem;
+import com.apprentice.rpg.random.dice.RollWithSuffix;
+import com.apprentice.rpg.util.Box;
 
 /**
  * A piece of armor that is bound to a specific {@link BodyPart}
@@ -10,7 +13,13 @@ import com.apprentice.rpg.random.dice.Roll;
  * @author theoklitos
  * 
  */
-public interface IArmorPiece extends Nameable {
+public interface IArmorPiece extends IDurableItem, Nameable, Cloneable {
+
+	/**
+	 * deep copies this prototype into what is effectively an armor piece instance, ready to be handed out to
+	 * a {@link PlayerCharacter}
+	 */
+	public IArmorPiece clone();
 
 	/**
 	 * returns true if this armor piece can be equipped on the given body part
@@ -18,14 +27,15 @@ public interface IArmorPiece extends Nameable {
 	boolean fits(BodyPart bodyPart);
 
 	/**
-	 * Returns a string that will be matched to the name of {@link BodyPart}s, to see if they fit
+	 * Returns a string that will be matched to the name of {@link BodyPart}s, to see if they fit. If this
+	 * armor is not made for a specific body part (ie ring or amulet) then returns empty box.
 	 */
-	String getBodyPartDesignator();
+	Box<String> getBodyPartDesignator();
 
 	/**
 	 * Returns the dice roll that is used for DR
 	 */
-	Roll getDamageReductionRoll();
+	RollWithSuffix getDamageReduction();
 
 	/**
 	 * Sets the designator string that will be matched to the names of {@link BodyPart}s to see if the armor
@@ -36,6 +46,6 @@ public interface IArmorPiece extends Nameable {
 	/**
 	 * sets the damage redution for this armor piece
 	 */
-	void setDamageReductionRoll(Roll roll);
+	void setDamageReductionRoll(RollWithSuffix roll);
 
 }

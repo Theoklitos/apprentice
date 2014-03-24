@@ -31,7 +31,7 @@ public final class TestDatabaseImporterExporter {
 		assertEquals(ItemType.BODY_PART, DatabaseImporterExporter.getTypeForClass(factory.getBodyParts().get(0))
 				.getContent());
 		assertEquals(ItemType.TYPE, DatabaseImporterExporter.getTypeForClass(factory.getTypes().get(0)).getContent());
-		assertEquals(ItemType.WEAPON, DatabaseImporterExporter.getTypeForClass(factory.getWeapons().get(0))
+		assertEquals(ItemType.WEAPON, DatabaseImporterExporter.getTypeForClass(factory.getWeaponPrototypes().get(0))
 				.getContent());
 		assertEquals(ItemType.ARMOR_PIECE, DatabaseImporterExporter.getTypeForClass(factory.getArmorPieces().get(0))
 				.getContent());

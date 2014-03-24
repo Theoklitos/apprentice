@@ -14,6 +14,7 @@ public abstract class BaseApprenticeObject implements Nameable {
 
 	private String name;
 	private String description;
+	private boolean isPrototype;
 
 	public BaseApprenticeObject(final String name) {
 		this(name, "");
@@ -21,8 +22,8 @@ public abstract class BaseApprenticeObject implements Nameable {
 
 	public BaseApprenticeObject(final String name, final String description) {
 		Checker.checkNonNull("A " + getClass().getSimpleName() + " must have a name!", true, name);
-		this.name = name;
-		this.description = description;
+		this.name = name.trim();
+		this.description = description.trim();
 	}
 
 	@Override
@@ -30,7 +31,8 @@ public abstract class BaseApprenticeObject implements Nameable {
 		if (other instanceof BaseApprenticeObject) {
 			final BaseApprenticeObject otherBaseItem = (BaseApprenticeObject) other;
 			return Objects.equal(getName().toLowerCase(), otherBaseItem.getName().toLowerCase())
-				&& Objects.equal(getDescription(), otherBaseItem.getDescription());
+				&& Objects.equal(getDescription(), otherBaseItem.getDescription())
+				&& isPrototype == otherBaseItem.isPrototype;
 		} else {
 			return false;
 		}
@@ -48,7 +50,12 @@ public abstract class BaseApprenticeObject implements Nameable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(getName(), getDescription());
+		return Objects.hashCode(getName().toLowerCase(), getDescription(), isPrototype);
+	}
+
+	@Override
+	public boolean isPrototype() {
+		return isPrototype;
 	}
 
 	@Override
@@ -59,5 +66,10 @@ public abstract class BaseApprenticeObject implements Nameable {
 	@Override
 	public void setName(final String name) {
 		this.name = name;
+	}
+
+	@Override
+	public void setPrototype(final boolean isPrototype) {
+		this.isPrototype = isPrototype;
 	}
 }

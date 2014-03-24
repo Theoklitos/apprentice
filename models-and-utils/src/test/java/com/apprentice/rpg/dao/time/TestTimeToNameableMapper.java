@@ -24,7 +24,7 @@ public final class TestTimeToNameableMapper {
 		final BodyPart type = new BodyPart("part1");
 		assertEquals(ModificationTimeVault.NO_TIMING_DESCRIPTION, vault.getPrettyUpdateTime(type));
 		final DateTime now = new DateTime();
-		vault.updated(now, type);
+		vault.updatedAt(now, type);
 		assertEquals(DateTimeFormat.forPattern(TimeToNameableMapper.DATETIME_FORMAT).print(now), vault.getPrettyUpdateTime(type));		
 	}
 

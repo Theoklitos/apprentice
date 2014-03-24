@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.Box;
@@ -24,7 +25,7 @@ public class ApprenticeTable extends JTable {
 		super();
 	}
 
-	public ApprenticeTable(final DefaultTableModel model) {
+	public ApprenticeTable(final TableModel model) {
 		super(model);
 		getTableHeader().setReorderingAllowed(false);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

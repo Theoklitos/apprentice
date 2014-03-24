@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
+import com.apprentice.rpg.events.ShutdownEvent;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.ControllableView;
 import com.google.common.collect.Sets;
@@ -34,14 +35,16 @@ public final class ApprenticeDesktop extends JDesktopPane implements Controllabl
 	private Color color;
 	private Image image;
 	private final IApprenticeDesktopControl control;
-	private final Collection<ApprenticeInternalFrame> internalFrames;
+	private final Collection<ApprenticeInternalFrame<?>> internalFrames;
 
 	public ApprenticeDesktop(final IApprenticeDesktopControl control) {
 		this.control = control;
+		control.setView(this);		
+		control.setBackgroundFromConfig();		
 		internalFrames = Sets.newHashSet();
 	}
 
-	public void add(final ApprenticeInternalFrame internalFrame) {
+	public void add(final ApprenticeInternalFrame<?> internalFrame) {
 		super.add(internalFrame);
 		try {
 			internalFrame.setSelected(true);
@@ -50,10 +53,11 @@ public final class ApprenticeDesktop extends JDesktopPane implements Controllabl
 			// do nothing
 		}
 	}
-
-	public void closeAllFrames() {
-		for (final ApprenticeInternalFrame internalFrame : internalFrames) {
-			try {
+	
+	public void closeAllFrames(final ShutdownEvent event) {
+		for (final ApprenticeInternalFrame<?> internalFrame : internalFrames) {
+			try {				
+				super.remove(internalFrame);
 				internalFrame.setClosed(true);
 			} catch (final PropertyVetoException e) {
 				internalFrame.setVisible(false);
@@ -74,6 +78,11 @@ public final class ApprenticeDesktop extends JDesktopPane implements Controllabl
 		} else {
 			g.drawString("", 50, 50);
 		}
+	}
+
+	@Override
+	public void refreshFromModel() {
+		// nothing 
 	}
 
 	public void setBackgroundColor(final Color color) {

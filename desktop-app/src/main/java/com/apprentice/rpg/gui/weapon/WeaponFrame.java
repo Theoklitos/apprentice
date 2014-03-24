@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.gui.GuiItemCreationEx;
@@ -22,15 +23,14 @@ import com.apprentice.rpg.gui.NumericTextfield;
 import com.apprentice.rpg.gui.TextfieldWithColorWarning;
 import com.apprentice.rpg.gui.description.DescriptionPanel;
 import com.apprentice.rpg.gui.description.ModifiableTextFieldPanel.DescriptionPanelType;
-import com.apprentice.rpg.gui.util.WindowUtils;
-import com.apprentice.rpg.gui.windowState.GlobalWindowState;
-import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.weapon.AmmunitionType;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.model.weapon.Range;
 import com.apprentice.rpg.model.weapon.Weapon;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
+import com.apprentice.rpg.strike.StrikeType;
 import com.apprentice.rpg.util.Box;
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -38,19 +38,17 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 /**
- * Edits or creates {@link WeaponPrototype}s
+ * Edits or creates {@link IWeaponPrototype}s
  * 
  * @author theoklitos
  * 
  */
-public final class WeaponFrame extends ApprenticeInternalFrame implements IWeaponFrame {
+public final class WeaponFrame extends ApprenticeInternalFrame<IServiceLayer> implements IWeaponFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private final IWeaponFrameControl control;
 	private JTextField txtfldName;
 	private JLabel lblMeleeDamageLabel;
-	private final Box<WeaponPrototype> content;
 	private JPanel weaponDataPanel;
 	private DescriptionPanel descriptionPanel;
 	private JButton btnSave;
@@ -79,21 +77,64 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 	private DamageRoll thrownDamageBuffer;
 	private JButton btnRemoveThrownDamage;
 
-	public WeaponFrame(final IGlobalWindowState globalWindowState, final IWeaponFrameControl control,
-			final Box<WeaponPrototype> content) {
-		super(new GlobalWindowState(new WindowUtils()), ItemType.WEAPON, content); // TODO
-		this.control = control;
-		this.content = content;
-
+	/**
+	 * @param weaponName
+	 *            can be null if you want a frame for a new weapon
+	 */
+	public WeaponFrame(final IServiceLayer control) {
+		super(control, "New Weapon Frame");
+		checkDoStrikeTypesExist();
 		initComponents();
-		if (content.hasContent()) {
-			setWeaponForEditing(content.getContent());
+	}
+
+	private void checkDoStrikeTypesExist() {
+		if (getControl().getVault().getAll(StrikeType.class).size() == 0) {
+			if (getWindowUtils()
+					.showWarningQuestionMessage(
+							"There are no strike types in the database.\nYou need to create at least one before proceeding.\nOpen the strike window now?",
+							"No Strike Types Found")) {
+				close();
+				throw new ApprenticeEx("implement me!");
+				// getControl().getEventBus().postShowFrameEvent(StrikeF); TODO
+			}
 		}
+	}
+
+	@Override
+	public void display(final IWeapon weapon) {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				getReferenceToSelf().setTitle("Edit Weapon");
+				txtfldName.setName(weapon.getName());
+				descriptionPanel.setNameable(weapon);
+				txtfldMaxHP.setText(String.valueOf(weapon.getDurability().getMaximum()));
+				for (final DamageRoll meleeRoll : weapon.getMeleeDamages()) {
+					cmbboxMeleeDamages.addItem(meleeRoll);
+				}
+				if (weapon.isThrownWeapon()) {
+					txtfldRange.setText(weapon.getRange().getContent().toString());
+					lblThrownDamage.setText(weapon.getThrownDamage().getContent().toString());
+				}
+				txtfldBlockModifier.setText(String.valueOf(weapon.getBlockModifier()));
+				for (final AmmunitionType ammoType : weapon.getAmmunitionsWithRange().keySet()) {
+					final AmmunitionTypeWithRange ammoTypeWithRange =
+						new AmmunitionTypeWithRange(ammoType, weapon.getAmmunitionsWithRange().get(ammoType));
+					cmbboxAmmoTypes.addItem(ammoTypeWithRange);
+				}
+			}
+		});
 	}
 
 	@Override
 	public Dimension getInitialSize() {
 		return new Dimension(550, 360);
+	}
+
+	@Override
+	public ItemType getType() {
+		return ItemType.WEAPON;
 	}
 
 	private void initComponents() {
@@ -211,7 +252,7 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 			@Override
 			public void actionPerformed(final ActionEvent event) {
 				final Box<DamageRoll> thrownDamageBox =
-					getWindowUtils().showDamageRollDialog("Set Thrown Damage", control);
+					getWindowUtils().showDamageRollDialog("Set Thrown Damage", getControl());
 				if (thrownDamageBox.hasContent()) {
 					thrownDamageBuffer = thrownDamageBox.getContent();
 					lblThrownDamage.setText(thrownDamageBox.getContent().toString());
@@ -242,7 +283,7 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 			@Override
 			public void actionPerformed(final ActionEvent event) {
 				final Box<AmmunitionTypeWithRange> ammoTypeWithRangeBox =
-					getWindowUtils().showAmmunitionTypeAndRangeDialog(control);
+					getWindowUtils().showAmmunitionTypeAndRangeDialog(getControl());
 				if (ammoTypeWithRangeBox.hasContent()) {
 					cmbboxAmmoTypes.addItem(ammoTypeWithRangeBox.getContent());
 				}
@@ -260,8 +301,7 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 		});
 		weaponDataPanel.add(btnRemoveAmmo, "7, 11");
 
-		descriptionPanel =
-			new DescriptionPanel(control, getWindowUtils(), "Description", DescriptionPanelType.TEXTFIELD);
+		descriptionPanel = new DescriptionPanel(getControl(), "Description", DescriptionPanelType.TEXTFIELD);
 		descriptionPanel.setPreferredSize(new Dimension(0, 50));
 		getContentPane().add(descriptionPanel, "2, 4, fill, fill");
 
@@ -274,33 +314,31 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 
 			@Override
 			public void actionPerformed(final ActionEvent event) {
-				WeaponPrototype weaponAtHand = null;
+				IWeapon weapon = null;
 				try {
-					if (isNewItemFrame()) {
+					if (getItem().isEmpty()) {
 						validateAllFields();
-						weaponAtHand = new Weapon(txtfldName.getText().trim(), txtfldMaxHP.getTextAsInteger());
+						weapon = new Weapon(txtfldName.getText().trim(), txtfldMaxHP.getTextAsInteger());
+						weapon.setPrototype(true);						
 					} else {
-						weaponAtHand = content.getContent();
+						weapon = (IWeapon) getItem().getContent();
 					}
-					setWeaponFieldsFromGui(weaponAtHand);
-					control.createOrUpdateWeapon(weaponAtHand);
+					setWeaponFieldsFromGui(weapon);					
+					updateParameter(weapon);			
 				} catch (final GuiItemCreationEx e) {
 					getWindowUtils().showErrorMessage(e.getMessage(), "Wrong or Missing Value");
 				} catch (final NameAlreadyExistsEx e) {
-					getWindowUtils().showErrorMessage("There already exists a weapon named " + weaponAtHand.getName(),
+					getWindowUtils().showErrorMessage("There already exists a weapon named " + weapon.getName(),
 							"Wrong Value");
 				}
 			}
-
 		});
 		buttonPanel.add(btnSave);
 	}
 
-	/**
-	 * is this frame for a new weapon?
-	 */
-	private boolean isNewItemFrame() {
-		return content.isEmpty();
+	@Override
+	public void refreshFromModel() {
+		// nothing
 	}
 
 	/**
@@ -320,15 +358,15 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 	/**
 	 * changes given weapon based on what is set in the gui
 	 */
-	private void setWeaponFieldsFromGui(final WeaponPrototype weapon) {
+	private void setWeaponFieldsFromGui(final IWeapon weapon) {
 		weapon.setName(txtfldName.getText().trim());
 		weapon.setDescription(descriptionPanel.getText());
 		weapon.getDurability().setMaximum(txtfldMaxHP.getTextAsInteger());
 		for (int i = 0; i < cmbboxMeleeDamages.getItemCount(); i++) {
-			weapon.addMeleeDamage(cmbboxExtraDamages.getItemAt(i));
+			weapon.addMeleeDamage(cmbboxMeleeDamages.getItemAt(i));
 		}
 		if (StringUtils.isNotBlank(txtfldRange.getText()) && thrownDamageBuffer != null) {
-			weapon.setRangeAndOptimalThrownDamage(txtfldRange.getText(), thrownDamageBuffer);
+			weapon.setRangeAndThrownDamage(txtfldRange.getText(), thrownDamageBuffer);
 		}
 		weapon.setBlockModifier(txtfldBlockModifier.getTextAsInteger());
 		for (int i = 0; i < cmbboxAmmoTypes.getItemCount(); i++) {
@@ -337,37 +375,11 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 		}
 	}
 
-	@Override
-	public void setWeaponForEditing(final WeaponPrototype weapon) {
-		EventQueue.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				txtfldName.setName(weapon.getName());
-				descriptionPanel.setNameable(weapon);
-				txtfldMaxHP.setText(String.valueOf(weapon.getDurability().getMaximum()));
-				for (final DamageRoll meleeRoll : weapon.getMeleeDamageRolls()) {
-					cmbboxMeleeDamages.addItem(meleeRoll);
-				}
-				if (weapon.isThrownWeapon()) {
-					txtfldRange.setText(weapon.getRange().getContent().toString());
-					lblThrownDamage.setText(weapon.getThrownDamage().getContent().toString());
-				}
-				txtfldBlockModifier.setText(String.valueOf(weapon.getBlockModifier()));
-				for (final AmmunitionType ammoType : weapon.getAmmunitionsWithRange().keySet()) {
-					final AmmunitionTypeWithRange ammoTypeWithRange =
-						new AmmunitionTypeWithRange(ammoType, weapon.getAmmunitionsWithRange().get(ammoType));
-					cmbboxAmmoTypes.addItem(ammoTypeWithRange);
-				}
-			}
-		});
-	}
-
 	/**
 	 * used in manipulating the jcombobox dialogs
 	 */
 	private void showDialogAndAddDamageRoll(final String message, final JComboBox<DamageRoll> whereToAdd) {
-		final Box<DamageRoll> newDamage = getWindowUtils().showDamageRollDialog(message, control);
+		final Box<DamageRoll> newDamage = getWindowUtils().showDamageRollDialog(message, getControl());
 		if (newDamage.hasContent()) {
 			whereToAdd.addItem(newDamage.getContent());
 		}
@@ -376,7 +388,7 @@ public final class WeaponFrame extends ApprenticeInternalFrame implements IWeapo
 	/**
 	 * Called before creating a new weapon to make sure all is OK
 	 */
-	private void validateAllFields() {
+	private void validateAllFields() throws GuiItemCreationEx {
 		if (StringUtils.isBlank(txtfldName.getText())) {
 			throw new GuiItemCreationEx("A name is needed.");
 		}

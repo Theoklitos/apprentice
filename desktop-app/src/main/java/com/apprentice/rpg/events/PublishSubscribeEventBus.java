@@ -1,12 +1,8 @@
 package com.apprentice.rpg.events;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.events.type.DatabaseModificationEvent;
-import com.apprentice.rpg.model.ApprenticeEx;
+import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.model.Nameable;
 import com.google.common.eventbus.EventBus;
 
@@ -28,27 +24,17 @@ public class PublishSubscribeEventBus implements ApprenticeEventBus {
 		/**
 		 * new item
 		 */
-		CREATE("Creation"),
+		CREATE(),
 		/**
 		 * existing item is changed
 		 */
-		UPDATE("Update"),
+		UPDATE(),
 		/**
 		 * existing item is deleted
 		 */
-		DELETE("Deletion");
+		DELETE();
 
-		/**
-		 * used in instantiating the appropriate class
-		 */
-		private final String classDescriptior;
-
-		private EventType(final String classDescriptior) {
-			this.classDescriptior = classDescriptior;
-		}
 	}
-
-	private final static String EVENTS_PACKAGE = "com.apprentice.rpg.events.type";
 
 	private static Logger LOG = Logger.getLogger(PublishSubscribeEventBus.class);
 
@@ -59,54 +45,56 @@ public class PublishSubscribeEventBus implements ApprenticeEventBus {
 	}
 
 	@Override
+	public void postApprenticeEvent(final ApprenticeEvent event) {
+		postEventAndLog(event, true);
+	}
+
+	@Override
+	public void postApprenticeEvent(final Nameable nameable, final EventType eventType) {
+		postEventAndLog(new ApprenticeEvent(eventType, nameable), true);
+
+	}
+
+	@Override
 	public void postCreationEvent(final Nameable nameable) {
-		postEvent(nameable, EventType.CREATE);
+		postApprenticeEvent(nameable, EventType.CREATE);
 	}
 
 	@Override
 	public void postDeleteEvent(final Nameable nameable) {
-		postEvent(nameable, EventType.DELETE);
+		postApprenticeEvent(nameable, EventType.DELETE);
 	}
 
-	@Override
-	public void postEvent(final DatabaseModificationEvent<?> event) {
-		postEventInternal(event, true);
-	}
-
-	@Override
-	public void postEvent(final Nameable nameable, final EventType eventType) {
-		final String className =
-			EVENTS_PACKAGE + "." + nameable.getClass().getSimpleName() + eventType.classDescriptior + "Event";
-		try {
-			final Constructor<?> constructor = Class.forName(className).getConstructors()[0];
-			final DatabaseModificationEvent<?> event = (DatabaseModificationEvent<?>) constructor.newInstance(nameable);
-			LOG.debug("Posting " + eventType + " event for \"" + nameable.getName() + "\"");
-			postEventInternal(event, false);
-		} catch (final InstantiationException e) {
-			throw new ApprenticeEx(e);
-		} catch (final IllegalAccessException e) {
-			throw new ApprenticeEx(e);
-		} catch (final ClassNotFoundException e) {
-			throw new ApprenticeEx(e);
-		} catch (final SecurityException e) {
-			throw new ApprenticeEx(e);
-		} catch (final IllegalArgumentException e) {
-			throw new ApprenticeEx(e);
-		} catch (final InvocationTargetException e) {
-			throw new ApprenticeEx(e);
-		}
-	}
-
-	private void postEventInternal(final DatabaseModificationEvent<?> event, final boolean shouldLog) {
+	/**
+	 * self-explanatory
+	 */
+	private void postEventAndLog(final Object eventObject, final boolean shouldLog) {
 		if (shouldLog) {
-			LOG.debug("Posted [" + event + "]");
+			LOG.debug("Posted [" + eventObject + "]");
 		}
+		eventBus.post(eventObject);
+	}
+	
+	@Override
+	public void postShowFrameEvent(final Class<? extends ApprenticeInternalFrame<?>> frameToShow) {
+		postEventAndLog(new ShowFrameEvent(frameToShow), true);				
+	}
+
+	@Override
+	public void postShowFrameEvent(final Class<? extends ApprenticeInternalFrame<?>> frameToShow, final String parameter) {
+		postEventAndLog(new ShowFrameEvent(frameToShow, parameter), true);			
+	}
+
+	@Override
+	public void postShutdownEvent(final boolean shouldReopen) {
+		final ShutdownEvent event = new ShutdownEvent(shouldReopen);				
 		eventBus.post(event);
+		LOG.debug("Posted [" + event + "]");
 	}
 
 	@Override
 	public void postUpdateEvent(final Nameable nameable) {
-		postEvent(nameable, EventType.UPDATE);
+		postApprenticeEvent(nameable, EventType.UPDATE);
 	}
 
 	@Override

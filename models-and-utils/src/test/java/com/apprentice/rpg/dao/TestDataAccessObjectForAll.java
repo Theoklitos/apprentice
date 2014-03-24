@@ -19,7 +19,7 @@ import com.apprentice.rpg.dao.time.ModificationTimeVault;
 import com.apprentice.rpg.dao.time.TimeToNameableMapper;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.model.body.BodyPartToRangeMap;
+import com.apprentice.rpg.model.body.BodyPartToRangeMapping;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.body.Type;
 import com.google.common.collect.Lists;
@@ -50,12 +50,12 @@ public final class TestDataAccessObjectForAll {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(newPart1);
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart1)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(newPart1)));
 				oneOf(connection).saveAndCommit(newPart2);
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart2)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(newPart2)));
 			}
 		});
-		dao.addAll(newParts);		
+		dao.addAll(newParts);
 	}
 
 	@Test(expected = ItemAlreadyExistsEx.class)
@@ -69,7 +69,7 @@ public final class TestDataAccessObjectForAll {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(newPart);
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(newPart)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(newPart)));
 			}
 		});
 		dao.create(newPart);
@@ -143,7 +143,7 @@ public final class TestDataAccessObjectForAll {
 		parts.add(knownPart);
 		parts.add(new BodyPart("arms"));
 		parts.add(new BodyPart("legs"));
-		final BodyPartToRangeMap mapping = new BodyPartToRangeMap();
+		final BodyPartToRangeMapping mapping = new BodyPartToRangeMapping();
 		mapping.setPartForRange(1, 100, knownPart);
 		types = Sets.newHashSet();
 		type1 = new Type("type1", mapping);
@@ -180,7 +180,7 @@ public final class TestDataAccessObjectForAll {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(connection).saveAndCommit(knownPart);
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(knownPart)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(knownPart)));
 			}
 		});
 		knownPart.setName("new name");
@@ -197,8 +197,8 @@ public final class TestDataAccessObjectForAll {
 			{
 				oneOf(connection).saveAndCommit(knownPart);
 				oneOf(connection).saveAndCommit(type1);
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(knownPart)));
-				oneOf(timeVault).updated(with(any(DateTime.class)), with(equal(type1)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(knownPart)));
+				oneOf(timeVault).updatedAt(with(any(DateTime.class)), with(equal(type1)));
 			}
 		});
 

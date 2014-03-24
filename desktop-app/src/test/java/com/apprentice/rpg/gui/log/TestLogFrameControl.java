@@ -11,7 +11,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestLogFrameControl {
+import com.apprentice.rpg.gui.AbstractServiceLayerTest;
+
+public class TestLogFrameControl extends AbstractServiceLayerTest {
 
 	private LogFrameControl control;
 	private ILogFrame view;
@@ -32,7 +34,7 @@ public class TestLogFrameControl {
 
 	@Before
 	public void setup() {
-		mockery = new Mockery();
+		mockery = getMockery();
 		view = mockery.mock(ILogFrame.class);
 		mockery.checking(new Expectations() {
 			{
@@ -46,5 +48,5 @@ public class TestLogFrameControl {
 	@After
 	public void teardown() {
 		mockery.assertIsSatisfied();
-	}	
+	}
 }

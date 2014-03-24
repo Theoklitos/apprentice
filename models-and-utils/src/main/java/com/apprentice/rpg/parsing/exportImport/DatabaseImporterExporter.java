@@ -13,12 +13,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.apprentice.rpg.dao.ItemNotFoundEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.dao.simple.SimpleVault;
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.PlayerCharacter;
+import com.apprentice.rpg.model.armor.Armor;
 import com.apprentice.rpg.model.armor.ArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.Type;
@@ -53,13 +54,28 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	 * 
 	 */
 	public enum ItemType {
-		BODY_PART(BodyPart.class, "bodyParts"),
-		STRIKE_TYPE(StrikeType.class, "strikes"),
-		TYPE(Type.class, "types"),
-		WEAPON(Weapon.class, "weapons"),
-		AMMUNITION(AmmunitionType.class, "ammunitions"),
-		ARMOR_PIECE(ArmorPiece.class, "armorPieces"),
-		PLAYER_CHARACTER(PlayerCharacter.class, "playerCharacters");
+		BODY_PART(BodyPart.class, "bodyParts", false),
+		STRIKE_TYPE(StrikeType.class, "strikes", false),
+		TYPE(Type.class, "types", false),
+		WEAPON(Weapon.class, "weapons", true),
+		AMMUNITION(AmmunitionType.class, "ammunitions", false),
+		ARMOR(Armor.class, "armors", true),
+		ARMOR_PIECE(ArmorPiece.class, "armorPieces", true),
+		PLAYER_CHARACTER(PlayerCharacter.class, "playerCharacters", false);
+
+		/**
+		 * Matches a {@link Class} to its {@link ItemType}
+		 */
+		public static ItemType getForClass(final Class<? extends Nameable> nameableClass) {
+			for (final ItemType type : values()) {
+				if (type.type.equals(nameableClass)) {
+					return type;
+				}
+			}
+			throw new ApprenticeEx("No ItemType for class \"" + nameableClass + "\"!");
+		}
+
+		private boolean isPrototypical;
 
 		/**
 		 * the actual class that this type represents
@@ -71,11 +87,19 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 		 */
 		public final String jsonArrayName;
 
-		private ItemType(final Class<? extends Nameable> type, final String jsonArrayName) {
+		private ItemType(final Class<? extends Nameable> type, final String jsonArrayName, final boolean isPrototypical) {
 			this.type = type;
 			this.jsonArrayName = jsonArrayName;
+			this.isPrototypical = isPrototypical;
 		}
 
+		public boolean isPrototypical() {
+			return isPrototypical;
+		}
+
+		/**
+		 * Returns a human-readable representation of this type
+		 */
 		@Override
 		public String toString() {
 			return ApprenticeStringUtils.getReadableEnum(this);
@@ -133,7 +157,7 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 	}
 
 	@Override
-	public void export(final ExportConfigurationObject config) throws ItemNotFoundEx, ParsingEx {
+	public void export(final ExportConfigurationObject config) throws ParsingEx {
 		if (StringUtils.isBlank(config.getFileLocation())) {
 			throw new ParsingEx("No filename for export given");
 		}
@@ -174,11 +198,11 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 			for (final ItemType type : sequenceOfParsing) {
 				parseItemsForType(parent, result, type, type.type);
 			}
-			
+
 			for (final ItemType type : sequenceOfParsing) {
-				for(final Nameable item : result.getAllNameables(type.type)){
+				for (final Nameable item : result.getAllNameables(type.type)) {
 					vault.update(item);
-				}				
+				}
 			}
 			// now actually update, store
 // for (final Nameable nameable : result.getAllNameables()) {
@@ -186,8 +210,7 @@ public final class DatabaseImporterExporter implements IDatabaseImporterExporter
 // vault.update(nameable);
 // }
 // }
-			//vault.update(result);
-			
+			// vault.update(result);
 
 // for (final ItemType type : sequenceOfParsing) {
 // final Collection<? extends Nameable> parsedItemsForType = result.getAllNameables(type.type);

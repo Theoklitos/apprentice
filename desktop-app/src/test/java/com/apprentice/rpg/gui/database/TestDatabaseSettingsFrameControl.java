@@ -8,12 +8,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.database.DatabaseConnection;
-import com.apprentice.rpg.events.type.DatabaseModificationEvent;
+import com.apprentice.rpg.events.ApprenticeEventBus;
+import com.apprentice.rpg.gui.AbstractServiceLayerTest;
 import com.apprentice.rpg.gui.IWindowManager;
-import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
@@ -24,15 +25,16 @@ import com.apprentice.rpg.model.body.IType;
  * @author theoklitos
  * 
  */
-public final class TestDatabaseSettingsFrameControl {
+public final class TestDatabaseSettingsFrameControl extends AbstractServiceLayerTest{
 
-	private DatabaseSettingsFrameControl control;
+	private IServiceLayer serviceLayer;
 	private Mockery mockery;
 	private Vault vault;
 	private DatabaseConnection database;
 	private IDatabaseSettingsFrame view;
 	private IWindowManager windowManager;
 	private ITextConfigFileManager textfileManager;
+	private ApprenticeEventBus eventBus;
 
 	@Test
 	public void changeDatabaseLocation() {
@@ -41,11 +43,10 @@ public final class TestDatabaseSettingsFrameControl {
 			{
 				oneOf(database).setDatabase(databaseLocation);
 				oneOf(textfileManager).writeDatabaseLocation(databaseLocation);
-				oneOf(windowManager).closeAllFrames(false);
-				oneOf(windowManager).openFrame(new WindowStateIdentifier(view.getClass()));
+				
 			}
 		});
-		control.changeDatabaseLocationUnsafe(databaseLocation);
+		//serviceLayer.changeDatabaseLocationUnsafe(databaseLocation);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -59,19 +60,20 @@ public final class TestDatabaseSettingsFrameControl {
 				oneOf(view).setDatabaseDescription(with(any(List.class)));
 			}
 		});
-		control.databaseUpdated(new DatabaseModificationEvent<BodyPart>(null));
+		//serviceLayer.databaseChanged(new ApprenticeEvent(EventType.CREATE,null));
 	}
 
 	@Before
 	public void setup() {
-		mockery = new Mockery();
+		mockery = getMockery();
 		view = mockery.mock(IDatabaseSettingsFrame.class);
 		database = mockery.mock(DatabaseConnection.class);
 		windowManager = mockery.mock(IWindowManager.class);
+		serviceLayer = mockery.mock(IServiceLayer.class);
 		textfileManager = mockery.mock(ITextConfigFileManager.class);
 		vault = mockery.mock(Vault.class);
-		control = new DatabaseSettingsFrameControl(database, vault, windowManager, textfileManager);
-		control.setView(view);
+		eventBus = mockery.mock(ApprenticeEventBus.class);		
+		serviceLayer = new DatabaseSettingsFrameControl(serviceLayer, windowManager, database, textfileManager);
 	}
 
 	@After

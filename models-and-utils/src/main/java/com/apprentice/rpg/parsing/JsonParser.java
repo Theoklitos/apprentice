@@ -11,7 +11,7 @@ import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.gson.BonusSequenceDeserializer;
 import com.apprentice.rpg.parsing.gson.BonusSequenceSerializer;
@@ -100,7 +100,7 @@ public final class JsonParser implements ApprenticeParser {
 			return new TypeToken<Collection<IArmorPiece>>() {
 			}.getType();
 		case WEAPON:
-			return new TypeToken<Collection<WeaponPrototype>>() {
+			return new TypeToken<Collection<IWeapon>>() {
 			}.getType();
 		case PLAYER_CHARACTER:
 			return new TypeToken<Collection<PlayerCharacter>>() {

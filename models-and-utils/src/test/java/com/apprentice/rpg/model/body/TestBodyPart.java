@@ -23,6 +23,10 @@ public final class TestBodyPart {
 		assertEquals(part, identical);
 		part.setDescription("bla bla bla");
 		assertFalse(part.equals(identical));
+		
+		final BodyPart identicalLowerCase = new BodyPart("HEAD");
+		part.setDescription("");		
+		assertEquals(part, identicalLowerCase);
 	}
 
 	@Before

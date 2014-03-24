@@ -18,16 +18,12 @@ import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.events.PublishSubscribeEventBus;
 import com.apprentice.rpg.events.database.DataSynchronizer;
 import com.apprentice.rpg.events.database.IDataSynchronizer;
-import com.apprentice.rpg.gui.character.player.creation.INewPlayerCharacterFrameControl;
-import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrameControl;
 import com.apprentice.rpg.gui.database.DatabaseSettingsFrameControl;
 import com.apprentice.rpg.gui.database.IDatabaseSettingsFrameControl;
 import com.apprentice.rpg.gui.desktop.ApprenticeDesktopControl;
 import com.apprentice.rpg.gui.desktop.IApprenticeDesktopControl;
 import com.apprentice.rpg.gui.log.ILogFrameControl;
 import com.apprentice.rpg.gui.log.LogFrameControl;
-import com.apprentice.rpg.gui.main.EventBarControl;
-import com.apprentice.rpg.gui.main.IEventBarControl;
 import com.apprentice.rpg.gui.main.IMainControl;
 import com.apprentice.rpg.gui.main.MainControl;
 import com.apprentice.rpg.gui.util.IWindowUtils;
@@ -69,15 +65,12 @@ public final class TestWindowManager {
 				bind(IApprenticeDesktopControl.class).to(ApprenticeDesktopControl.class);
 				bind(IMainControl.class).to(MainControl.class);
 				bind(IDatabaseSettingsFrameControl.class).to(DatabaseSettingsFrameControl.class);
-				bind(INewPlayerCharacterFrameControl.class).to(NewPlayerCharacterFrameControl.class);
 				bind(ITypeAndBodyPartFrameControl.class).to(TypeAndBodyPartFrameControl.class);
 				bind(IApprenticeConfiguration.class).to(ApprenticeConfiguration.class);
 				bind(IGlobalWindowState.class).toInstance(globalWindowState);
 
 				bind(ILogFrameControl.class).toInstance(
-						(LogFrameControl) Logger.getRootLogger().getAppender("logFrame"));
-				bind(IEventBarControl.class).toInstance(
-						(EventBarControl) Logger.getRootLogger().getAppender("eventBar"));
+						(LogFrameControl) Logger.getRootLogger().getAppender("logFrame"));				
 
 				install(new GuiceConfigBackendForVault(database, vault));
 			}

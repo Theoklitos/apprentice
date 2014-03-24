@@ -2,40 +2,77 @@ package com.apprentice.rpg.strike;
 
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.rules.Ruleset;
-
 /**
- * Effect of a strike; has some bad effect in the player
+ * Effect of a strike; has some bad effect in the player. A "strike" may contain multiple effects, usually
+ * more than 1.
  * 
  * @author theoklitos
  * 
  */
-public abstract class Effect implements IEffect {
+public class Effect {
 
-	public enum EffectType{
+	/**
+	 * what type of effect is this? Effects are grouped into big categories.
+	 * 
+	 * @author theoklitos
+	 * 
+	 */
+	public enum EffectType {
+		/**
+		 * continuous HP loss
+		 */
 		BLEEDING,
+
+		/**
+		 * A negative modifier to combat capabilities
+		 */
 		PENALTY,
-		ROUND_LOSS,
-		BREAK		
+
+		/**
+		 * Stun, daze or some sort of play action loss
+		 */
+		ACTION_LOSS,
+
+		/**
+		 * Specific body part debiliation: breakage, fracture or severance
+		 */
+		DEBILITATION
 	}
-	
-	
+
+	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(Effect.class);
 
-	private Ruleset ruleset;
 	private final int level;
+	private final EffectType type;
 
-	public Effect(final int initialLevel) {
+	public Effect(final EffectType effectType, final int initialLevel) {
 		if (initialLevel < 1) {
 			throw new StrikeEx("Effects need an initial level of > 0");
 		}
 		this.level = initialLevel;
+		this.type = effectType;
 	}
 
 	@Override
-	public void setRuleset(final Ruleset ruleset) {
-		LOG.debug(getClass().getSimpleName() + " effect is using ruleset: " + ruleset);
-		this.ruleset = ruleset;
+	public boolean equals(final Object other) {
+		if (other instanceof Effect) {
+			final Effect otherEffect = (Effect) other;
+			return level == otherEffect.level && type.equals(otherEffect.type);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns the level of this effect; bigger levels -> worse damage for the player
+	 */
+	public int getLevel() {
+		return level;
+	}
+	
+	@Override
+	public String toString() {
+		return type + " lvl" + level;
 	}
 
 }

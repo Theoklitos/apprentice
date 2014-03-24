@@ -45,7 +45,7 @@ public final class TimeToNameableMapper implements ModificationTimeVault {
 	}
 
 	@Override
-	public void updated(final DateTime when, final Nameable item) {
+	public void updatedAt(final DateTime when, final Nameable item) {
 		updateTimes.put(item, when.getMillis());
 		LOG.debug("Set " + item.getClass().getSimpleName() + " last modification time to "
 			+ DateTimeFormat.forPattern(DATETIME_FORMAT).print(when));

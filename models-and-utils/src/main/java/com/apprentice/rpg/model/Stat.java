@@ -2,6 +2,7 @@ package com.apprentice.rpg.model;
 
 import com.apprentice.rpg.model.StatBundle.StatType;
 import com.apprentice.rpg.random.dice.Roll;
+import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.google.common.base.Objects;
 
 /**
@@ -72,6 +73,13 @@ public final class Stat {
 	}
 
 	/**
+	 * What is the {@link StatType} of this stat?
+	 */
+	public StatType getStatType() {
+		return StatType.valueOf(statType);
+	}
+
+	/**
 	 * The current numerical value for this stat
 	 */
 	public int getValue() {
@@ -81,13 +89,13 @@ public final class Stat {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(statType, getOriginalValue(), getValue(), getBonus());
-	}
-
+	}	
+	
 	public void setValue(final int value) {
 		this.currentValue = value;
 		this.bonus = getDetermineBonus(currentValue);
 	}
-
+	
 	@Override
 	public String toString() {
 		String operator = Roll.getOperator(bonus, true);
@@ -95,5 +103,12 @@ public final class Stat {
 			operator = "";
 		}
 		return currentValue + " (" + operator + bonus + ")";
+	}
+
+	/**
+	 * Returns a more complete form of toString() with more info
+	 */
+	public String toStringDetailed() {
+		return statType + " (" + ApprenticeStringUtils.getNumberWithOperator(getBonus()) + ")";
 	}
 }

@@ -24,9 +24,4 @@ public interface IDatabaseSettingsFrameControl extends ControlForView<IDatabaseS
 	 */
 	String getDatabaseLocation();
 
-	/**
-	 * updates the view with fresh vault information
-	 */
-	void updateDatabaseInformationInView();
-
 }

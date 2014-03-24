@@ -1,0 +1,36 @@
+extra var: DURATION Xrounds, until heal OR forever
+extra var: RESIST, DC check, may not be present
+extra var: List of StatType (sadly)
+
+
+* Minus to skill.
+
+* Spell failure chance.
+
+* Heart Disease
+
+* penetration? one level no variance
+
+* bleeding. Minor, Major, Severe, Critical!
+
+* ability loss? level can be dice
+
+* penalty
+
+* daze/stun/staggered/confusion
+
+* deafness/blindness/muteness
+
+* broken->battered->shattered->destroyed
+
+* knockback 5/10/15 ft (dc)
+
+* remove item held (dc)
+
+* catch fire
+
+* movement loss (3/4, 1/2, 1/4)
+
+* knockdown (dc)
+
+* knocnback (dc)

@@ -35,6 +35,18 @@ public final class TestApprenticePseudoRandom {
 		assertDiceIsWithinRange(new Roll("2D6+1"), 3, 13);
 	}
 
+//	@Test
+//	public void rollDamage() {
+//		final Roll roll = new Roll("D8+5");
+//		final StrikeType strikeType = new StrikeType("test");
+//		final int penetration = 7;
+//		final DamageRoll damageRoll = new DamageRoll(roll, penetration, strikeType);
+//		final Damage damage = random.roll(damageRoll);
+//		assertDiceIsWithinRange(roll, 6, 13);
+//		assertEquals(penetration, damage.getPenetrationHP());
+//		assertEquals(strikeType, damage.getType());
+//	}
+
 	@Before
 	public void setup() {
 		random = new ApprenticePseudoRandom();

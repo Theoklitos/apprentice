@@ -17,7 +17,7 @@ import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.config.TextConfigFileManager;
 import com.apprentice.rpg.gui.FrameAlreadyOpenEx;
-import com.apprentice.rpg.gui.main.IMainControl;
+import com.apprentice.rpg.gui.IWindowManager;
 import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.guice.GuiceConfigGui;
@@ -126,6 +126,8 @@ public final class StartupApprentice {
 				}
 				if (StringUtils.isNotBlank(e.getMessage())) {
 					windowUtils.showErrorMessage(e.getMessage());
+				} else {
+					windowUtils.showErrorMessage("Null pointer exception!");
 				}
 				LOG.error("Uncaught Exception!", e);
 			}
@@ -168,7 +170,7 @@ public final class StartupApprentice {
 			public void run() {
 				try {
 					UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-					injector.getInstance(IMainControl.class); // this starts it all!
+					injector.getInstance(IWindowManager.class).initializeMainFrame(); // this starts it all!
 				} catch (final Throwable e) {
 					LOG.error(e.getMessage());
 					e.printStackTrace();

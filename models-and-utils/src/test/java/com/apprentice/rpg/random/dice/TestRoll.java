@@ -14,17 +14,7 @@ public final class TestRoll {
 	private static Logger LOG = Logger.getLogger(TestRoll.class);
 
 	@Test
-	public void equality() {
-		final Roll roll1 = new Roll("D4-1+1+10-10");
-		final Roll roll2 = new Roll("D4");
-		assertEquals(roll1, roll2);
-		assertEquals(new Roll("2d6+15"), new Roll("15+2D6"));
-		assertFalse(new Roll("D6+15").equals(new Roll("2D6+1")));
-		assertFalse(new Roll("d10").equals(new Roll("d9+1")));
-	}
-
-	@Test
-	public void testAddDice() throws RollException {
+	public void addDice() throws RollException {
 		final Roll roll = new Roll("2D6+7");
 		roll.addDice(5, 1);
 
@@ -43,7 +33,7 @@ public final class TestRoll {
 	}
 
 	@Test
-	public void testAddRoll() throws RollException {
+	public void addRoll() throws RollException {
 		final Roll roll = new Roll("D6+1");
 		roll.addRoll(new Roll("D4-1"));
 		final Roll expected = new Roll("D6+D4");
@@ -57,7 +47,17 @@ public final class TestRoll {
 	}
 
 	@Test
-	public void testGetRollFromDiceAndOccurrences() throws RollException {
+	public void equality() {
+		final Roll roll1 = new Roll("D4-1+1+10-10");
+		final Roll roll2 = new Roll("D4");
+		assertEquals(roll1, roll2);
+		assertEquals(new Roll("2d6+15"), new Roll("15+2D6"));
+		assertFalse(new Roll("D6+15").equals(new Roll("2D6+1")));
+		assertFalse(new Roll("d10").equals(new Roll("d9+1")));
+	}
+
+	@Test
+	public void getRollFromDiceAndOccurrences() throws RollException {
 		final Roll roll = Roll.getRollFromDiceAndOccurrences(7, 2);
 		final Roll expected = new Roll("2D7");
 		assertTrue(roll.match(expected));
@@ -68,7 +68,7 @@ public final class TestRoll {
 	}
 
 	@Test
-	public void testIsZeroRoll() throws RollException {
+	public void isZeroRoll() throws RollException {
 		assertFalse(new Roll("D1+0").isZeroRoll());
 		assertFalse(new Roll("D0+11").isZeroRoll());
 		assertTrue(new Roll("D0+5-5").isZeroRoll());
@@ -76,7 +76,7 @@ public final class TestRoll {
 	}
 
 	@Test
-	public void testMatch() throws RollException {
+	public void match() throws RollException {
 		Roll roll1 = new Roll("D3+15+D3-5");
 		Roll roll2 = new Roll("2D3+10");
 
@@ -94,26 +94,13 @@ public final class TestRoll {
 	}
 
 	@Test(expected = RollException.class)
-	public void testNoDices() throws RollException {
+	public void noDices() throws RollException {
 		final Roll roll = new Roll("1+11");
 		roll.toString();
 	}
 
 	@Test
-	public void testRemoveDice() throws RollException {
-		final Roll roll = new Roll("2D6+7");
-		roll.removeOneOccurenceOfDice(6);
-
-		final Roll expected = new Roll("D6+7");
-		assertTrue(roll.match(expected));
-
-		roll.removeOneOccurenceOfDice(6);
-
-		assertEquals("7", roll.toString());
-	}
-
-	@Test
-	public void testStuff() throws RollException {
+	public void parsing() throws RollException {
 		final String rollString = "D6-7-4+2+D8+2D3+11-D4+D8+d8";
 		final Roll roll = new Roll(rollString);
 
@@ -131,8 +118,25 @@ public final class TestRoll {
 	}
 
 	@Test(expected = ApprenticeEx.class)
-	public void testWrongLetter() throws RollException {
-		final Roll roll = new Roll("D6+DZ1+1");
-		roll.toString();
+	public void parsingError() throws RollException {
+		new Roll("D6+DZ1+1");;
+	}
+
+	@Test(expected = ApprenticeEx.class)
+	public void parsingErrorNoDiceNumber() throws RollException {
+		new Roll("2D");
+	}
+
+	@Test
+	public void removeDice() throws RollException {
+		final Roll roll = new Roll("2D6+7");
+		roll.removeOneOccurenceOfDice(6);
+
+		final Roll expected = new Roll("D6+7");
+		assertTrue(roll.match(expected));
+
+		roll.removeOneOccurenceOfDice(6);
+
+		assertEquals("7", roll.toString());
 	}
 }

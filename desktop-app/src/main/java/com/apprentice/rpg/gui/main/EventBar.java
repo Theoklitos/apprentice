@@ -3,23 +3,22 @@ package com.apprentice.rpg.gui.main;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.apprentice.rpg.gui.ControllableView;
-
 /**
  * Appears at the bottom of the window, displaying recent events/logs
  * 
  * @author theoklitos
  * 
  */
-public final class EventBar extends JPanel implements ControllableView {
+public final class EventBar extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final JLabel text;
 
-	public EventBar() {
+	public EventBar(final EventBarControl control) {
 		text = new JLabel(" ");
 		add(text);
+		control.setView(this);
 	}
 
 	/**

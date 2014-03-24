@@ -79,6 +79,28 @@ public class SimpleVault implements NameableVault {
 	}
 
 	@Override
+	public <T extends Nameable> Collection<T> getAllPrototypeNameables(final Class<T> nameableType) {
+		final Collection<T> result = Lists.newArrayList();
+		for (final T nameable : getAllNameables(nameableType)) {
+			if (nameable.isPrototype()) {
+				result.add(nameable);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public <T extends Nameable> T getPrototype(final String name, final Class<T> typeToQueryFor) throws TooManyResultsEx,
+			NoResultsFoundEx {
+		for (final T object : getAllNameables(typeToQueryFor)) {
+			if (object.getName().equals(name) && object.isPrototype()) {
+				return object;
+			}
+		}
+		throw new NoResultsFoundEx(name + " does not exist");
+	}
+
+	@Override
 	public <T extends Nameable> T getUniqueNamedResult(final String name, final Class<T> typeToQueryFor)
 			throws TooManyResultsEx, NoResultsFoundEx {
 		for (final T object : getAllNameables(typeToQueryFor)) {

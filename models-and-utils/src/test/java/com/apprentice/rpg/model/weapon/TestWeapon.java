@@ -2,10 +2,12 @@ package com.apprentice.rpg.model.weapon;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -19,12 +21,14 @@ import com.apprentice.rpg.model.damage.Damage;
 import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.random.ApprenticeRandom;
+import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.rules.D20BasedRuleset;
 import com.apprentice.rpg.strike.StrikeType;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
- * tests for the {@link Weapon}
+ * tests for the {@link AbstractWeapon}
  * 
  * @author theoklitos
  * 
@@ -57,49 +61,67 @@ public final class TestWeapon {
 	}
 
 	@Test
+	public void createInstance() {
+		final IWeapon weapon = factory.getWeaponPrototypes().get(1);
+		final IWeapon instance = weapon.clone();
+		assertNotSame(weapon, instance);
+		assertEquals(weapon, instance);
+		instance.addMeleeDamage(new DamageRoll("D8+1", factory.getStrikeTypes().get(2)));
+		assertEquals(2, instance.getMeleeDamages().size());
+		assertEquals(1, weapon.getMeleeDamages().size());
+	}
+
+	@Test
 	public void damageRolling() {
-		final Weapon weapon = factory.getWeapons().get(1);
+		final IWeapon weapon = factory.getWeaponPrototypes().get(1).clone();
 		// add one alternate damage, should not affect
-		factory.getWeapons().get(1).getMeleeDamageRolls().add(new DamageRoll("d6", factory.getStrikeTypes().get(0)));
+		factory.getWeaponPrototypes().get(1).getMeleeDamages()
+				.add(new DamageRoll("d6", factory.getStrikeTypes().get(0)));
 
 		final List<DamageRoll> extraDamages = Lists.newArrayList(weapon.getExtraDamages());
 		mockery.checking(new Expectations() {
 			{
-				allowing(random).roll(weapon.getMeleeDamageRolls().get(0));				
-				will(returnValue(new Damage(5, weapon.getMeleeDamageRolls().get(0).getType())));
+				allowing(random).roll(weapon.getMeleeDamages().get(0));
+				will(returnValue(new Damage(5, weapon.getMeleeDamages().get(0).getType())));
 				allowing(random).roll(extraDamages.get(0));
 				will(returnValue(new Damage(3, extraDamages.get(0).getType())));
 				allowing(random).roll(extraDamages.get(1));
 				will(returnValue(new Damage(2, extraDamages.get(1).getType())));
 			}
 		});
-		final Collection<Damage> result = weapon.rollMeleeDamage(0, random);		
+		final Collection<Damage> result = weapon.rollMeleeDamage(0, random);
 		assertEquals(3, result.size());
 		assertTrue(result.contains(new Damage(5, factory.getStrikeTypes().get(1))));
-		assertTrue(result.contains(new Damage(3, factory.getStrikeTypes().get(5))));
-		assertTrue(result.contains(new Damage(2, factory.getStrikeTypes().get(4))));
+		assertTrue(result.contains(new Damage(3, factory.getStrikeTypes().get(4))));
+		assertTrue(result.contains(new Damage(2, factory.getStrikeTypes().get(5))));
 	}
 
 	@Test
-	public void deteriorateAndRepairRanged() {
-		weapon.setRangeAndOptimalThrownDamage("5/10/15", new DamageRoll("D4", new StrikeType("Piercing")));
+	public void deteriorateAndRepair() {
+		weapon.setRangeAndThrownDamage("5/10/15", new DamageRoll("D4-1", new StrikeType("Piercing")));
 		weapon.setHitPoints(10);
-
-		System.out.println(weapon);
+		assertEquals(new Roll("D3-1"), weapon.getThrownDamage().getContent().getRoll());
+		weapon.setHitPoints(7);
+		assertEquals(new Roll("D2-1"), weapon.getThrownDamage().getContent().getRoll());
+		weapon.setHitPoints(20000);
+		assertEquals(new Roll("D4-1"), weapon.getThrownDamage().getContent().getRoll());
 	}
 
 	@Test
 	public void equality() {
-		final Weapon greatsword = factory.getWeapons().get(1);
+		final IWeapon greatsword = factory.getWeaponPrototypes().get(1);
 		final Weapon identical =
 			new Weapon("Magical Greatsword", 30, new DamageRoll("2D6+1", factory.getStrikeTypes().get(1)));
-		identical.setDescription("Awesome magical greatsword");
-		identical.getExtraDamages().add(new DamageRoll("1D6", factory.getStrikeTypes().get(5)));
+
 		final DamageRoll coldDamage = new DamageRoll("1D10", factory.getStrikeTypes().get(4));
-		identical.getExtraDamages().add(coldDamage);
+		final Set<DamageRoll> extraDamages =
+			Sets.newHashSet(new DamageRoll("1D6", factory.getStrikeTypes().get(5)), coldDamage);
+		identical.setExtraDamages(extraDamages);
 
 		assertEquals(greatsword, identical);
-		identical.getExtraDamages().remove(coldDamage);
+		final Collection<DamageRoll> extraDamagesWithoutCold = identical.getExtraDamages();
+		extraDamagesWithoutCold.remove(coldDamage);
+		identical.setExtraDamages(extraDamagesWithoutCold);
 		assertFalse(greatsword.equals(identical));
 	}
 
@@ -119,7 +141,7 @@ public final class TestWeapon {
 		weapon.setBlockModifier(5);
 		final Range range = new Range("5/15/20");
 		final DamageRoll rangedDamage = new DamageRoll("D8", factory.getStrikeTypes().get(3));
-		weapon.setRangeAndOptimalThrownDamage(range, rangedDamage);
+		weapon.setRangeAndThrownDamage(range, rangedDamage);
 		assertEquals(range, weapon.getRange().getContent());
 		assertEquals(rangedDamage, weapon.getThrownDamage().getContent());
 	}
@@ -143,6 +165,16 @@ public final class TestWeapon {
 		durability.setCurrent(30);
 		assertEquals(40, durability.getMaximum());
 		assertEquals(30, durability.getCurrent());
+	}
+
+	@Test
+	public void setExtraDamage() {
+		final IWeapon longsword = factory.getWeaponPrototypes().get(0);
+		assertEquals(0, longsword.getExtraDamages().size());
+		final DamageRoll extraDamage = new DamageRoll("D8", factory.getStrikeTypes().get(4));
+		longsword.setExtraDamages(Sets.newHashSet(extraDamage));
+		assertEquals(1, longsword.getExtraDamages().size());
+		assertEquals(extraDamage, longsword.getExtraDamages().iterator().next());
 	}
 
 	@Before

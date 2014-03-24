@@ -14,8 +14,19 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
+
+import com.apprentice.rpg.gui.ControllableView;
 import com.apprentice.rpg.gui.IWindowManager;
+import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrame;
+import com.apprentice.rpg.gui.database.DatabaseSettingsFrame;
 import com.apprentice.rpg.gui.desktop.ApprenticeDesktop;
+import com.apprentice.rpg.gui.dice.DiceRollerFrame;
+import com.apprentice.rpg.gui.log.LogFrame;
+import com.apprentice.rpg.gui.vault.armor.ArmorAndArmorPieceFrame;
+import com.apprentice.rpg.gui.vault.player.PlayerCharacterVaultFrame;
+import com.apprentice.rpg.gui.vault.type.TypeAndBodyPartFrame;
+import com.apprentice.rpg.gui.vault.weapon.WeaponAndAmmunitionVaultFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
@@ -23,26 +34,26 @@ import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.util.Box;
 
-public final class MainFrame extends JFrame {
+public final class MainFrame extends JFrame implements ControllableView {
 
 	private static final long serialVersionUID = 1;
 
 	private final IMainControl mainControl;
 	private final ApprenticeDesktop desktop;
 	private final IWindowManager windowManager;
-	private final IEventBarControl eventBarControl;
-	private final IGlobalWindowState globalState;
+	private final IGlobalWindowState globalWindowState;
 
-	public MainFrame(final IGlobalWindowState globalState, final IWindowManager windowManager,
-			final IMainControl mainControl, final IEventBarControl eventBarControl, final ApprenticeDesktop desktop) {
-		this.globalState = globalState;
+	public MainFrame(final IMainControl mainControl, final IWindowManager windowManager,
+			final IGlobalWindowState globalWindowState) {
+		mainControl.getEventBus().register(this);
+		this.globalWindowState = globalWindowState;
+		this.globalWindowState.getWindowUtils().setParent(this);
 		this.windowManager = windowManager;
 		this.mainControl = mainControl;
-		this.eventBarControl = eventBarControl;
-		this.desktop = desktop;
+		desktop = new ApprenticeDesktop(mainControl.getDesktopControl());
 
-		setTitle("Apprentice v0.3 - Built 9 February 2014");
-		globalState.getWindowUtils().setDefaultIcon(this);
+		setTitle("Apprentice v0.7? - Built 9 February 2014");
+		globalWindowState.getWindowUtils().setDefaultIcon(this);
 		setSizeAndPosition();
 		initMenus();
 		initComponents();
@@ -54,15 +65,17 @@ public final class MainFrame extends JFrame {
 	 */
 	public void addInternalFrame(final JInternalFrame internalFrame) {
 		desktop.add(internalFrame);
-		globalState.getWindowUtils().centerInternalComponent(this, internalFrame, 50);
+		globalWindowState.getWindowUtils().centerInternalComponent(this, internalFrame, 50);
 		desktop.validate();
 	}
 
 	private void initComponents() {
+		final ApprenticeDesktop desktop = new ApprenticeDesktop(mainControl.getDesktopControl());
+		mainControl.getEventBus().register(desktop);
 		final JPanel grandPane = new JPanel(new BorderLayout());
 		grandPane.add(desktop, BorderLayout.CENTER);
-		final EventBar eventBar = new EventBar();
-		eventBarControl.setView(eventBar);
+		final EventBarControl control = (EventBarControl) Logger.getRootLogger().getAppender("eventBar");
+		final EventBar eventBar = new EventBar(control);
 		grandPane.add(eventBar, BorderLayout.SOUTH);
 		add(grandPane);
 	}
@@ -71,15 +84,14 @@ public final class MainFrame extends JFrame {
 		final JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		final JMenu mnPlayerCharacters = new JMenu("Player Characters");
+		final JMenu mnPlayerCharacters = new JMenu("Characters");
 		menuBar.add(mnPlayerCharacters);
 		final JMenuItem mntmNewPlayer = new JMenuItem("New Player");
 		mntmNewPlayer.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showNewPlayerCharacterFrame();
-
+				windowManager.showFrame(NewPlayerCharacterFrame.class);
 			}
 		});
 		mnPlayerCharacters.add(mntmNewPlayer);
@@ -88,10 +100,19 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showPlayerVaultFrame();
+				windowManager.showFrame(PlayerCharacterVaultFrame.class);
 			}
 		});
 		mnPlayerCharacters.add(mntmSummonPlayer);
+		final JMenuItem mntmNPCs = new JMenuItem("NPCs");
+		mntmNPCs.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				// TODO
+			}
+		});
+		mnPlayerCharacters.add(mntmNPCs);
 
 		final JMenu mnDice = new JMenu("Dice Roller");
 		final JMenuItem mnShowDice = new JMenuItem("Open Dice Roller");
@@ -99,7 +120,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showDiceRollerFrame();
+				windowManager.showFrame(DiceRollerFrame.class);
 			}
 		});
 		mnDice.add(mnShowDice);
@@ -108,6 +129,13 @@ public final class MainFrame extends JFrame {
 		final JMenu mnVaults = new JMenu("Vaults");
 		menuBar.add(mnVaults);
 		final JMenuItem mntmPlayers = new JMenuItem("Players");
+		mntmPlayers.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				windowManager.showFrame(PlayerCharacterVaultFrame.class);
+			}
+		});
 		mnVaults.add(mntmPlayers);
 		final JMenu mntmItems = new JMenu("Items");
 		mnVaults.add(mntmItems);
@@ -116,7 +144,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent event) {
-				windowManager.showWeaponVaultFrame();
+				windowManager.showFrame(WeaponAndAmmunitionVaultFrame.class);
 			}
 		});
 		mntmItems.add(submntmWeapons);
@@ -125,7 +153,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent event) {
-				windowManager.showArmorPieceVaultFrame();
+				windowManager.showFrame(ArmorAndArmorPieceFrame.class);
 			}
 		});
 		mntmItems.add(submntmArmors);
@@ -136,7 +164,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showTypeAndBodyPartFrame();
+				windowManager.showFrame(TypeAndBodyPartFrame.class);
 			}
 		});
 		mnVaults.add(mntmTypes);
@@ -148,10 +176,28 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showDatabaseSettingsFrame();
+				windowManager.showFrame(DatabaseSettingsFrame.class);
 			}
 		});
 		mnConfiguration.add(mntmDatabaseSettings);
+		final JMenuItem mntmRuleset = new JMenuItem("Rules");
+		mntmRuleset.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				// TODO
+			}
+		});
+		mnConfiguration.add(mntmRuleset);
+		final JMenuItem mntmExportImport = new JMenuItem("Export/Import");
+		mntmExportImport.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				// TODO
+			}
+		});
+		mnConfiguration.add(mntmExportImport);
 
 		final JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -163,7 +209,7 @@ public final class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				windowManager.showLogFrame();
+				windowManager.showFrame(LogFrame.class);
 
 			}
 		});
@@ -178,11 +224,17 @@ public final class MainFrame extends JFrame {
 			public void actionPerformed(final ActionEvent e) {
 				final DataFactory data = new DataFactory();
 				for (final Nameable nameable : data.getAllNameables()) {
-					mainControl.getVault().update(nameable);
-				}				
+					//System.out.println("Storing [" + nameable.getClass().getSimpleName() + "]:" + nameable);
+					mainControl.getVault().update(nameable); // TODO
+				}
 			}
 		});
 		menuBar.add(test);
+	}
+
+	@Override
+	public void refreshFromModel() {
+		// nothingd
 	}
 
 	private void setShutdownHook() {
@@ -190,8 +242,8 @@ public final class MainFrame extends JFrame {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent we) {
-				globalState.setWindowState(new WindowStateIdentifier(MainFrame.class), getBounds(), true);
-				windowManager.closeAllFrames(true);				
+				globalWindowState.setWindowState(new WindowStateIdentifier(MainFrame.class), getBounds(), true);
+				mainControl.getEventBus().postShutdownEvent(true);
 				mainControl.shutdownGracefully();
 				System.exit(0);
 			}
@@ -202,13 +254,13 @@ public final class MainFrame extends JFrame {
 	 * stores information about this frame in the {@link IGlobalWindowState}
 	 */
 	private void setSizeAndPosition() {
-		final Box<WindowState> stateBox = globalState.getWindowState(new WindowStateIdentifier(getClass()));
+		final Box<WindowState> stateBox = globalWindowState.getWindowState(new WindowStateIdentifier(getClass()));
 		setMinimumSize(new Dimension(700, 400));
 		if (stateBox.hasContent()) {
 			setBounds(stateBox.getContent().getBounds());
 		} else {
 			setSize(1000, 600);
-			globalState.getWindowUtils().centerComponent(this, 100);
+			globalWindowState.getWindowUtils().centerComponent(this, 100);
 		}
 	}
 

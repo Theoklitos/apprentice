@@ -6,9 +6,11 @@ import java.util.Map;
 
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.damage.Damage;
 import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.durable.IDurableItem;
 import com.apprentice.rpg.parsing.ParsingEx;
+import com.apprentice.rpg.random.ApprenticeRandom;
 import com.apprentice.rpg.util.Box;
 
 /**
@@ -17,14 +19,19 @@ import com.apprentice.rpg.util.Box;
  * @author theoklitos
  * 
  */
-public interface IWeapon extends IDurableItem, Nameable {
+public interface IWeapon extends IDurableItem, Nameable, Cloneable {
 
 	/**
 	 * Adds this melee damage to the existing melee damages. Cannot already exist.
 	 * 
 	 * @thows {@link ApprenticeEx} if this {@link DamageRoll} already exists
 	 */
-	void addMeleeDamage(DamageRoll itemAt) throws ApprenticeEx;
+	void addMeleeDamage(DamageRoll daAt) throws ApprenticeEx;
+
+	/**
+	 * Deep copies this weapon, in order to be handed out to a player. Will only work in prototypes.
+	 */
+	IWeapon clone();
 
 	/**
 	 * Returns a map that maps the {@link AmmunitionType} this weapon can use along with their respective
@@ -38,14 +45,16 @@ public interface IWeapon extends IDurableItem, Nameable {
 	public int getBlockModifier();
 
 	/**
-	 * Weapons might have extra damages besides the base, ie +1D6 fire damage for some magical weapons.
+	 * Returns any "extra" damages weapons might have besides the base melee ones, ie +1D6 fire damage for
+	 * some magical weapons.
 	 */
 	public Collection<DamageRoll> getExtraDamages();
 
 	/**
-	 * Returns the melee damages this weapon can cause. Note: This is a copy of the list, cannot be modified. Use the add/remove methods to change this. 
+	 * Returns the melee damages this weapon can cause. Note: This is a copy of the list, cannot be modified.
+	 * Use the add/remove methods to change this.
 	 */
-	public List<DamageRoll> getMeleeDamageRolls();
+	public List<DamageRoll> getMeleeDamages();
 
 	/**
 	 * If this weapon is ranged = has a {@link Range} obejct set, returns it in a box
@@ -64,11 +73,28 @@ public interface IWeapon extends IDurableItem, Nameable {
 	boolean isThrownWeapon();
 
 	/**
-	 * Removes  this damage from the existing melee damages. Must exist. 
+	 * Removes this damage from the existing melee damages. Must exist.
 	 * 
 	 * @thows {@link ApprenticeEx} if this {@link DamageRoll} does not exist
 	 */
 	void removeMeleeDamage(DamageRoll itemAt) throws ApprenticeEx;
+
+	/**
+	 * Rolls the selected {@link DamageRoll}, adds the extra damage, and returns the result
+	 * 
+	 * @throws ApprenticeEx
+	 *             if this weapon does not have such a damage roll
+	 */
+	List<Damage> rollMeleeDamage(final DamageRoll damageRoll, ApprenticeRandom random) throws ApprenticeEx;
+
+	/**
+	 * Rolls the numbered {@link DamageRoll} from the list of melee damages, adds the extra damage, and
+	 * returns the result
+	 * 
+	 * @throws ApprenticeEx
+	 *             if this weapon does not have such a damage roll
+	 */
+	List<Damage> rollMeleeDamage(final int number, ApprenticeRandom random) throws ApprenticeEx;
 
 	/**
 	 * Enables this weapon to fire the given {@link AmmunitionType}
@@ -81,6 +107,12 @@ public interface IWeapon extends IDurableItem, Nameable {
 	public void setBlockModifier(final int modifier);
 
 	/**
+	 * Weapons might have extra damages besides the base, ie +1D6 fire damage for some magical weapons. This
+	 * method sets those damages.
+	 */
+	public void setExtraDamages(Collection<DamageRoll> extraDamages);
+
+	/**
 	 * Sets the thrown range information for this weapon
 	 * 
 	 * @throws ApprenticeEx
@@ -89,22 +121,21 @@ public interface IWeapon extends IDurableItem, Nameable {
 	public void setRange(final Range range) throws ApprenticeEx;
 
 	/**
-	 * sets both the (optimal) thrown damage and the {@link Range} for that damage
+	 * sets both the thrown damage and the {@link Range} for that damage
 	 */
-	public void setRangeAndOptimalThrownDamage(final Range range, final DamageRoll rangedDamage);
-	
+	public void setRangeAndThrownDamage(final Range range, final DamageRoll rangedDamage);
+
 	/**
-	 * sets both the (optimal) thrown damage and the {@link Range} for that damage. Ranged will be parsed from
+	 * sets both the thrown damage and the {@link Range} for that damage. Ranged will be parsed from
 	 * the string
 	 */
-	public void setRangeAndOptimalThrownDamage(final String rangeAsString, final DamageRoll rangedDamage)
-			throws ParsingEx;
-	
+	public void setRangeAndThrownDamage(final String rangeAsString, final DamageRoll rangedDamage) throws ParsingEx;
+
 	/**
-	 * Sets how much thrown damage this weapon is supposed to inflict, at optimal condition
+	 * Sets how much thrown damage this weapon inflicts
 	 * 
 	 * @throws ApprenticeEx
-	 *             if no {@link Range} is set
+	 *             if no {@link Range} or thrown damage is set
 	 */
 	public void setThrownDamage(final DamageRoll damageRoll) throws ApprenticeEx;
 

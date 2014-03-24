@@ -3,6 +3,7 @@ package com.apprentice.rpg.model.weapon;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.CurrentMaximumPair;
@@ -19,6 +20,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.rits.cloning.Cloner;
 
 /**
  * A weapon a PC uses in order to inflict damage
@@ -26,7 +28,7 @@ import com.google.common.collect.Sets;
  * @author theoklitos
  * 
  */
-public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstance {
+public class Weapon extends DurableItem implements IWeapon {
 
 	private final Collection<DamageRoll> extraDamages;
 	private final List<DamageRoll> meleeDamages;
@@ -58,7 +60,16 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 				+ getName());
 		}
 		meleeDamages.add(meleeDamage);
-		updateRollState();
+	}
+
+	@Override
+	public IWeapon clone() {
+		if (!isPrototype()) {
+			throw new ApprenticeEx("Tried to clone non-protoype weapon " + getName());
+		}
+		final Weapon clone = new Cloner().deepClone(this);
+		clone.setPrototype(false);
+		return clone;
 	}
 
 	@Override
@@ -87,26 +98,26 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 	}
 
 	@Override
-	public Collection<Roll> getDeterioratableRolls() {
-		final Collection<Roll> result = Lists.newArrayList();
-		for (final DamageRoll damage : meleeDamages) {
-			result.add(damage.getRoll());
-		}
-		if (getThrownDamage().hasContent()) {
-			System.out.println("getrhwon");
-			result.add(getThrownDamage().getContent().getRoll());
-		}
-		return result;
-	}
-
-	@Override
 	public Collection<DamageRoll> getExtraDamages() {
-		return extraDamages;
+		return getModifiedDamagedRollCollection(extraDamages);
 	}
 
 	@Override
-	public List<DamageRoll> getMeleeDamageRolls() {
-		return Lists.newArrayList(meleeDamages);
+	public List<DamageRoll> getMeleeDamages() {
+		return Lists.newArrayList(getModifiedDamagedRollCollection(meleeDamages));
+	}
+
+	/**
+	 * modifies the {@link Roll}s inside all the {@link DamageRoll}s
+	 */
+	private Collection<DamageRoll> getModifiedDamagedRollCollection(final Collection<DamageRoll> damageRollCollection) {
+		final Set<DamageRoll> modifiedDamageRolls = Sets.newHashSet();
+		for (final DamageRoll damageRoll : damageRollCollection) {
+			final Roll modifiedRoll = getModifiedRollForDeterioration(damageRoll.getRoll());
+			final DamageRoll modifiedDamagedRoll = new DamageRoll(modifiedRoll, damageRoll.getType());
+			modifiedDamageRolls.add(modifiedDamagedRoll);
+		}
+		return modifiedDamageRolls;
 	}
 
 	@Override
@@ -123,7 +134,9 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 		if (thrownDamage == null) {
 			return Box.empty();
 		} else {
-			return Box.with(thrownDamage);
+			final DamageRoll modifiedDamage =
+				new DamageRoll(getModifiedRollForDeterioration(thrownDamage.getRoll()), thrownDamage.getType());
+			return Box.with(modifiedDamage);
 		}
 	}
 
@@ -145,7 +158,6 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 				+ "\" cannot be removed because it doesn't exist in weapon " + getName());
 		}
 		meleeDamages.remove(meleeDamage);
-		updateRollState();
 	}
 
 	/**
@@ -188,6 +200,12 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 	}
 
 	@Override
+	public void setExtraDamages(final Collection<DamageRoll> extraDamages) {
+		this.extraDamages.clear();
+		this.extraDamages.addAll(extraDamages);
+	}
+
+	@Override
 	public void setRange(final Range range) {
 		if (getThrownDamage().isEmpty()) {
 			throw new ApprenticeEx("Tried to set range, but no range damage is set.");
@@ -197,15 +215,14 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 	}
 
 	@Override
-	public void setRangeAndOptimalThrownDamage(final Range range, final DamageRoll thrownDamage) {
+	public void setRangeAndThrownDamage(final Range range, final DamageRoll thrownDamage) {
 		this.range = range;
 		this.thrownDamage = thrownDamage;
 	}
 
 	@Override
-	public void setRangeAndOptimalThrownDamage(final String rangeAsString, final DamageRoll thrownDamage)
-			throws ParsingEx {
-		setRangeAndOptimalThrownDamage(new Range(rangeAsString), thrownDamage);
+	public void setRangeAndThrownDamage(final String rangeAsString, final DamageRoll thrownDamage) throws ParsingEx {
+		setRangeAndThrownDamage(new Range(rangeAsString), thrownDamage);
 	}
 
 	@Override
@@ -213,7 +230,7 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 		if (getRange().isEmpty()) {
 			throw new ApprenticeEx("Tried to set ranged damage, but no range is set.");
 		} else {
-			setRangeAndOptimalThrownDamage(range, thrownDamage);
+			setRangeAndThrownDamage(range, thrownDamage);
 		}
 	}
 
@@ -237,7 +254,11 @@ public class Weapon extends DurableItem implements WeaponPrototype, WeaponInstan
 		if (isThrownWeapon()) {
 			thrownInfo = ", thrown: " + getThrownDamage().getContent() + " at " + getRange().getContent() + ".";
 		}
-		return getName() + meleeDamages + extraDamages + thrownInfo + " HP: " + getDurability() + blockMod;
+		String name = getName();
+		if (isPrototype()) {
+			name = "[PROTOTYPE] " + name;
+		}
+		return name + meleeDamages + extraDamages + thrownInfo + " HP: " + getDurability() + blockMod;
 	}
 
 }

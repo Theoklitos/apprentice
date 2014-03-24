@@ -1,5 +1,6 @@
 package com.apprentice.rpg.model;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.base.Joiner;
@@ -23,7 +24,7 @@ public class StatBundle {
 		CHARISMA
 	}
 
-	private final Map<String, Stat> statistics;
+	private final Map<String, Stat> statMapping;
 
 	public StatBundle(final int initialStrength, final int initialDexterity, final int initialConstitution,
 			final int initialIntelligence, final int initialWisdom, final int initialCharisma) {
@@ -31,42 +32,49 @@ public class StatBundle {
 				StatType.CONSTITUTION, initialConstitution), new Stat(StatType.INTELLIGENCE, initialIntelligence),
 				new Stat(StatType.WISDOM, initialWisdom), new Stat(StatType.CHARISMA, initialCharisma));
 	}
-
+	
 	public StatBundle(final Stat strength, final Stat dexterity, final Stat constitution, final Stat intelligence,
 			final Stat wisdom, final Stat charisma) {
-		statistics = Maps.newHashMap();
-		statistics.put(StatType.STRENGTH.toString(), strength);
-		statistics.put(StatType.DEXTERITY.toString(), dexterity);
-		statistics.put(StatType.CONSTITUTION.toString(), constitution);
-		statistics.put(StatType.INTELLIGENCE.toString(), intelligence);
-		statistics.put(StatType.WISDOM.toString(), wisdom);
-		statistics.put(StatType.CHARISMA.toString(), charisma);
+		statMapping = Maps.newLinkedHashMap();
+		statMapping.put(StatType.STRENGTH.toString(), strength);
+		statMapping.put(StatType.DEXTERITY.toString(), dexterity);
+		statMapping.put(StatType.CONSTITUTION.toString(), constitution);
+		statMapping.put(StatType.INTELLIGENCE.toString(), intelligence);
+		statMapping.put(StatType.WISDOM.toString(), wisdom);
+		statMapping.put(StatType.CHARISMA.toString(), charisma);
 	}
 
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof StatBundle) {
 			final StatBundle stats = (StatBundle) other;
-			return Objects.equal(statistics, stats.statistics);
+			return Objects.equal(statMapping, stats.statMapping);
 		} else {
 			return false;
 		}
 	}
 
 	/**
+	 * returns all the (6) stats	 
+	 */
+	public Collection<Stat> getAll() {
+		return statMapping.values();
+	}
+
+	/**
 	 * return the stat based on the requested type. There exists one stat for each {@link StatType}
 	 */
 	public Stat getStat(final StatType type) {
-		return statistics.get(type.toString());
+		return statMapping.get(type.toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(statistics);
+		return Objects.hashCode(statMapping);
 	}
 
 	@Override
 	public String toString() {
-		return Joiner.on(",").withKeyValueSeparator(":").join(statistics);
+		return Joiner.on(",").withKeyValueSeparator(":").join(statMapping);
 	}
 }

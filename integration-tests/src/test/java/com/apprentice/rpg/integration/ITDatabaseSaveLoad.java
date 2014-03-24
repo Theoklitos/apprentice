@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.apprentice.rpg.config.ApprenticeConfiguration;
 import com.apprentice.rpg.config.ApprenticeConfiguration.DesktopBackgroundType;
 import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
-import com.apprentice.rpg.gui.character.player.PlayerCharacterFrame;
+import com.apprentice.rpg.gui.weapon.WeaponFrame;
 import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
@@ -37,7 +37,7 @@ public final class ITDatabaseSaveLoad extends AbstractIntegrationTest {
 
 	@Test(expected = ItemAlreadyExistsEx.class)
 	public void cannotCreateSameUniqueObject() {
-		final IPlayerCharacter pc = factory.getPlayerCharacter();
+		final IPlayerCharacter pc = factory.getPlayerCharacter2();
 		vault.create(pc);
 		vault.update(pc);
 		vault.create(pc);
@@ -74,7 +74,7 @@ public final class ITDatabaseSaveLoad extends AbstractIntegrationTest {
 
 	@Test
 	public void saveLoadPlayerCharacter() {
-		final IPlayerCharacter pc = factory.getPlayerCharacter();
+		final IPlayerCharacter pc = factory.getPlayerCharacter1();
 		LOG.info("Storing player characater...");
 		vault.update(pc);
 		database.closeDB();
@@ -102,7 +102,7 @@ public final class ITDatabaseSaveLoad extends AbstractIntegrationTest {
 	@Test
 	public void saveLoadWindowState() {
 		final IGlobalWindowState windowState = new GlobalWindowState(null);
-		final WindowStateIdentifier identifier = new WindowStateIdentifier(PlayerCharacterFrame.class, "player1");
+		final WindowStateIdentifier identifier = new WindowStateIdentifier(WeaponFrame.class, "longsword");
 		final Rectangle bounds = new Rectangle(10, 5, 200, 1000);
 		final boolean isOpen = true;
 		windowState.setWindowState(identifier, bounds, isOpen);

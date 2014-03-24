@@ -4,94 +4,91 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.factories.DataFactory;
-import com.apprentice.rpg.random.ApprenticeRandom;
-import com.apprentice.rpg.random.dice.Roll;
-import com.apprentice.rpg.rules.D20BasedRuleset;
-import com.apprentice.rpg.rules.Ruleset;
+import com.apprentice.rpg.random.dice.RollWithSuffix;
 
 /**
- * tests for the {@link ArmorPiece}
+ * Tests for the {@link Armor}r
  * 
  * @author theoklitos
  * 
  */
 public final class TestArmor {
 
-	private ArmorPiece armorPiece;
-	private DataFactory factory;
-	private Mockery mockery;
-	private Ruleset ruleset;
-	private ApprenticeRandom random;
+	public DataFactory factory;
+	public Armor armor;
+	private ArmorPiece wingArmorPiece;
 
-	@Test
-	public void changeTheBaseRoll() {
-		final Roll newRoll = new Roll("2D10+2");
-		armorPiece.setDamageReductionRoll(newRoll);
-		mockery.checking(new Expectations() {
-			{
-				allowing(random).roll(newRoll);
-				will(returnValue(10));
-			}
-		});
-		assertEquals(10, armorPiece.rollDamageReduction(random));
+	@Test(expected = ArmorDoesNotFitEx.class)
+	public void addAmbiguousPart() {
+		armor.addArmorPiece(wingArmorPiece);
 	}
 
 	@Test
-	public void changeTheBaseRollAndDeteriorationIsConsistent() {
-		armorPiece.removeHitPoints(10);
-		assertEquals(new Roll("D4+1"), armorPiece.getDamageReductionRoll());
-		final Roll newRoll = new Roll("2D10+2");
-		armorPiece.setDamageReductionRoll(newRoll);
-		assertEquals(new Roll("2D8+2"), armorPiece.getDamageReductionRoll());
+	public void equality() {
+		final IType daemon = factory.getTypes().get(1);
+		final IArmorPiece breastplate = factory.getArmorPieces().get(0);
+		final IArmorPiece helmet = factory.getArmorPieces().get(1);
+		armor.setArmorPieceForBodyPart(factory.getBodyParts().get(0), helmet);
+		armor.setArmorPieceForBodyPart("torso", breastplate);
+
+		final Armor identicalArmor = new Armor("Half plate", daemon);
+		identicalArmor.setArmorPieceForBodyPart(factory.getBodyParts().get(0), helmet);
+		identicalArmor.setArmorPieceForBodyPart("torso", breastplate);
+
+		assertEquals(armor, identicalArmor);
+
+		identicalArmor.setArmorPieceForBodyPart("left wing", wingArmorPiece);
+
+		assertFalse(armor.equals(identicalArmor));
 	}
 
 	@Test
-	public void drLessensWithDamage() {
-		armorPiece.removeHitPoints(20);
-		final Roll updatedRoll = new Roll("D3+1");
-		assertEquals(updatedRoll, armorPiece.getDamageReductionRoll());
-		mockery.checking(new Expectations() {
-			{
-				allowing(random).roll(updatedRoll);
-				will(returnValue(2));
-			}
-		});
-		assertEquals(2, armorPiece.rollDamageReduction(random));
+	public void remove() {
+		final Armor plateArmor = factory.getArmors().get(0);
+		assertEquals(6, plateArmor.getArmorToBodyPartMapping().size());
+		final BodyPart head = factory.getBodyParts().get(0);
+		plateArmor.removeArmorPiece(head);
+		assertTrue(plateArmor.getArmorPieceForBodyPart(head).isEmpty());
 	}
 
 	@Test
-	public void durabilityChangeInPrototype() {
-		armorPiece.getDurability().setMaximum(1);;
-		assertEquals(1, armorPiece.getDurability().getMaximum());
-		assertEquals(1, armorPiece.getDurability().getCurrent());
+	public void setArmorParts() {
+		final IArmorPiece breastplate = factory.getArmorPieces().get(0);
+		final IArmorPiece helmet = factory.getArmorPieces().get(1);
+		final BodyPart head = factory.getBodyParts().get(0);
+		armor.setArmorPieceForBodyPart(head, helmet);
+		armor.setArmorPieceForBodyPart("torso", breastplate);
+		assertEquals(9, armor.getArmorToBodyPartMapping().size());
+		assertEquals(helmet, armor.getArmorPieceForBodyPart(head).getContent());
+		assertEquals(breastplate, armor.getArmorPieceForBodyPart(factory.getBodyParts().get(1)).getContent());
 	}
 
 	@Test
-	public void fitsInBodyPart() {
-		final BodyPart head = new BodyPart("head");
-		assertTrue(armorPiece.fits(head));
-		armorPiece.setBodyPartDesignator("HEAD");
-		assertTrue(armorPiece.fits(head));
-		assertTrue(armorPiece.fits(new BodyPart("giant head")));
-		assertFalse(armorPiece.fits(new BodyPart("leg")));
-		assertFalse(armorPiece.fits(new BodyPart("arm")));
+	public void setArmorToDifferentType() {
+		final IArmorPiece breastplate = factory.getArmorPieces().get(0);
+		final IArmorPiece helmet = factory.getArmorPieces().get(1);
+		armor.setArmorPieceForBodyPart(factory.getBodyParts().get(0), helmet);
+		armor.setArmorPieceForBodyPart("torso", breastplate);
+		armor.setArmorPieceForBodyPart("left wing", wingArmorPiece);
+		armor.setArmorPieceForBodyPart("right wing", wingArmorPiece);
+
+		assertEquals(9, armor.getArmorToBodyPartMapping().size());
+		armor.setType(factory.getTypes().get(0));
+		assertEquals(6, armor.getArmorToBodyPartMapping().size());
 	}
 
 	@Before
 	public void setup() {
-		mockery = new Mockery();
-		ruleset = new D20BasedRuleset();
-		random = mockery.mock(ApprenticeRandom.class);
 		factory = new DataFactory();
-		armorPiece = new ArmorPiece("great helmet", 30, new Roll("2D4+1"), "head");
-		armorPiece.setRuleset(ruleset);
+		final IType daemon = factory.getTypes().get(1);
+		armor = new Armor("Half Plate", daemon);
+		wingArmorPiece = new ArmorPiece("wingArmor", 5, new RollWithSuffix("D4"), "Wing");
 	}
 
 }

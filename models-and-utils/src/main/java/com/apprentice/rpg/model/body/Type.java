@@ -3,7 +3,6 @@ package com.apprentice.rpg.model.body;
 import java.util.List;
 import java.util.SortedMap;
 
-import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.Checker;
 import com.apprentice.rpg.util.IntegerRange;
@@ -17,13 +16,13 @@ import com.google.common.base.Objects;
  */
 public final class Type extends BaseApprenticeObject implements IType {
 
-	private BodyPartToRangeMap parts;
+	private BodyPartToRangeMapping parts;
 
 	/**
 	 * @throws BodyPartMappingEx
-	 *             if the {@link BodyPartToRangeMap} is not consecutively mapped from 1 to 100
+	 *             if the {@link BodyPartToRangeMapping} is not consecutively mapped from 1 to 100
 	 */
-	public Type(final String name, final BodyPartToRangeMap parts) {
+	public Type(final String name, final BodyPartToRangeMapping parts) {
 		super(name);
 		Checker.checkNonNull("Type initialized null parts", true, parts);
 		setBodyPartMapping(parts);
@@ -33,19 +32,24 @@ public final class Type extends BaseApprenticeObject implements IType {
 	public boolean equals(final Object other) {
 		if (other instanceof Type) {
 			final Type type = (Type) other;
-			return super.equals(other) && Objects.equal(getParts(), type.getParts());
+			return super.equals(other) && Objects.equal(getBodyParts(), type.getBodyParts());
 		} else {
 			return false;
 		}
 	}
 
-	/**
-	 * Returns the body part for the given number. If you pass a number between 1 and 100, a result is
-	 * guarantedd to be returned.
-	 * 
-	 * @ throws {@link BodyPartMappingEx} if a number outside 1-100 is given
-	 */
-	public BodyPart getPartForNumber(final int number) throws ApprenticeEx {
+	@Override
+	public List<BodyPart> getBodyParts() {
+		return parts.getParts();
+	}
+
+	@Override
+	public int getMaxRangeValue() {
+		return parts.getMaxRangeValue();
+	}
+
+	@Override
+	public BodyPart getPartForNumber(final int number) throws BodyPartMappingEx {
 		final List<BodyPart> parts = this.parts.getPartsForNumber(number);
 		if (parts.size() == 1) {
 			return parts.get(0);
@@ -57,13 +61,8 @@ public final class Type extends BaseApprenticeObject implements IType {
 	}
 
 	@Override
-	public BodyPartToRangeMap getPartMapping() {
-		return new BodyPartToRangeMap(parts);
-	}
-
-	@Override
-	public List<BodyPart> getParts() {
-		return parts.getParts();
+	public BodyPartToRangeMapping getPartMapping() {
+		return new BodyPartToRangeMapping(parts);
 	}
 
 	@Override
@@ -82,11 +81,11 @@ public final class Type extends BaseApprenticeObject implements IType {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(getParts());
+		return Objects.hashCode(getBodyParts());
 	}
 
 	@Override
-	public void setBodyPartMapping(final BodyPartToRangeMap mapping) throws BodyPartMappingEx {
+	public void setBodyPartMapping(final BodyPartToRangeMapping mapping) throws BodyPartMappingEx {
 		verifyMapping(mapping);
 		this.parts = mapping;
 	}
@@ -101,17 +100,18 @@ public final class Type extends BaseApprenticeObject implements IType {
 	 * 
 	 * @throw throws BodyPartMappingEx
 	 */
-	private void verifyMapping(final BodyPartToRangeMap mapping) throws BodyPartMappingEx {
+	private void verifyMapping(final BodyPartToRangeMapping mapping) throws BodyPartMappingEx {
 		if (mapping.getInternalMapping().size() == 0) {
 			throw new BodyPartMappingEx("Body Part mapping is empty!");
 		}
 		if (mapping.getInternalMapping().firstKey().getMin() != 1) {
 			throw new BodyPartMappingEx("Body Part mapping must start from 1");
 		}
-		if (mapping.getInternalMapping().lastKey().getMax() != 100) {
-			throw new BodyPartMappingEx("Body Part mapping must end at 100");
+		final int maxRangeValue = mapping.getMaxRangeValue();
+		if (mapping.getInternalMapping().lastKey().getMax() != maxRangeValue) {
+			throw new BodyPartMappingEx("Body Part mapping must end at " + maxRangeValue);
 		}
-		for (int i = 1; i < 101; i++) {
+		for (int i = 1; i <= maxRangeValue; i++) {
 			if (mapping.getPartsForNumber(i).isEmpty()) {
 				throw new BodyPartMappingEx("Body Part has no mapping for number " + i);
 			}

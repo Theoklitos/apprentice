@@ -1,5 +1,7 @@
 package com.apprentice.rpg.parsing;
 
+import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +17,7 @@ public final class TestSerializersWithVault {
 
 	@Test
 	public void numberChanged() {
-		System.out.println(swv.toString());
+		fail("what what");
 	}
 
 	@Before

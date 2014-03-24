@@ -8,17 +8,15 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 
-import com.apprentice.rpg.dao.Vault;
-import com.apprentice.rpg.gui.ControlWithVault;
+import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.gui.dice.LoadedRoll;
-import com.apprentice.rpg.gui.vault.IVaultFrameControl;
 import com.apprentice.rpg.gui.weapon.AmmunitionTypeWithRange;
 import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.weapon.AmmunitionType;
 import com.apprentice.rpg.model.weapon.Range;
-import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
 import com.apprentice.rpg.random.dice.Roll;
+import com.apprentice.rpg.random.dice.RollWithSuffix;
 import com.apprentice.rpg.strike.StrikeType;
 import com.apprentice.rpg.util.Box;
 
@@ -66,9 +64,14 @@ public interface IWindowUtils {
 	void setInformationIcon(JInternalFrame frame);
 
 	/**
+	 * Option panes will use this component as a parent.
+	 */
+	void setParent(Component parent);
+
+	/**
 	 * Shows a dialog where one chooses an existing {@link AmmunitionType} and its corresponding {@link Range}
 	 */
-	Box<AmmunitionTypeWithRange> showAmmunitionTypeAndRangeDialog(ControlWithVault control);
+	Box<AmmunitionTypeWithRange> showAmmunitionTypeAndRangeDialog(IServiceLayer control);
 
 	/**
 	 * Popups a dialog where the user can create/edit a an {@link AmmunitionType}
@@ -76,7 +79,7 @@ public interface IWindowUtils {
 	 * @param empty
 	 *            defaults
 	 */
-	Box<AmmunitionType> showAmmunitionTypeDialog(IVaultFrameControl control, Box<AmmunitionType> existingType);
+	Box<AmmunitionType> showAmmunitionTypeDialog(IServiceLayer control, Box<AmmunitionType> existingType);
 
 	/**
 	 * Shows an option pane with a bigger textfield and returns the text the user inputed in a box, if any.
@@ -90,9 +93,15 @@ public interface IWindowUtils {
 	boolean showConfigrmationDialog(String question, String title);
 
 	/**
+	 * Shows a dialog that asks for damage reduction (roll + extra DR) input. Returns a box with the
+	 * {@link RollWithSuffix} if the user inputted anything valid.
+	 */
+	Box<RollWithSuffix> showDamageReductionDialog();
+
+	/**
 	 * will popup a small window from which the user can select {@link StrikeType} + {@link Roll}
 	 */
-	Box<DamageRoll> showDamageRollDialog(final String mesasge, final ControlWithVault control);
+	Box<DamageRoll> showDamageRollDialog(final String mesasge, final IServiceLayer control);
 
 	/**
 	 * Displays a simple error message
@@ -131,14 +140,6 @@ public interface IWindowUtils {
 	 * option that the user chose.
 	 */
 	int showQuestionMessage(String question, String[] options, String title);
-
-	/**
-	 * shows two jtables, one for types and one for bodyparts, and saves the selection in the
-	 * {@link ExportConfigurationObject}
-	 * 
-	 * @return true if the user confirmed (press OK), false if he cancelled
-	 */
-	boolean showTypeAndBodyPartNameSelection(ExportConfigurationObject config, final Vault vault);
 
 	/**
 	 * shows a yes/no warning question. Returns true if yes.

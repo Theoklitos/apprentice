@@ -1,19 +1,14 @@
 package com.apprentice.rpg.gui.weapon;
 
-import com.apprentice.rpg.gui.ControllableView;
-import com.apprentice.rpg.model.weapon.WeaponPrototype;
+import com.apprentice.rpg.gui.ParameterizedControllableView;
+import com.apprentice.rpg.model.weapon.IWeapon;
 
 /**
- * Edits or creates {@link WeaponPrototype}s
+ * Edits or creates {@link IWeaponPrototype}s
  * 
  * @author theoklitos
  * 
  */
-public interface IWeaponFrame extends ControllableView {
-
-	/**
-	 * Will display the given weapon's stats in the frame for editing
-	 */
-	void setWeaponForEditing(WeaponPrototype newWeapon);
-
+public interface IWeaponFrame extends ParameterizedControllableView<IWeapon> {
+	// marker
 }

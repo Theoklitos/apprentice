@@ -1,54 +1,34 @@
-============ BACKLOG - EXTRA TASKS
-* Events
-* weapon toString etc
+============ EXTRA TASKS.
 * Roll validates a "2D" string. why?
-* make option panes go in center of component, not screen
-* Exception hanlder ingnors null pointers
 * WeaponFrame resize on thrown text change
-* try to make ammo type selector event-aware
+* try to make ammo type selector event-aware? is this dialog-blockable?
 * make default if image GIF does not load
 * make images use SystemClassloader
-* ponder events
-* TTS - wav files play 
+* TTS - wav files play
+* check new player frame with > 1 types
 
 
-=== Version 3, weapons + armor!
+#################### PLANNING days so far [0/7]
+	
+	1a. finalize refactoring, go through the frames one by one and verify functionality:					
+		* Dice Frame (dice roller frame god damn textarea)
+		* Database Frame
+		* Player vault frame		
+		* refactor skills a litte bit (enclose, add description, right click, nameable)
+	
+2. Work on backend.	
+	2b. Strikes. Make strike items, objects, persistence. [1,5 days] 
+	2c. Strike player - unstrike player. [2 days]	
+	2cc. Database change interceptors! [1 day]
+	2e. Make attack engine. Target type (generic) or player (specific, will apply effect). [1+1 day]
+	2d. Spells. Think about it? [2 days]
+		
+3. Fix bugs, tests, wrap up. ? days
 
-=== Version 4, Character!
+4. Gradle. Deploy into jar.
 
-=== Version 5, strikes, simple strike engine!
-?!
-
-=== Version 6, json stuff
-consider architecture
-export whole database
-when exporting weapons, refactor exporter table control
-check new player frame with > 1 types
-unit tests for DatabaseImportExport
-unit tests for ExportConfigObject
-
-
-#################### PLANNING
-1 day armor piece
-1 day armor
-2 days PC
-1 day export/import (json stuff)
-1 day initial communicator (email, json export)
-1 day strikes
-1 day strikes integration with PC
-1 day android setup (gradle stuff?)
-2 day NPC functionality
-
-1 week android project?
-
-+X? days gradle
-
-13+7 days STARTING FROM 26. TODAY IS :25
-
-4 days until february, mid march working!
 
 #################### Testing Backlog
-
 
 
 #################### Feature Backlog

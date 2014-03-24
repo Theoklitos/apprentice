@@ -7,5 +7,9 @@ package com.apprentice.rpg.gui;
  * 
  */
 public interface ControllableView {
-	// marker
+
+	/**
+	 * refreshed the displayed data from the model. This will be called when new events happen. 
+	 */
+	public void refreshFromModel();
 }
