@@ -68,7 +68,7 @@ public class DamageRoll {
 		if (other instanceof DamageRoll) {
 			final DamageRoll otherDamageRoll = (DamageRoll) other;
 			return Objects.equal(roll, otherDamageRoll.getRoll()) && Objects.equal(type, otherDamageRoll.getType())
-				&& penetration == otherDamageRoll.penetration;
+					&& Objects.equal(type, otherDamageRoll.getType());
 		} else {
 			return false;
 		}

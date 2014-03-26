@@ -19,7 +19,8 @@ public interface IServiceLayer {
 	/**
 	 * Stores the given {@link Nameable}, logs a message and fires the appropriate event
 	 * 
-	 * throws NameAlreadyExistsEx If the item is a prototype and there exists another prototype with the same name
+	 * throws NameAlreadyExistsEx If the item is a prototype and there exists another prototype with the same
+	 * name
 	 */
 	void createOrUpdate(Nameable item) throws NameAlreadyExistsEx;
 
@@ -27,15 +28,17 @@ public interface IServiceLayer {
 	 * Stores the given {@link Nameable}, logs a message and fires the appropriate event. The name in this
 	 * {@link Nameable} must be unique, other a {@link NameAlreadyExistsEx} will be thrown
 	 * 
-	 * @throws NameAlreadyExistsEx if there exists an item
+	 * @throws NameAlreadyExistsEx
+	 *             if there exists an item
 	 */
 	void createOrUpdateUniqueName(Nameable item) throws NameAlreadyExistsEx;
 
 	/**
-	 * delets the {@link Nameable} with the given name
+	 * delets the {@link Nameable} with the given name. Returns true if the deletion was succesful and
+	 * something was indeed deleted (and an event fired), false otherwise.
 	 * 
 	 */
-	void deleteNameable(String name, ItemType itemType);
+	boolean deleteNameable(String name, ItemType itemType);
 
 	/**
 	 * Returns the global event bus

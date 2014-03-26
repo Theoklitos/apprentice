@@ -35,12 +35,7 @@ public class TestLogFrameControl extends AbstractServiceLayerTest {
 	@Before
 	public void setup() {
 		mockery = getMockery();
-		view = mockery.mock(ILogFrame.class);
-		mockery.checking(new Expectations() {
-			{
-				oneOf(view).clearMessages();
-			}
-		});
+		view = mockery.mock(ILogFrame.class);		
 		control = new LogFrameControl();
 		control.setView(view);
 	}

@@ -58,7 +58,6 @@ public class ArmorFrame extends ApprenticeInternalFrame<IServiceLayer> implement
 
 	public ArmorFrame(final IServiceLayer control) {
 		super(control, "New Armor");
-		// super(new DummyServiceLayer(), "New Armor");
 		checkDoArmorPiecesExist();
 		initComponents();
 		refreshFromModel();
@@ -128,6 +127,7 @@ public class ArmorFrame extends ApprenticeInternalFrame<IServiceLayer> implement
 			public void run() {
 				getReferenceToSelf().setTitle("Edit Armor");
 				txtfldName.setText(armor.getName());
+				descriptionPanel.setNameable(armor);
 				tableModel.getModelData().clear();
 				final Iterator<Entry<BodyPart, IArmorPiece>> iterator =
 					armor.getArmorToBodyPartMapping().entrySet().iterator();
@@ -152,12 +152,13 @@ public class ArmorFrame extends ApprenticeInternalFrame<IServiceLayer> implement
 	}
 
 	private void initComponents() {
-		getContentPane().setLayout(
-				new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"),
-					FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC,
-					RowSpec.decode("default:grow"), FormFactory.RELATED_GAP_ROWSPEC,
-					RowSpec.decode("max(50dlu;pref):grow"), FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("25dlu"),
-					FormFactory.RELATED_GAP_ROWSPEC, }));
+		getContentPane()
+				.setLayout(
+						new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
+							ColumnSpec.decode("default:grow"), FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+							FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"),
+							FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("max(50dlu;pref):grow"),
+							FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("25dlu"), }));
 
 		final JPanel armorInfoPanel = new JPanel();
 		getContentPane().add(armorInfoPanel, "2, 2, fill, fill");

@@ -21,7 +21,7 @@ public final class ApprenticeCollectionUtils {
 	/**
 	 * checks if the collections have the same size and all elements equal() exactly one other
 	 */
-	public static boolean areAllElementsEqual(final Collection<?> expected, final Collection<?> target) {
+	public static boolean areAllElementsEqual(final Collection<?> expected, final Collection<?> target) {		
 		if (expected.size() != target.size()) {
 			return false;
 		}		
@@ -95,7 +95,7 @@ public final class ApprenticeCollectionUtils {
 		final Collection<Nameable> result = Sets.newHashSet();
 		for (final Nameable item1 : col1) {
 			for (final Nameable item2 : col2) {
-				if (item1.equals(item2)) {
+				if (item1.equals(item2)) {					
 					result.add(item1);
 				}
 			}

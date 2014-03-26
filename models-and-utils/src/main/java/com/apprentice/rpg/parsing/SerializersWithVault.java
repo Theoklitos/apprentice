@@ -1,5 +1,6 @@
 package com.apprentice.rpg.parsing;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -60,7 +61,7 @@ public final class SerializersWithVault {
 			final Class<?> givenClass = (Class<?>) type;
 			final Class<?> componentClass = (Class<?>) component.getType();
 			if (componentClass.isAssignableFrom(givenClass)) {
-				final String name = component.getClass().getSimpleName();				
+				final String name = component.getClass().getSimpleName();
 				if (shouldGetSerializer && name.contains("Serializer")) {
 					return component;
 				} else if (!shouldGetSerializer && name.contains("Deserializer")) {
@@ -81,6 +82,13 @@ public final class SerializersWithVault {
 			gsonBuilder.registerTypeAdapter(parsingComponent.getType(), parsingComponent);
 		}
 		return gsonBuilder.setPrettyPrinting().create();
+	}
+
+	/**
+	 * returns all the registered {@link IApprenticeParsingComponent}
+	 */
+	protected Collection<IApprenticeParsingComponent> getParsers() {
+		return parsers;
 	}
 
 	/**

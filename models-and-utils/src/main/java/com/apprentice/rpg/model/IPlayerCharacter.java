@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.apprentice.rpg.model.armor.Armor;
 import com.apprentice.rpg.model.armor.ArmorDoesNotFitEx;
+import com.apprentice.rpg.model.armor.PlayerArmor;
 import com.apprentice.rpg.model.body.CharacterType;
 import com.apprentice.rpg.model.combat.CombatCapabilities;
 import com.apprentice.rpg.util.Box;
@@ -25,9 +26,9 @@ public interface IPlayerCharacter extends Nameable {
 	void addSkill(Skill skill);
 
 	/**
-	 * returns this player's {@link Armor}
+	 * returns this player's {@link PlayerArmor}
 	 */
-	Armor getArmor();
+	PlayerArmor getArmor();
 
 	/**
 	 * returns this character's {@link CharacterType}

@@ -1,7 +1,9 @@
 package com.apprentice.rpg.rules;
 
+import org.apache.log4j.Logger;
+
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.armor.IArmorPiece;
+import com.apprentice.rpg.model.armor.ArmorPiece;
 import com.apprentice.rpg.model.body.Size;
 import com.apprentice.rpg.model.durable.IDurableItem;
 import com.apprentice.rpg.model.weapon.Weapon;
@@ -17,12 +19,14 @@ import com.apprentice.rpg.random.dice.RollException;
  */
 public class D20BasedRuleset implements Ruleset {
 
+	private static Logger LOG = Logger.getLogger(D20BasedRuleset.class);
+
 	private final DiceModificator diceModificator;
 
 	public D20BasedRuleset() {
 		diceModificator = new DiceModificator();
 	}
-	
+
 	@Override
 	public void decreaseRoll(final Roll roll, final int positions) {
 		try {
@@ -66,9 +70,11 @@ public class D20BasedRuleset implements Ruleset {
 	public int getDeteriorationIncrementForType(final IDurableItem durableItemInstance) {
 		if (durableItemInstance.getClass().isAssignableFrom(Weapon.class)) {
 			return 3;
-		} else if (durableItemInstance.getClass().isAssignableFrom(IArmorPiece.class)) {
+		} else if (durableItemInstance.getClass().isAssignableFrom(ArmorPiece.class)) {
 			return 3;
 		} else {
+			LOG.debug("Deterioration increment asked for type that is not handled: "
+				+ durableItemInstance.getClass().getSimpleName());
 			return 1;
 		}
 	}

@@ -21,7 +21,7 @@ public final class PlayerArmor extends Armor {
 		setPrototype(false);
 		extraPieces = Lists.newArrayList();
 	}
-
+	
 	/**
 	 * Adds the given piece as an extra (non body part designated) armor piece.
 	 * 

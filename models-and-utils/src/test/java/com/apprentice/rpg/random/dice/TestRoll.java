@@ -124,7 +124,7 @@ public final class TestRoll {
 
 	@Test(expected = ApprenticeEx.class)
 	public void parsingErrorNoDiceNumber() throws RollException {
-		new Roll("2D");
+		new Roll("2D");		
 	}
 
 	@Test

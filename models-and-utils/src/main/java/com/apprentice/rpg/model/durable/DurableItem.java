@@ -32,18 +32,16 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 	public void addHitPoints(final int hpToAdd) {
 		setHitPoints(hitPoints.getCurrent() + hpToAdd);
 	}
-	
+
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof DurableItem) {
-			final DurableItem otherDurableItem = (DurableItem) other;
-			return Objects.equal(otherDurableItem.getDurability(), getDurability());
-
+			final DurableItem otherDurableItem = (DurableItem) other;			
+			return super.equals(otherDurableItem) && Objects.equal(otherDurableItem.getDurability(), getDurability());
 		} else {
 			return false;
 		}
 	}
-
 
 	/**
 	 * how many steps is this roll worse off? If the item is destroyed, returns -1
@@ -79,7 +77,7 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 			getRuleset().getContent().decreaseRollToZero(copy);
 		} else if (deteriorationSteps != 0) {
 			// partial deteriorate
-			getRuleset().getContent().decreaseRoll(copy, deteriorationSteps);		
+			getRuleset().getContent().decreaseRoll(copy, deteriorationSteps);
 		}
 		return copy;
 	}
@@ -106,10 +104,10 @@ public abstract class DurableItem extends BaseApprenticeObject implements IDurab
 	}
 
 	@Override
-	public void setHitPoints(final int current) {		
-		hitPoints.setCurrent(current);		
+	public void setHitPoints(final int current) {
+		hitPoints.setCurrent(current);
 	}
-	
+
 	@Override
 	public void setRuleset(final Ruleset ruleset) {
 		LOG.debug(getName() + " is using ruleset: " + ruleset);

@@ -41,8 +41,8 @@ public abstract class AbstractControlForView<T extends ControllableView> impleme
 	}
 
 	@Override
-	public void deleteNameable(final String name, final ItemType itemType) {
-		serviceLayer.deleteNameable(name, itemType);
+	public boolean deleteNameable(final String name, final ItemType itemType) {
+		return serviceLayer.deleteNameable(name, itemType);
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ObjectSet;
 import com.db4o.config.Configuration;
 import com.db4o.ext.ExtObjectContainer;
+import com.db4o.ta.TransparentPersistenceSupport;
 import com.google.common.collect.Lists;
 
 /**
@@ -51,6 +52,7 @@ public final class TestDb4oConnection {
 		mockery.checking(new Expectations() {
 			{
 				oneOf(container).delete(object);
+				oneOf(container).commit();
 			}
 		});
 		database.delete(object);
@@ -103,8 +105,9 @@ public final class TestDb4oConnection {
 				will(returnValue(extContainer));
 				allowing(extContainer).configure();
 				will(returnValue(config));
-				allowing(config).updateDepth(Integer.MAX_VALUE);
-				allowing(config).exceptionsOnNotStorable(false);
+				allowing(config).add(with(any(TransparentPersistenceSupport.class)));
+				// allowing(config).updateDepth(Integer.MAX_VALUE);
+				// allowing(config).exceptionsOnNotStorable(false);
 			}
 		});
 		database = new Db4oConnection(container, LOCATION);

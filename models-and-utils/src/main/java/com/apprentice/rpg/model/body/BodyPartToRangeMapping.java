@@ -88,12 +88,11 @@ public final class BodyPartToRangeMapping {
 	/**
 	 * Returns a list of body part(s) that are mapped for this number
 	 * 
-	 * throws {@link BodyPartMappingEx} if a number outside 1-100 is given
+	 * throws {@link BodyPartMappingEx} if a mapping below zero was requested
 	 */
-	public List<BodyPart> getPartsForNumber(final int number) throws BodyPartMappingEx {
-		if (number < 1 || number > maxRangeValue) {
-			throw new BodyPartMappingEx("Body Parts are mapped only from 1 to " + maxRangeValue + ", and a \"" + number
-				+ "\" was requested!");
+	public List<BodyPart> getPartsForNumber(final int number) {
+		if (number < 1) {
+			throw new BodyPartMappingEx("Body Parts are mapped from 1 onwards, yet a \"" + number + "\" was requested!");
 		}
 		final List<BodyPart> result = Lists.newArrayList();
 		for (final IntegerRange range : partMapping.keySet()) {

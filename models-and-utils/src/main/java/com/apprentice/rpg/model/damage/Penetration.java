@@ -2,6 +2,7 @@ package com.apprentice.rpg.model.damage;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.Box;
 import com.google.common.base.Objects;
 
@@ -77,6 +78,16 @@ public class Penetration {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(penetrationType, hitPoints);
+	}
+
+	@Override
+	public String toString() {
+		if (getPenetrationHP().hasContent() && !getPenetrationHP().getContent().equals(0)) {
+			return "(" + getPenetrationHP().getContent() + ")";
+		} else if (getPenetrationType().hasContent()) {
+			return "(" + ApprenticeStringUtils.getReadableEnum(getPenetrationType().getContent()) + ")";
+		}
+		return "";
 	}
 
 }

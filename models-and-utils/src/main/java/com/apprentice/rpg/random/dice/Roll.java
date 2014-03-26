@@ -303,8 +303,7 @@ public class Roll {
 
 	private void understandElement(final String text, final boolean isPositive) throws ParsingEx {
 		final String operator = getOperator(isPositive, false);
-		final ParsingEx rollException =
-			new ParsingEx("Roll piece '" + operator + text + "' does not make sense");
+		final ParsingEx rollException = new ParsingEx("Roll piece '" + operator + text + "' does not make sense");
 
 		// if it has letters other than D, stop
 		if (!StringUtils.isNumeric(text)) {
@@ -321,6 +320,9 @@ public class Roll {
 			}
 		} else if (StringUtils.isAlphanumeric(text)) { // if it is dice
 			// check if many die
+			if (text.trim().endsWith(DICE_PREFIX)) {
+				throw new ParsingEx("Unfinished dice roll: " + text);
+			}
 			final String[] withoutD = StringUtils.split(text, DICE_PREFIX);
 			if (withoutD.length == 1) { // one die
 				if (isPositive) {

@@ -29,7 +29,7 @@ public abstract class BaseApprenticeObject implements Nameable {
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof BaseApprenticeObject) {
-			final BaseApprenticeObject otherBaseItem = (BaseApprenticeObject) other;
+			final BaseApprenticeObject otherBaseItem = (BaseApprenticeObject) other;			
 			return Objects.equal(getName().toLowerCase(), otherBaseItem.getName().toLowerCase())
 				&& Objects.equal(getDescription(), otherBaseItem.getDescription())
 				&& isPrototype == otherBaseItem.isPrototype;

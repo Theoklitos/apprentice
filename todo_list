@@ -1,20 +1,10 @@
 ============ EXTRA TASKS.
-* Roll validates a "2D" string. why?
-* WeaponFrame resize on thrown text change
-* try to make ammo type selector event-aware? is this dialog-blockable?
-* make default if image GIF does not load
-* make images use SystemClassloader
-* TTS - wav files play
-* check new player frame with > 1 types
-
+* fix tests
 
 #################### PLANNING days so far [0/7]
 	
-	1a. finalize refactoring, go through the frames one by one and verify functionality:					
-		* Dice Frame (dice roller frame god damn textarea)
-		* Database Frame
-		* Player vault frame		
-		* refactor skills a litte bit (enclose, add description, right click, nameable)
+1a. finalize refactoring, go through the frames one by one and verify functionality:
+	* Window manager open parameterized frames
 	
 2. Work on backend.	
 	2b. Strikes. Make strike items, objects, persistence. [1,5 days] 
@@ -22,15 +12,16 @@
 	2cc. Database change interceptors! [1 day]
 	2e. Make attack engine. Target type (generic) or player (specific, will apply effect). [1+1 day]
 	2d. Spells. Think about it? [2 days]
-		
-3. Fix bugs, tests, wrap up. ? days
 
-4. Gradle. Deploy into jar.
+3. Gradle. Deploy into jar.
 
 
 #################### Testing Backlog
 
 
-#################### Feature Backlog
+#################### Coding Backlog
+Refactor skills a litte bit (enclose, add description, right click, nameable)
+TTS - wav files play
+
 splash screen?
 

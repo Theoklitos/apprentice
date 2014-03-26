@@ -38,7 +38,6 @@ public class TestDurableItem {
 		final int originalDurability = 20;
 		durableItem = new DurableItem("test item", new CurrentMaximumPair(originalDurability)) {
 		};
-
 	}
 
 }

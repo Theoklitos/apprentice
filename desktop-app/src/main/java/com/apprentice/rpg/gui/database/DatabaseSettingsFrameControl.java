@@ -9,7 +9,6 @@ import com.apprentice.rpg.config.ITextConfigFileManager;
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.gui.AbstractControlForView;
-import com.apprentice.rpg.gui.IWindowManager;
 import com.google.inject.Inject;
 
 /**
@@ -23,25 +22,23 @@ public final class DatabaseSettingsFrameControl extends AbstractControlForView<I
 
 	private static Logger LOG = Logger.getLogger(DatabaseSettingsFrameControl.class);
 
-	private final IWindowManager windowManager;
 	private final ITextConfigFileManager textfileManager;
 	private final DatabaseConnection databaseConnection;
 
 	@Inject
-	public DatabaseSettingsFrameControl(final IServiceLayer serviceLayer, final IWindowManager windowManager,
-			final DatabaseConnection databaseConnection, final ITextConfigFileManager textfileManager) {
+	public DatabaseSettingsFrameControl(final IServiceLayer serviceLayer, final DatabaseConnection databaseConnection,
+			final ITextConfigFileManager textfileManager) {
 		super(serviceLayer);
-		this.windowManager = windowManager;
 		this.databaseConnection = databaseConnection;
-		this.textfileManager = textfileManager;		
+		this.textfileManager = textfileManager;
 	}
 
 	@Override
 	public void changeDatabaseLocation(final String databaseLocation) throws ApprenticeDatabaseEx {
 		if (!new File(databaseLocation).exists()) {
 			throw new ApprenticeDatabaseEx("File " + databaseLocation + " does not exist.");
-		}		
-		changeDatabaseLocationUnsafe(databaseLocation);		
+		}
+		changeDatabaseLocationUnsafe(databaseLocation);
 	}
 
 	/**
@@ -51,7 +48,7 @@ public final class DatabaseSettingsFrameControl extends AbstractControlForView<I
 		databaseConnection.setDatabase(databaseLocation);
 		textfileManager.writeDatabaseLocation(databaseLocation);
 		getEventBus().postShutdownEvent(false);
-		windowManager.showFrame(DatabaseSettingsFrame.class);
+		getEventBus().postShowFrameEvent(DatabaseSettingsFrame.class);
 		LOG.info("Using new database " + databaseLocation);
 	}
 

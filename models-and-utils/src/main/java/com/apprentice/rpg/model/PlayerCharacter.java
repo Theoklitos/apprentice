@@ -111,7 +111,7 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 	}
 
 	@Override
-	public Armor getArmor() {
+	public PlayerArmor getArmor() {
 		return armor;
 	}
 

@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.random.dice.RollWithSuffix;
 import com.apprentice.rpg.rules.D20BasedRuleset;
 import com.apprentice.rpg.rules.Ruleset;
@@ -34,7 +33,7 @@ public final class TestArmorPiece {
 	@Test
 	public void changeTheBaseRollAndDeteriorationIsConsistent() {
 		armorPiece.removeHitPoints(10);
-		assertEquals(new Roll("D4+1"), armorPiece.getDamageReduction());
+		assertEquals(new RollWithSuffix("2D3+1", 5), armorPiece.getDamageReduction());
 		final RollWithSuffix newRoll = new RollWithSuffix("2D10+2");
 		armorPiece.setDamageReductionRoll(newRoll);
 		assertEquals(new RollWithSuffix("2D8+2"), armorPiece.getDamageReduction());
@@ -42,8 +41,9 @@ public final class TestArmorPiece {
 
 	@Test
 	public void drLessensWithDamage() {
-		armorPiece.removeHitPoints(20);
-		final Roll updatedRoll = new Roll("D3+1");
+		armorPiece.removeHitPoints(19); // should be one deteriorartion step
+		System.out.println(armorPiece);
+		final RollWithSuffix updatedRoll = new RollWithSuffix("2D3+1", 5);
 		assertEquals(updatedRoll, armorPiece.getDamageReduction());
 	}
 

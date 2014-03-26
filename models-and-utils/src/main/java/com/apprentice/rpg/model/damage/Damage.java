@@ -1,7 +1,6 @@
 package com.apprentice.rpg.model.damage;
 
 import com.apprentice.rpg.strike.StrikeType;
-import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Objects;
 
@@ -71,12 +70,10 @@ public final class Damage {
 		if (damage == 1) {
 			word = " point ";
 		}
-		String suffix = ".";
-		if (penetration.getPenetrationHP().hasContent()) {
-			suffix += " Penetration: " + String.valueOf(penetration.getPenetrationHP().getContent());
-		} else if (penetration.getPenetrationType().hasContent()) {
-			suffix +=
-				" Penetration: " + ApprenticeStringUtils.getReadableEnum(penetration.getPenetrationType().getContent());
+		String suffix = "";
+		if ((penetration.getPenetrationHP().hasContent() && penetration.getPenetrationHP().getContent() > 0)
+			|| penetration.getPenetrationType().hasContent()) {			
+			suffix = ", penetration" + penetration;
 		}
 		return damage + word + "of " + getType() + " damage" + suffix;
 	}

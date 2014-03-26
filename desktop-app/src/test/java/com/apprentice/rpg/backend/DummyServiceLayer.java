@@ -30,8 +30,9 @@ public class DummyServiceLayer implements IServiceLayer {
 	}
 
 	@Override
-	public void deleteNameable(final String name, final ItemType itemType) {
+	public boolean deleteNameable(final String name, final ItemType itemType) {
 		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override

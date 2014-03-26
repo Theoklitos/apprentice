@@ -1,5 +1,7 @@
 package com.apprentice.rpg.integration;
 
+import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,11 +17,12 @@ import com.apprentice.rpg.model.factories.DataFactory;
 public class ITStrikes {
 
 	private DataFactory factory;
+	@SuppressWarnings("unused")
 	private IPlayerCharacter pc;
 
 	@Test
 	public void applyRemoveSomeStrikes() {
-
+		fail("WIP");
 	}
 
 	@Before

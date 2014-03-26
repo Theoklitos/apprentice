@@ -87,9 +87,9 @@ public final class TestApprenticeCollectionUtils {
 		final IWeapon weapon4 = new Weapon("sword3", 1, new DamageRoll("d8", new StrikeType("slashing")));
 		final Collection<IWeapon> col1 = Sets.newHashSet(weapon1, weapon2, weapon3, weapon4);
 		final Collection<IWeapon> col2 = Sets.newHashSet(weapon1, weapon3);
-
+		
 		final Collection<? extends Nameable> intersection =
-			ApprenticeCollectionUtils.getIntersectingNameableElements(col1, col2);
+			ApprenticeCollectionUtils.getIntersectingNameableElements(col1, col2);		
 		assertEquals(2, intersection.size());
 		assertTrue(intersection.contains(weapon1));
 		assertTrue(intersection.contains(weapon3));

@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -16,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -63,11 +64,13 @@ public class DiceRollerFrame extends ApprenticeInternalFrame<IDiceRollerFrameCon
 	private final JLabel lblResult;
 	private final JScrollPane historyScrollPane;
 	private final JButton btnRoll;
+	private boolean justAppended;
 
 	public DiceRollerFrame(final IDiceRollerFrameControl control) {
 		super(control, "Dice Roller");
 		setResizable(false);
 		setMaximizable(false);
+		justAppended = false;
 
 		getContentPane().setLayout(
 				new FormLayout(
@@ -121,7 +124,16 @@ public class DiceRollerFrame extends ApprenticeInternalFrame<IDiceRollerFrameCon
 		historyScrollPane = new JScrollPane(history);
 		historyPanel.add(historyScrollPane);
 		middlePanelPanel.add(historyPanel, "3, 2, fill, fill");
-
+		historyScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(final AdjustmentEvent e) {				
+				if (justAppended) {
+					e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+					justAppended = false;
+				}
+			}
+		});
+		
 		final JPanel buttonPanel = new JPanel();
 		getContentPane().add(buttonPanel, "2, 5, fill, fill");
 
@@ -252,26 +264,19 @@ public class DiceRollerFrame extends ApprenticeInternalFrame<IDiceRollerFrameCon
 		} else {
 			diceDescription = "[Loaded Roll]";
 		}
-		final String newLine = time + diceDescription + ": " + result;
+		final String newLine = time + " " + diceDescription + ": " + result;
 		String endline = "";
 		if (!StringUtils.isBlank(history.getText())) {
 			endline = "\n";
 		}
 		final String updatedText = history.getText() + endline + newLine;
+		justAppended = true;
 		history.setText(updatedText);
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				historyScrollPane.getVerticalScrollBar()
-						.setValue(historyScrollPane.getVerticalScrollBar().getMaximum());
-				history.append("");
-			}
-		});
+		
 		if (selectedRollBox.hasContent()) {
 			LOG.info("Rolled " + selectedRollBox.getContent() + " and got: " + result);
 		} else {
-			LOG.info("WHAT IS THIS?"); // TODO
+			LOG.info("Rolled a loaded roll and got: " + result);
 		}
 	}
 

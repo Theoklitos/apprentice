@@ -27,7 +27,7 @@ public class Armor extends BaseApprenticeObject {
 
 	private static final String DEFAULT_ARMOR_NAME = "No Armor";
 
-	// @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(Armor.class);
 
 	private String typeName;
@@ -195,14 +195,15 @@ public class Armor extends BaseApprenticeObject {
 			final Entry<BodyPart, IArmorPiece> entry = iterator.next();
 			final BodyPart bodyPart = entry.getKey();
 			if (!type.getBodyParts().contains(bodyPart)) {
-				LOG.debug("Armor " + getName() + " does not have a " + bodyPart
-					+ " anymore, so the mapping was removed.");
+				// LOG.debug("Armor " + getName() + " does not have a " + bodyPart
+				// + " anymore, so the mapping was removed.");
 				iterator.remove();
 			}
 		}
 		for (final BodyPart bodyPart : type.getBodyParts()) {
 			if (!armorToBodyPartMapping.keySet().contains(bodyPart)) {
-				LOG.debug("Armor " + getName() + " does not have a " + bodyPart + ", so the mapping was added.");
+				// LOG.debug("Armor " + getName() + " does not have a " + bodyPart +
+// ", so the mapping was added.");
 				armorToBodyPartMapping.put(bodyPart, null);
 			}
 		}

@@ -70,8 +70,8 @@ public final class LogFrameControl extends AppenderSkeleton implements ILogFrame
 	}
 
 	@Override
-	public void deleteNameable(final String name, final ItemType itemType) {
-		serviceLayer.deleteNameable(name, itemType);
+	public boolean deleteNameable(final String name, final ItemType itemType) {
+		return serviceLayer.deleteNameable(name, itemType);
 	}
 
 	@Override

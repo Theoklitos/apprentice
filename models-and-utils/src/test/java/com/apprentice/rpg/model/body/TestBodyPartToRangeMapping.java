@@ -90,7 +90,7 @@ public final class TestBodyPartToRangeMapping {
 
 	@Test(expected = BodyPartMappingEx.class)
 	public void numberOutOfRange() {
-		mapping.getPartsForNumber(101);
+		mapping.getPartsForNumber(-5);
 	}
 	
 	@Test

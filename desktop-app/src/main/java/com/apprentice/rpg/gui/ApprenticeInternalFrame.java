@@ -62,14 +62,20 @@ public abstract class ApprenticeInternalFrame<T extends IServiceLayer> extends J
 			setItem(control.getVault().getUniqueNamedResult(itemName, type.type));
 		}
 
-		if (globalWindowState.getWindowState(getWindowStateIdentifier()).hasContent()) {			
-			if (globalWindowState.getWindowState(getWindowStateIdentifier()).getContent().isOpen()) {				
-				throw new FrameAlreadyOpenEx("Tried to open frame \"" + getClass().getSimpleName()
-					+ "\" which was already open.");
-			}
-		}
+		// deprecated, this is handled from the WindowManager
+//		if (globalWindowState.getWindowState(getWindowStateIdentifier()).hasContent()) {
+//			if (globalWindowState.getWindowState(getWindowStateIdentifier()).getContent().isOpen()) {
+//				throw new FrameAlreadyOpenEx("Tried to open frame \"" + getClass().getSimpleName()
+//					+ "\" which was already open.");
+//			}
+//		}
 
-		globalWindowState.getWindowUtils().setInformationIcon(this);
+		// surround with try/catch to launch from the WindowBuilder
+		try {
+			globalWindowState.getWindowUtils().setInformationIcon(this);
+		} catch (final Exception e) {
+			// nothing, this is probably from the WindowBuilder
+		}
 		setClosable(true);
 		setResizable(true);
 		setMaximizable(true);

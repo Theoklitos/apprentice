@@ -15,8 +15,12 @@ import javax.swing.border.TitledBorder;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
 import com.apprentice.rpg.model.IPlayerCharacter;
+import com.apprentice.rpg.model.armor.Armor;
+import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.weapon.AmmunitionType;
+import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -103,9 +107,20 @@ public class DatabaseSettingsFrame extends ApprenticeInternalFrame<IDatabaseSett
 		final int pcSize = vault.getAllNameables(IPlayerCharacter.class).size();
 		final String pcMessage = pcSize != 1 ? pcSize + " player characters." : pcSize + " player character.";
 		lines.add(pcMessage);
+		lines.add("\n");
 		// types and parts
 		lines.add(vault.getAllNameables(IType.class).size() + " types, comprised of "
 			+ vault.getAllNameables(BodyPart.class).size() + " body parts.");
+		lines.add("\n");
+		// weapons
+		lines.add(vault.getAllPrototypeNameables(IWeapon.class).size() + " weapons, and "
+			+ vault.getAllPrototypeNameables(AmmunitionType.class).size() + " ammunition types.");
+		lines.add("\n");
+		// armors
+		lines.add(vault.getAllPrototypeNameables(IArmorPiece.class).size() + " armor pieces and "
+			+ vault.getAllPrototypeNameables(Armor.class).size() + " full armor sets.");
+		lines.add("\n");
+		// spells?
 		setDatabaseDescription(lines);
 	}
 

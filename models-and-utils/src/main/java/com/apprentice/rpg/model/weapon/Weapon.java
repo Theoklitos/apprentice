@@ -75,7 +75,7 @@ public class Weapon extends DurableItem implements IWeapon {
 	@Override
 	public boolean equals(final Object other) {
 		if (other instanceof Weapon) {
-			final Weapon otherWeapon = (Weapon) other;
+			final Weapon otherWeapon = (Weapon) other;			
 			return super.equals(otherWeapon)
 				&& ApprenticeCollectionUtils.areAllElementsEqual(meleeDamages, otherWeapon.meleeDamages)
 				&& ApprenticeCollectionUtils.areAllElementsEqual(extraDamages, otherWeapon.extraDamages)
@@ -114,7 +114,8 @@ public class Weapon extends DurableItem implements IWeapon {
 		final Set<DamageRoll> modifiedDamageRolls = Sets.newHashSet();
 		for (final DamageRoll damageRoll : damageRollCollection) {
 			final Roll modifiedRoll = getModifiedRollForDeterioration(damageRoll.getRoll());
-			final DamageRoll modifiedDamagedRoll = new DamageRoll(modifiedRoll, damageRoll.getType());
+			final DamageRoll modifiedDamagedRoll =
+				new DamageRoll(modifiedRoll, damageRoll.getPenetration(), damageRoll.getType());
 			modifiedDamageRolls.add(modifiedDamagedRoll);
 		}
 		return modifiedDamageRolls;

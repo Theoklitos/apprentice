@@ -31,7 +31,6 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.apprentice.rpg.StartupApprentice;
 import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.gui.NumericTextfield;
 import com.apprentice.rpg.gui.TextfieldWithColorWarning;
@@ -57,7 +56,7 @@ public final class WindowUtils implements IWindowUtils {
 	public final static String DEFAULT_DESKTOP_FILENAME = "desktop.jpg";
 	public final static String INFO_ICON_FILENAME = "information.png";
 	public final static String DICE_ROLL_FILENAME = "rollingDice.gif";
-	public final static String IMAGES_FOLDER = "/images";
+	public final static String IMAGES_FOLDER = "images";
 
 	private transient Component parent;
 
@@ -87,8 +86,8 @@ public final class WindowUtils implements IWindowUtils {
 		Image image;
 		try {
 			image =
-				ImageIO.read(new StartupApprentice().getClass().getResource(
-						WindowUtils.IMAGES_FOLDER + File.separator + WindowUtils.DEFAULT_DESKTOP_FILENAME));
+				ImageIO.read(ClassLoader.getSystemResource(WindowUtils.IMAGES_FOLDER + File.separator
+					+ WindowUtils.DEFAULT_DESKTOP_FILENAME));
 		} catch (final MalformedURLException e) {
 			throw new ApprenticeEx(e);
 		} catch (final IOException e) {
@@ -123,13 +122,13 @@ public final class WindowUtils implements IWindowUtils {
 	@Override
 	public void setDefaultIcon(final JFrame frame) {
 		final String locationString = IMAGES_FOLDER + File.separator + DEFAULT_ICON_FILENAME;
-		final URL imageURL = frame.getClass().getResource(locationString);
+		final URL imageURL = ClassLoader.getSystemResource(locationString);
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(imageURL));
 	}
 
 	@Override
 	public void setDiceRollingImage(final JLabel jlabel) {
-		final String locationString = "images" + File.separator + DICE_ROLL_FILENAME;
+		final String locationString = IMAGES_FOLDER + File.separator + DICE_ROLL_FILENAME;
 		ImageIcon icon;
 		try {
 			icon = new ImageIcon(ClassLoader.getSystemResource(locationString));
@@ -143,7 +142,7 @@ public final class WindowUtils implements IWindowUtils {
 	@Override
 	public void setInformationIcon(final JInternalFrame frame) {
 		final String locationString = IMAGES_FOLDER + File.separator + INFO_ICON_FILENAME;
-		final URL imageURL = frame.getClass().getResource(locationString);
+		final URL imageURL = ClassLoader.getSystemResource(locationString);
 		frame.setFrameIcon(new ImageIcon(imageURL));
 	}
 
@@ -333,7 +332,7 @@ public final class WindowUtils implements IWindowUtils {
 		final int option =
 			JOptionPane.showConfirmDialog(parent, mainPanel, title, JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE);
-		
+
 		if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
 			return Box.empty();
 		} else {

@@ -26,7 +26,6 @@ import com.google.inject.Injector;
  */
 public final class WindowManager implements IWindowManager {
 
-	@SuppressWarnings("unused")
 	private static Logger LOG = Logger.getLogger(WindowManager.class);
 
 	private final Injector injector;
@@ -62,6 +61,19 @@ public final class WindowManager implements IWindowManager {
 	}
 
 	/**
+	 * Checks if the frame is open for the specific parameter (if any)
+	 */
+	private boolean isFrameAlreadyOpen(final WindowStateIdentifier windowStateIdentifier) {
+		if (globalWindowState.getWindowState(windowStateIdentifier).hasContent()) {
+			if (globalWindowState.getWindowState(windowStateIdentifier).getContent().isOpen()) {
+				LOG.debug("Tried to open frame \"" + getClass().getSimpleName() + "\" which was already open.");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * re-opens any frames that were previously closed
 	 */
 	@SuppressWarnings("unchecked")
@@ -85,7 +97,10 @@ public final class WindowManager implements IWindowManager {
 	public void showFrame(final Class<? extends ApprenticeInternalFrame<?>> frameClass, final String variable) {
 		final Constructor<?> constructor = frameClass.getConstructors()[0];
 		final Class<?>[] parameterTypes = constructor.getParameterTypes();
-		ApprenticeInternalFrame<?> instance = null;		
+		ApprenticeInternalFrame<?> instance = null;
+		if (isFrameAlreadyOpen(new WindowStateIdentifier(frameClass, variable))) {
+			return;
+		}
 		try {
 			final IServiceLayer serviceLayerImpl = (IServiceLayer) injector.getInstance(parameterTypes[0]);
 			if (parameterTypes.length == 1) {

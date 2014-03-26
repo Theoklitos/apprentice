@@ -58,11 +58,14 @@ public final class ServiceLayer implements IServiceLayer {
 	}
 
 	@Override
-	public void deleteNameable(final String name, final ItemType itemType) {
+	public boolean deleteNameable(final String name, final ItemType itemType) {
 		final Nameable itemAtHand = getVault().getUniqueNamedResult(name, itemType.type);
-		getVault().delete(itemAtHand);
-		getEventBus().postDeleteEvent(itemAtHand);
-		LOG.info("Deleted " + name);
+		final boolean result = getVault().delete(itemAtHand);
+		if (result) {
+			getEventBus().postDeleteEvent(itemAtHand);
+			LOG.info("Deleted " + name);
+		}
+		return result;
 	}
 
 	@Override

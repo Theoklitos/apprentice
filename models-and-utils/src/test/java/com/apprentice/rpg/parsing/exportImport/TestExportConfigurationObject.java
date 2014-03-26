@@ -1,7 +1,6 @@
 package com.apprentice.rpg.parsing.exportImport;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
@@ -29,14 +28,10 @@ public final class TestExportConfigurationObject {
 		assertEquals(13, config.size());
 
 		final Set<String> weaponNames = config.getNamesForType(ItemType.WEAPON);
-		assertEquals(2, weaponNames.size());
-		assertTrue(weaponNames.contains(factory.getWeaponPrototypes().get(0).getName()));
-		assertTrue(weaponNames.contains(factory.getWeaponPrototypes().get(1).getName()));
+		assertEquals(5, weaponNames.size());
 
-		final Set<String> armorNames = config.getNamesForType(ItemType.ARMOR_PIECE);
-		assertEquals(2, armorNames.size());
-		assertTrue(armorNames.contains(factory.getArmorPieces().get(0).getName()));
-		assertTrue(armorNames.contains(factory.getArmorPieces().get(1).getName()));
+		final Set<String> armorPieceNames = config.getNamesForType(ItemType.ARMOR_PIECE);
+		assertEquals(8, armorPieceNames.size());
 	}
 
 	@Before

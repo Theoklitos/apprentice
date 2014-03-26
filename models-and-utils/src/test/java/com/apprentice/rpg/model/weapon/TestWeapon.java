@@ -19,6 +19,7 @@ import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.model.CurrentMaximumPair;
 import com.apprentice.rpg.model.damage.Damage;
 import com.apprentice.rpg.model.damage.DamageRoll;
+import com.apprentice.rpg.model.damage.Penetration;
 import com.apprentice.rpg.model.factories.DataFactory;
 import com.apprentice.rpg.random.ApprenticeRandom;
 import com.apprentice.rpg.random.dice.Roll;
@@ -65,6 +66,7 @@ public final class TestWeapon {
 		final IWeapon weapon = factory.getWeaponPrototypes().get(1);
 		final IWeapon instance = weapon.clone();
 		assertNotSame(weapon, instance);
+		instance.setPrototype(true);
 		assertEquals(weapon, instance);
 		instance.addMeleeDamage(new DamageRoll("D8+1", factory.getStrikeTypes().get(2)));
 		assertEquals(2, instance.getMeleeDamages().size());
@@ -77,12 +79,13 @@ public final class TestWeapon {
 		// add one alternate damage, should not affect
 		factory.getWeaponPrototypes().get(1).getMeleeDamages()
 				.add(new DamageRoll("d6", factory.getStrikeTypes().get(0)));
+		final Penetration firstDamagePenetration = weapon.getMeleeDamages().get(0).getPenetration();
 
 		final List<DamageRoll> extraDamages = Lists.newArrayList(weapon.getExtraDamages());
 		mockery.checking(new Expectations() {
 			{
 				allowing(random).roll(weapon.getMeleeDamages().get(0));
-				will(returnValue(new Damage(5, weapon.getMeleeDamages().get(0).getType())));
+				will(returnValue(new Damage(5, firstDamagePenetration, weapon.getMeleeDamages().get(0).getType())));
 				allowing(random).roll(extraDamages.get(0));
 				will(returnValue(new Damage(3, extraDamages.get(0).getType())));
 				allowing(random).roll(extraDamages.get(1));
@@ -91,9 +94,10 @@ public final class TestWeapon {
 		});
 		final Collection<Damage> result = weapon.rollMeleeDamage(0, random);
 		assertEquals(3, result.size());
-		assertTrue(result.contains(new Damage(5, factory.getStrikeTypes().get(1))));
-		assertTrue(result.contains(new Damage(3, factory.getStrikeTypes().get(4))));
-		assertTrue(result.contains(new Damage(2, factory.getStrikeTypes().get(5))));
+		assertTrue(result.contains(new Damage(5, weapon.getMeleeDamages().get(0).getPenetration(), factory
+				.getStrikeTypes().get(1))));
+		assertTrue(result.contains(new Damage(3, factory.getStrikeTypes().get(5))));
+		assertTrue(result.contains(new Damage(2, factory.getStrikeTypes().get(4))));
 	}
 
 	@Test
@@ -111,7 +115,10 @@ public final class TestWeapon {
 	public void equality() {
 		final IWeapon greatsword = factory.getWeaponPrototypes().get(1);
 		final Weapon identical =
-			new Weapon("Magical Greatsword", 30, new DamageRoll("2D6+1", factory.getStrikeTypes().get(1)));
+			new Weapon("Magical Greatsword", 30, new DamageRoll("2D6+1", new Penetration(2), factory.getStrikeTypes()
+					.get(1)));
+		identical.setPrototype(true);
+		identical.setDescription(greatsword.getDescription());
 
 		final DamageRoll coldDamage = new DamageRoll("1D10", factory.getStrikeTypes().get(4));
 		final Set<DamageRoll> extraDamages =
