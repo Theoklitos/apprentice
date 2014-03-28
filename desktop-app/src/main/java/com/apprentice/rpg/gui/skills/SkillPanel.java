@@ -17,10 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Skill;
-import com.apprentice.rpg.model.Stat;
-import com.apprentice.rpg.model.StatBundle;
-import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.model.playerCharacter.Skill;
+import com.apprentice.rpg.model.playerCharacter.Stat;
+import com.apprentice.rpg.model.playerCharacter.StatBundle;
+import com.apprentice.rpg.model.playerCharacter.StatBundle.StatType;
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;

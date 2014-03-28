@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 import java.util.Arrays;
 import java.util.Comparator;

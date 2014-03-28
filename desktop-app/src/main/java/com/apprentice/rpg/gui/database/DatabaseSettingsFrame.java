@@ -14,11 +14,11 @@ import javax.swing.border.TitledBorder;
 
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.armor.Armor;
 import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 import com.apprentice.rpg.model.weapon.AmmunitionType;
 import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.util.Box;

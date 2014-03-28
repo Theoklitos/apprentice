@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.NoResultsFoundEx;
 import com.apprentice.rpg.dao.TooManyResultsEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 /**
  * Contains {@link Nameable} objects with some retrieval methods

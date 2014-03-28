@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.google.common.collect.Maps;
 
 /**

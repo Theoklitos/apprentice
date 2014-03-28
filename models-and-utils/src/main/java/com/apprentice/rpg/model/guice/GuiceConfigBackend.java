@@ -12,6 +12,8 @@ import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter;
 import com.apprentice.rpg.parsing.exportImport.IDatabaseImporterExporter;
 import com.apprentice.rpg.random.ApprenticePseudoRandom;
 import com.apprentice.rpg.random.ApprenticeRandom;
+import com.apprentice.rpg.strike.EffectManager;
+import com.apprentice.rpg.strike.IEffectManager;
 import com.db4o.Db4oEmbedded;
 import com.db4o.EmbeddedObjectContainer;
 import com.db4o.ext.Db4oException;
@@ -44,6 +46,7 @@ public final class GuiceConfigBackend implements Module {
 		binder.bind(ApprenticeParser.class).to(JsonParser.class);
 		binder.bind(IDatabaseImporterExporter.class).to(DatabaseImporterExporter.class);
 		binder.bind(ApprenticeRandom.class).to(ApprenticePseudoRandom.class);
+		binder.bind(IEffectManager.class).to(EffectManager.class).asEagerSingleton();
 	}
 
 	@Singleton

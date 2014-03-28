@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 import org.apache.commons.lang3.StringUtils;
 

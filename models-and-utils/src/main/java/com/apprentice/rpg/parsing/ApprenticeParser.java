@@ -3,7 +3,7 @@ package com.apprentice.rpg.parsing;
 import java.util.Collection;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.google.gson.JsonArray;
 

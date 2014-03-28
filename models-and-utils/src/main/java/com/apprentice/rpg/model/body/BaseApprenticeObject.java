@@ -1,6 +1,6 @@
 package com.apprentice.rpg.model.body;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.util.Checker;
 import com.google.common.base.Objects;
 

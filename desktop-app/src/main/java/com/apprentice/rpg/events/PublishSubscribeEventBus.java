@@ -3,7 +3,7 @@ package com.apprentice.rpg.events;
 import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.google.common.eventbus.EventBus;
 
 /**

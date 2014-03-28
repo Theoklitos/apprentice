@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 import java.util.Collection;
 import java.util.Set;
@@ -6,7 +6,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.apprentice.rpg.model.StatBundle.StatType;
 import com.apprentice.rpg.model.armor.Armor;
 import com.apprentice.rpg.model.armor.ArmorDoesNotFitEx;
 import com.apprentice.rpg.model.armor.IArmorPiece;
@@ -15,6 +14,8 @@ import com.apprentice.rpg.model.body.BaseApprenticeObject;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.CharacterType;
 import com.apprentice.rpg.model.combat.CombatCapabilities;
+import com.apprentice.rpg.model.playerCharacter.StatBundle.StatType;
+import com.apprentice.rpg.model.playerCharacter.audit.AuditTrail;
 import com.apprentice.rpg.strike.Effect;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.apprentice.rpg.util.Box;
@@ -41,6 +42,7 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 	private final CombatCapabilities combatCapabilities;
 	private final PlayerArmor armor;
 	private final Set<Effect> appliedEffects;
+	private final AuditTrail auditTrail;
 
 	/**
 	 * sets emtpy {@link PlayerLevels}
@@ -66,6 +68,7 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 		combatCapabilities = new CombatCapabilities();
 		armor = new PlayerArmor(characterType.getType());
 		appliedEffects = Sets.newHashSet();
+		auditTrail = new AuditTrail();
 	}
 
 	@Override
@@ -96,6 +99,7 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 			LOG.debug("Armor: " + armor.equals(otherPC.armor));
 			LOG.debug("Effects: "
 				+ ApprenticeCollectionUtils.areAllElementsEqual(appliedEffects, otherPC.appliedEffects));
+			LOG.debug("Audits: " + auditTrail.equals(otherPC.auditTrail));
 
 			return super.equals(otherPC) && Objects.equal(getName(), otherPC.getName())
 				&& Objects.equal(getHitPoints(), otherPC.getHitPoints())
@@ -104,7 +108,8 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 				&& Objects.equal(getLevels(), otherPC.getLevels())
 				&& ApprenticeCollectionUtils.areAllElementsEqual(skills, otherPC.skills)
 				&& Objects.equal(combatCapabilities, otherPC.combatCapabilities) && Objects.equal(armor, otherPC.armor)
-				&& ApprenticeCollectionUtils.areAllElementsEqual(appliedEffects, otherPC.appliedEffects);
+				&& ApprenticeCollectionUtils.areAllElementsEqual(appliedEffects, otherPC.appliedEffects)
+				&& Objects.equal(auditTrail, otherPC.auditTrail);
 		} else {
 			return false;
 		}
@@ -113,6 +118,11 @@ public final class PlayerCharacter extends BaseApprenticeObject implements IPlay
 	@Override
 	public PlayerArmor getArmor() {
 		return armor;
+	}
+
+	@Override
+	public AuditTrail getAuditTrail() {
+		return auditTrail;
 	}
 
 	@Override

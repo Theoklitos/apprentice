@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.model.playerCharacter.Skill;
+import com.apprentice.rpg.model.playerCharacter.Stat;
+import com.apprentice.rpg.model.playerCharacter.StatBundle.StatType;
 
 /**
  * Tests for the skill

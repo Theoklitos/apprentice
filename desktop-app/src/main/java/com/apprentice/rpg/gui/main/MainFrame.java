@@ -30,8 +30,8 @@ import com.apprentice.rpg.gui.vault.weapon.WeaponAndAmmunitionVaultFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.factories.DataFactory;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.util.Box;
 
 public final class MainFrame extends JFrame implements ControllableView {

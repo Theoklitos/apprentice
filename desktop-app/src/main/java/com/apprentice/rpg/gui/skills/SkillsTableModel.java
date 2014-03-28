@@ -7,9 +7,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import com.apprentice.rpg.model.Skill;
-import com.apprentice.rpg.model.SkillComparator;
-import com.apprentice.rpg.model.Stat;
+import com.apprentice.rpg.model.playerCharacter.Skill;
+import com.apprentice.rpg.model.playerCharacter.SkillComparator;
+import com.apprentice.rpg.model.playerCharacter.Stat;
 import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.apprentice.rpg.util.SortedList;
 

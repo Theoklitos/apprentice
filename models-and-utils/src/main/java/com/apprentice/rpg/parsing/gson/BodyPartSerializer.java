@@ -2,8 +2,8 @@ package com.apprentice.rpg.parsing.gson;
 
 import java.lang.reflect.Type;
 
-import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 import com.apprentice.rpg.parsing.JsonParser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

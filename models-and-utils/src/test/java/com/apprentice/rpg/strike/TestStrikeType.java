@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.apprentice.rpg.model.body.BodyPart;
-import com.apprentice.rpg.strike.Effect.EffectType;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.google.common.collect.Lists;
 
@@ -36,9 +35,9 @@ public final class TestStrikeType {
 		assertTrue(type.getEffectsForBodyPart(bodyPart, 0).isEmpty());
 		assertEquals(0, type.getMappingForBodyPart(bodyPart).size());
 
-		final Effect bleedingEffect = new Effect(EffectType.BLEEDING, 3);
-		final Effect penaltyEffect = new Effect(EffectType.PENALTY, 1);
-		final Effect breakEffect = new Effect(EffectType.DEBILITATION, 2);
+		final Effect bleedingEffect = new Effect(EffectType.BLEEDING, "3");
+		final Effect penaltyEffect = new Effect(EffectType.PENALTY, "1");
+		final Effect breakEffect = new Effect(EffectType.DEBILITATION, "2");
 		type.setEffects(bodyPart, 2, Lists.newArrayList(bleedingEffect, penaltyEffect));
 		type.setEffects(bodyPart, 1, breakEffect);
 

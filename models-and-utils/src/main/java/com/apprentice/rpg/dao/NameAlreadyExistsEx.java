@@ -1,7 +1,7 @@
 package com.apprentice.rpg.dao;
 
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 /**
  * thrown when a {@link Nameable} has an already used name

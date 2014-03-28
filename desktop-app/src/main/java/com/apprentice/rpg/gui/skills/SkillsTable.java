@@ -6,8 +6,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
-import com.apprentice.rpg.model.Skill;
-import com.apprentice.rpg.model.Stat;
+import com.apprentice.rpg.model.playerCharacter.Skill;
+import com.apprentice.rpg.model.playerCharacter.Stat;
 
 /**
  * {@link JTable} for {@link Skill}s

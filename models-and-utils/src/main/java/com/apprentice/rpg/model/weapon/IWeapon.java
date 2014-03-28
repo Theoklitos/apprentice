@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.damage.Damage;
 import com.apprentice.rpg.model.damage.DamageRoll;
 import com.apprentice.rpg.model.durable.IDurableItem;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.ParsingEx;
 import com.apprentice.rpg.random.ApprenticeRandom;
 import com.apprentice.rpg.util.Box;

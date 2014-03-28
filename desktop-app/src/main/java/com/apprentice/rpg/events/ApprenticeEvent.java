@@ -2,7 +2,7 @@ package com.apprentice.rpg.events;
 
 import com.apprentice.rpg.events.PublishSubscribeEventBus.EventType;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.util.Checker;
 

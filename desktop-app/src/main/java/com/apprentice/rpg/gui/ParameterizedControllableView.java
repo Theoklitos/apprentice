@@ -1,6 +1,6 @@
 package com.apprentice.rpg.gui;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 
 /**

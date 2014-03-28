@@ -11,8 +11,8 @@ import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.events.ApprenticeEventBus;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 
 /**

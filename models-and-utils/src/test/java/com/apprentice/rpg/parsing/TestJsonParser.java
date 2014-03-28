@@ -8,12 +8,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
 import com.apprentice.rpg.model.combat.CombatCapabilities;
 import com.apprentice.rpg.model.factories.DataFactory;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 import com.apprentice.rpg.strike.StrikeType;
 
 public final class TestJsonParser {

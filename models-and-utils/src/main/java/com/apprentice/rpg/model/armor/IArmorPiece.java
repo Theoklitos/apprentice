@@ -1,9 +1,9 @@
 package com.apprentice.rpg.model.armor;
 
-import com.apprentice.rpg.model.Nameable;
-import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.durable.IDurableItem;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
+import com.apprentice.rpg.model.playerCharacter.PlayerCharacter;
 import com.apprentice.rpg.random.dice.RollWithSuffix;
 import com.apprentice.rpg.util.Box;
 

@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 /**
  * Common interface for objects that are expected to have a unique name, at least in their class

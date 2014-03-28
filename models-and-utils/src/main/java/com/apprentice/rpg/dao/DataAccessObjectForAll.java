@@ -12,7 +12,7 @@ import com.apprentice.rpg.dao.time.TimeToNameableMapper;
 import com.apprentice.rpg.database.ApprenticeDatabaseEx;
 import com.apprentice.rpg.database.DatabaseConnection;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.util.Box;
 import com.db4o.ext.Db4oException;
 import com.google.common.collect.Lists;

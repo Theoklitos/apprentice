@@ -40,4 +40,6 @@ public interface Ruleset {
 	 */
 	void increaseRoll(Roll roll, int positions);
 
+	
+
 }

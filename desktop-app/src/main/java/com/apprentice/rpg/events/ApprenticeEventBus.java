@@ -2,7 +2,7 @@ package com.apprentice.rpg.events;
 
 import com.apprentice.rpg.events.PublishSubscribeEventBus.EventType;
 import com.apprentice.rpg.gui.ApprenticeInternalFrame;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 public interface ApprenticeEventBus {
 

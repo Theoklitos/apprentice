@@ -1,19 +1,16 @@
 ============ EXTRA TASKS.
-* fix tests
 
 #################### PLANNING days so far [0/7]
-	
-1a. finalize refactoring, go through the frames one by one and verify functionality:
-	* Window manager open parameterized frames
-	
-2. Work on backend.	
-	2b. Strikes. Make strike items, objects, persistence. [1,5 days] 
-	2c. Strike player - unstrike player. [2 days]	
-	2cc. Database change interceptors! [1 day]
-	2e. Make attack engine. Target type (generic) or player (specific, will apply effect). [1+1 day]
-	2d. Spells. Think about it? [2 days]
+		
+1. Work on backend.	
+	1b. Strikes. Make strike items, objects, persistence. [1,5 days] 
+	1c. Strike player - unstrike player. [2 days]	
+	1ccc. JSON STUFF! :D
+	1ccc. Database change interceptors! [1 day]
+	1e. Make attack engine. Target type (generic) or player (specific, will apply effect). [1+1 day]
+	1d. Spells. Think about it? [2 days]
 
-3. Gradle. Deploy into jar.
+3. Gradle stuff. Deploy into jar, android stuff.
 
 
 #################### Testing Backlog

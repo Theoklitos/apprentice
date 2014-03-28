@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.util.Box;
 import com.google.common.base.Joiner;

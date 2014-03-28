@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.events.ApprenticeEventBus;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.util.Box;
 
 /**

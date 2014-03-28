@@ -7,6 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.apprentice.rpg.model.playerCharacter.Speed;
+
 /**
  * test for the {@link Speed} class
  * 

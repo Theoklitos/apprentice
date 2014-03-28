@@ -6,7 +6,7 @@ import com.apprentice.rpg.dao.ItemAlreadyExistsEx;
 import com.apprentice.rpg.dao.NoResultsFoundEx;
 import com.apprentice.rpg.dao.TooManyResultsEx;
 import com.apprentice.rpg.dao.Vault;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 /**
  * A vault is a repository, and each individual repository is resposnible for persisting a type/class of

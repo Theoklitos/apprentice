@@ -1,6 +1,6 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
-import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.model.playerCharacter.StatBundle.StatType;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.util.ApprenticeStringUtils;
 import com.google.common.base.Objects;

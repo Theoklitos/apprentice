@@ -1,5 +1,6 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
+import com.apprentice.rpg.model.CurrentMaximumPair;
 import com.google.common.base.Objects;
 
 /**
@@ -32,7 +33,7 @@ public final class HitPoints {
 	/**
 	 * what are the HPs the character has now?
 	 */
-	public int getCurrentHitPoints() {
+	public int getCurrentHitPoints() {		
 		return values.getCurrent();
 	}
 

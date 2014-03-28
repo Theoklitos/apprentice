@@ -2,7 +2,7 @@ package com.apprentice.rpg.parsing.gson;
 
 import java.lang.reflect.Type;
 
-import com.apprentice.rpg.model.IPlayerCharacter;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 import com.apprentice.rpg.parsing.JsonParser;
 import com.apprentice.rpg.strike.StrikeType;
 import com.google.gson.JsonElement;

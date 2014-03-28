@@ -2,7 +2,7 @@ package com.apprentice.rpg.model.body;
 
 import java.util.List;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.util.Box;
 import com.apprentice.rpg.util.IntegerRange;
 

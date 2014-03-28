@@ -2,7 +2,7 @@ package com.apprentice.rpg.dao.time;
 
 import org.joda.time.DateTime;
 
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 public interface ModificationTimeVault {
 

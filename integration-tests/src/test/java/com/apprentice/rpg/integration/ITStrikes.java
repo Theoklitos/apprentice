@@ -5,8 +5,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.factories.DataFactory;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 
 /**
  * Tests strikes that are applied to players and then removed (healed)

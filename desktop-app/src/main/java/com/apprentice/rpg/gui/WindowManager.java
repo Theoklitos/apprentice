@@ -13,7 +13,7 @@ import com.apprentice.rpg.gui.main.MainFrame;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

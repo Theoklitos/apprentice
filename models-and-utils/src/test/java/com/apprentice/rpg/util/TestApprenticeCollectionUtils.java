@@ -9,9 +9,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.apprentice.rpg.model.Nameable;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.damage.DamageRoll;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.strike.StrikeType;

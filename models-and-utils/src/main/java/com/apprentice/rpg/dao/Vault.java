@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.dao.time.ModificationTimeVault;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 
 /**
  * Main interface to the database, a vault is a big Data Access Object

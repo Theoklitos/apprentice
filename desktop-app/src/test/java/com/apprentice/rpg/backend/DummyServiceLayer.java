@@ -7,7 +7,7 @@ import com.apprentice.rpg.events.PublishSubscribeEventBus;
 import com.apprentice.rpg.gui.util.WindowUtils;
 import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 
 /**

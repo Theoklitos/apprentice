@@ -3,7 +3,7 @@ package com.apprentice.rpg.gui.vault.player;
 import com.apprentice.rpg.backend.IServiceLayer;
 import com.apprentice.rpg.gui.character.player.creation.NewPlayerCharacterFrame;
 import com.apprentice.rpg.gui.vault.AbstractVaultFrame;
-import com.apprentice.rpg.model.PlayerCharacter;
+import com.apprentice.rpg.model.playerCharacter.PlayerCharacter;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 
 /**

@@ -10,6 +10,7 @@ import com.apprentice.rpg.model.weapon.Weapon;
 import com.apprentice.rpg.random.dice.DiceModificator;
 import com.apprentice.rpg.random.dice.Roll;
 import com.apprentice.rpg.random.dice.RollException;
+import com.google.inject.Inject;
 
 /**
  * rules that are mostly copied from D20/3.5, see http://www.d20srd.org/
@@ -23,6 +24,7 @@ public class D20BasedRuleset implements Ruleset {
 
 	private final DiceModificator diceModificator;
 
+	@Inject
 	public D20BasedRuleset() {
 		diceModificator = new DiceModificator();
 	}

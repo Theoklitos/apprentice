@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.apprentice.rpg.model.Stat;
-import com.apprentice.rpg.model.StatBundle.StatType;
+import com.apprentice.rpg.model.playerCharacter.Stat;
+import com.apprentice.rpg.model.playerCharacter.StatBundle.StatType;
 
 public final class TestStat {
 

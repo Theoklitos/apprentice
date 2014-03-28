@@ -1,9 +1,10 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.apprentice.rpg.model.ApprenticeEx;
 import com.apprentice.rpg.util.ApprenticeCollectionUtils;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;

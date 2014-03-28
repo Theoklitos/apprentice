@@ -1,4 +1,4 @@
-package com.apprentice.rpg.model;
+package com.apprentice.rpg.model.playerCharacter;
 
 import java.util.Collection;
 
@@ -7,6 +7,7 @@ import com.apprentice.rpg.model.armor.ArmorDoesNotFitEx;
 import com.apprentice.rpg.model.armor.PlayerArmor;
 import com.apprentice.rpg.model.body.CharacterType;
 import com.apprentice.rpg.model.combat.CombatCapabilities;
+import com.apprentice.rpg.model.playerCharacter.audit.AuditTrail;
 import com.apprentice.rpg.util.Box;
 
 /**
@@ -29,6 +30,11 @@ public interface IPlayerCharacter extends Nameable {
 	 * returns this player's {@link PlayerArmor}
 	 */
 	PlayerArmor getArmor();
+
+	/**
+	 * returns this player's {@link AuditTrail}
+	 */
+	AuditTrail getAuditTrail();
 
 	/**
 	 * returns this character's {@link CharacterType}

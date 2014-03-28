@@ -27,7 +27,7 @@ import com.apprentice.rpg.gui.description.DescriptionPanel;
 import com.apprentice.rpg.gui.description.ModifiableTextFieldPanel.DescriptionPanelType;
 import com.apprentice.rpg.gui.weapon.WeaponFrame;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.util.Box;
 import com.jgoodies.forms.factories.FormFactory;

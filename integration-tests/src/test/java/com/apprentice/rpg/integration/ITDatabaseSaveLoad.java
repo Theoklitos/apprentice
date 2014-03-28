@@ -21,9 +21,9 @@ import com.apprentice.rpg.gui.windowState.GlobalWindowState;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
-import com.apprentice.rpg.model.IPlayerCharacter;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 
 /**
  * Testing if the database saves and loads as intented

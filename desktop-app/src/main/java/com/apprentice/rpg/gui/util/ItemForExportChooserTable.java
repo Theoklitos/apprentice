@@ -9,7 +9,7 @@ import javax.swing.event.ListSelectionListener;
 import com.apprentice.rpg.dao.Vault;
 import com.apprentice.rpg.gui.ApprenticeTable;
 import com.apprentice.rpg.gui.vault.VaultTableModel;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.exportImport.ExportConfigurationObject;
 

@@ -1,7 +1,7 @@
 package com.apprentice.rpg.gui;
 
 import com.apprentice.rpg.gui.main.MainFrame;
-import com.apprentice.rpg.model.IPlayerCharacter;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
 
 /**
  * Guiced up factory for frames and windows, maintains list of active windows

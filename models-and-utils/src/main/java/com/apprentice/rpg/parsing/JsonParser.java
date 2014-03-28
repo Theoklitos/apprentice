@@ -5,12 +5,12 @@ import java.util.Collection;
 
 import com.apprentice.rpg.dao.simple.NameableVault;
 import com.apprentice.rpg.model.ApprenticeEx;
-import com.apprentice.rpg.model.IPlayerCharacter;
-import com.apprentice.rpg.model.Nameable;
-import com.apprentice.rpg.model.PlayerCharacter;
 import com.apprentice.rpg.model.armor.IArmorPiece;
 import com.apprentice.rpg.model.body.BodyPart;
 import com.apprentice.rpg.model.body.IType;
+import com.apprentice.rpg.model.playerCharacter.IPlayerCharacter;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
+import com.apprentice.rpg.model.playerCharacter.PlayerCharacter;
 import com.apprentice.rpg.model.weapon.IWeapon;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.parsing.gson.BonusSequenceDeserializer;

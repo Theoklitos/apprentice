@@ -18,7 +18,7 @@ import com.apprentice.rpg.gui.util.IWindowUtils;
 import com.apprentice.rpg.gui.windowState.IGlobalWindowState;
 import com.apprentice.rpg.gui.windowState.WindowState;
 import com.apprentice.rpg.gui.windowState.WindowStateIdentifier;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.apprentice.rpg.parsing.exportImport.DatabaseImporterExporter.ItemType;
 import com.apprentice.rpg.util.Box;
 import com.google.common.eventbus.Subscribe;

@@ -6,7 +6,7 @@ import java.util.Map;
 import com.apprentice.rpg.dao.NameAlreadyExistsEx;
 import com.apprentice.rpg.dao.NoResultsFoundEx;
 import com.apprentice.rpg.dao.TooManyResultsEx;
-import com.apprentice.rpg.model.Nameable;
+import com.apprentice.rpg.model.playerCharacter.Nameable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
