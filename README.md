@@ -7,9 +7,19 @@ of maintaining up-to-date player character (PC) information.
 
 Desktop Application
 -------------------
-Run the StartupApprentice.jar. The db4o database is auto-initialized and everything should work out of the box.
+The swing application has been tested on Unix (Debian, Ubuntu) and Mac. The db4o database it requires is auto-initialized and everything should work with no extra setup.
+
+Due to problems with getting gradle to generate a .jar file, the only way to start the application is to import the project and run the main methon in StartupApplication.java.
+
+Screenshot:
+[Screenshot](http://beerdeveloper.files.wordpress.com/2014/04/ss.jpg?w=722)
+
 
 
 Android App Helper
 ------------------
 In initial planning state.
+
+
+
+
