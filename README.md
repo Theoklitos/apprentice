@@ -12,8 +12,7 @@ The swing application has been tested on Unix (Debian, Ubuntu) and Mac. The db4o
 Due to problems with getting gradle to generate a .jar file, the only way to start the application is to import the project and run the main methon in StartupApplication.java.
 
 Screenshot:
-[Screenshot](http://beerdeveloper.files.wordpress.com/2014/04/ss.jpg?w=722)
-
+![Screenshot](http://beerdeveloper.files.wordpress.com/2014/04/ss.jpg?w=722)
 
 
 Android App Helper
